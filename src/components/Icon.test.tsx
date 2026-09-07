@@ -17,6 +17,7 @@ describe('Icon', () => {
       const img = container.querySelector('img')!;
       expect(img.getAttribute('alt')).toBe(k);
       expect(img.getAttribute('src')).toMatch(/\.svg/);
+      expect(img.getAttribute('src')).toContain(k);
       unmount();
     }
   });
