@@ -6,4 +6,7 @@ export default defineConfig({
     include: ['src/**/*.test.{ts,tsx}'],
     globals: true,
   },
+  build: {
+    assetsInlineLimit: 0,
+  },
 });

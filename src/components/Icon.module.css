@@ -1,0 +1,14 @@
+.img {
+  display: block;
+  /* §3：Fluent Emoji 本身有色，不套 currentColor 或濾鏡 */
+  filter: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
