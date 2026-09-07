@@ -1,0 +1,8 @@
+Zen Maru Gothic — SIL Open Font License 1.1
+  https://github.com/googlefonts/zen-marugothic
+Noto Sans TC — SIL Open Font License 1.1
+  https://github.com/notofonts/noto-cjk
+Baloo 2 — SIL Open Font License 1.1
+  https://github.com/googlefonts/baloo
+
+三者皆為 OFL 1.1，允許自架與再散布，保留原始授權聲明即可。
