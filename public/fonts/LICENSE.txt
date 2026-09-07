@@ -3,14 +3,17 @@ OFL 1.1 要求隨附完整授權文本。各字型的授權檔位置如下：
 
 OFL-zen-maru-gothic.txt
   來源：https://raw.githubusercontent.com/googlefonts/zen-marugothic/main/OFL.txt
+  取得日期：2026-09-07
   字型：Zen Maru Gothic (zen-maru-gothic-*.woff2)
 
 OFL-noto-sans-tc.txt
-  來源：https://raw.githubusercontent.com/notofonts/noto-cjk/main/OFL.txt
+  來源：https://raw.githubusercontent.com/google/fonts/main/ofl/notosanstc/OFL.txt
+  取得日期：2026-09-07
   字型：Noto Sans TC (noto-sans-tc-*.woff2)
 
 OFL-baloo2.txt
-  來源：https://raw.githubusercontent.com/googlefonts/baloo/main/OFL.txt
+  來源：https://raw.githubusercontent.com/google/fonts/main/ofl/baloo2/OFL.txt
+  取得日期：2026-09-07
   字型：Baloo 2 (baloo2-*.woff2)
 
 每個 OFL-*.txt 檔案為完整授權文本，包含著作權聲明。
