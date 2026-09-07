@@ -1,2 +1,24 @@
+@import './tokens.css';
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: #FFF6EC; }
+
+html, body, #root {
+  height: 100dvh;
+  overflow: hidden;              /* §11-12：外層不可出現第二條 scrollbar */
+}
+
+body {
+  background: var(--c-bg);
+  color: var(--c-text);
+  overscroll-behavior: none;     /* §12.3：避免整頁橡皮筋 */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* §12.3：輸入欄位字級 ≥16px，否則 Safari 會自動放大整頁 */
+input, textarea, select, button { font: inherit; font-size: max(16px, 1em); }
+
+button { background: none; border: 0; color: inherit; cursor: pointer; }
+
+/* §11-9：所有可點目標 ≥44px。元件各自負責，這裡只提供 utility */
+.tappable { min-width: 44px; min-height: 44px; }

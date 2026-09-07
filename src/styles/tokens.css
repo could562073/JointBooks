@@ -1,0 +1,45 @@
+:root {
+  color-scheme: light;
+
+  /* 底與卡 */
+  --c-bg: #FFF6EC;
+  --c-card: #FFFFFF;
+
+  /* 文字 */
+  --c-text: #4A3F36;
+  --c-face: #3B3229;
+  --c-text-2: rgba(74,63,54,.5);
+  --c-text-3: rgba(74,63,54,.45);
+  --c-text-4: rgba(74,63,54,.42);
+
+  /* 主色（饅頭紫） */
+  --c-primary: #B7A6E5;
+  --c-primary-deep: #6B57B8;
+  --c-primary-deep-shadow: #4E3F92;
+  --c-hi: #CDC0F0;
+  --c-shade: #9484CE;
+  --c-tint: #EDE9FA;
+  --c-tint-ink: #5E4FA0;
+
+  /* 收支 */
+  --c-income: #3E7F63;
+  --c-income-bg: #E6F4EE;
+  --c-income-bar-a: #DDA6D0;
+  --c-income-bar-b: #88CFC6;
+  --c-expense: #B85F42;
+  --c-expense-bg: #FBEBE4;
+
+  /* 其他 */
+  --c-sync: #4E9B7A;
+  --c-blush: #F79BA0;
+
+  /* 圓角 */
+  --r-lg: 24px;   /* 大卡 */
+  --r-md: 20px;   /* 列表卡 */
+  --r-sm: 18px;   /* 小卡 */
+  --r-pill: 999px;
+
+  /* 實體感陰影 —— blur 一律 0，不可換成模糊陰影 */
+  --sh-card: 0 3px 0 rgba(74,63,54,.06);
+  --sh-card-lg: 0 4px 0 rgba(74,63,54,.07);
+}
