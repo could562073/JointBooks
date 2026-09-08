@@ -92,11 +92,56 @@ describe('updateTxn / deleteTxn', () => {
     expect(u.updatedAt > t.updatedAt).toBe(true);
   });
 
+  it('分類被改名後，任何編輯都捕捉新名稱', async () => {
+    const t = await seed();
+    // 改分類名稱（模擬 saveCategory）
+    const cats = await ledgerRepo.listCategories();
+    const foodCat = cats.find((c) => c.name === '外食')!;
+    foodCat.name = '餐飲';
+    await ledgerRepo.saveCategory(foodCat);
+
+    // 編輯不相關的欄位
+    const u = await ledgerRepo.updateTxn(t.id, { note: '新備註' });
+
+    // 應該捕捉新名稱
+    expect(u.mainName).toBe('餐飲');
+    expect(u.note).toBe('新備註');
+  });
+
   it('刪紀錄是軟刪，列還在但不出現在 listTxns', async () => {
     const t = await seed();
     await ledgerRepo.deleteTxn(t.id);
     expect((await db.txns.get(t.id))!.deleted).toBe(true);
     expect(await ledgerRepo.listTxns()).toHaveLength(0);
+  });
+
+  it('改為非 CAD 幣別但未供給 actualCadCents 時拋錯', async () => {
+    const t = await seed();
+    await expect(
+      ledgerRepo.updateTxn(t.id, { currency: 'TWD' })
+    ).rejects.toThrow(/改為非 CAD 幣別時必須供給 actualCadCents/);
+  });
+
+  it('改為非 CAD 幣別且供給 actualCadCents 時成功', async () => {
+    const t = await seed();
+    const u = await ledgerRepo.updateTxn(t.id, {
+      currency: 'TWD',
+      actualCadCents: 250,
+      amountCents: 7500,
+    });
+    expect(u.currency).toBe('TWD');
+    expect(u.amountCents).toBe(7500);
+    expect(u.actualCadCents).toBe(250);
+  });
+
+  it('deleteCategory 找不到時無聲返回（冪等）', async () => {
+    await expect(ledgerRepo.deleteCategory('nope')).resolves.toBeUndefined();
+  });
+
+  it('updateTxn 找不到時拋錯', async () => {
+    await expect(
+      ledgerRepo.updateTxn('nope', { note: 'x' })
+    ).rejects.toThrow(/找不到紀錄 nope/);
   });
 });
 

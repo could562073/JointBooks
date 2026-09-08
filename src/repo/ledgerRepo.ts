@@ -45,16 +45,16 @@ export const ledgerRepo = {
     await db.categories.put(c);
   },
 
-  /** 假刪：不出現在選單，但歷史紀錄與統計金額完全不變（§15.1-14） */
+  /** 假刪（冪等）：不出現在選單，但歷史紀錄與統計金額完全不變（§15.1-14）。找不到 id 時無聲返回。 */
   async deleteCategory(id: string): Promise<void> {
     const c = await db.categories.get(id);
     if (!c) return;
     await db.categories.put(softDelete(c));
   },
 
-  /** 刪分類確認窗要顯示的「已用在 N 筆紀錄」 */
-  async countTxnsOf(categoryId: string): Promise<number> {
-    return db.txns.where('mainId').equals(categoryId)
+  /** 刪分類確認窗要顯示的「已用在 N 筆紀錄」。只計算主分類使用次數。 */
+  async countTxnsOf(mainCategoryId: string): Promise<number> {
+    return db.txns.where('mainId').equals(mainCategoryId)
       .filter((t) => !t.deleted).count();
   },
 
@@ -85,14 +85,20 @@ export const ledgerRepo = {
     return t;
   },
 
+  /** 更新交易。改分類時重新快照名稱；改到非 CAD 幣別時必須供給 actualCadCents，否則拋錯。 */
   async updateTxn(id: string, patch: Partial<NewTxnInput>): Promise<Txn> {
     const cur = await db.txns.get(id);
     if (!cur) throw new Error(`找不到紀錄 ${id}`);
 
     const merged = { ...cur, ...patch };
-    const names = (patch.mainId || patch.subId)
-      ? await snapshot(merged.mainId, merged.subId)
-      : { mainName: cur.mainName, subName: cur.subName };
+
+    // 若改到非 CAD 幣別但未供給 actualCadCents，拋錯以防止金額錯誤
+    if (patch.currency && patch.currency !== 'CAD' && patch.actualCadCents === undefined) {
+      throw new Error(`改為非 CAD 幣別時必須供給 actualCadCents（紀錄 ${id}）`);
+    }
+
+    // 無條件重新快照分類名稱：若分類被改名，下次任何編輯都要捕捉新名稱
+    const names = await snapshot(merged.mainId, merged.subId);
 
     const next: Txn = {
       ...merged,
