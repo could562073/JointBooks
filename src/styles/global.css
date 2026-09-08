@@ -2,6 +2,14 @@
 @import './fonts.css';
 @import './motion.css';
 
+:root {
+  /* §12.2 安全區。頂部即原型的 52px 狀態列區 */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: max(30px, env(safe-area-inset-bottom, 0px));
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body, #root {
