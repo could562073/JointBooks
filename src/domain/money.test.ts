@@ -4,7 +4,7 @@ import {
 } from './money';
 
 describe('toCents / fromCents', () => {
-  it('字串與數字都轉成整數分', () => {
+  it('字串轉成整數分', () => {
     expect(toCents('5.2')).toBe(520);
     expect(toCents('5.20')).toBe(520);
     expect(toCents('0.01')).toBe(1);
@@ -46,6 +46,12 @@ describe('格式化', () => {
     expect(formatCad(0)).toBe('$0.00');           // 零不加負號
     expect(formatCad(0, 'plus')).toBe('+$0.00');  // 零 + plus 加 +
     expect(formatCad(0, 'none')).toBe('$0.00');   // 零 + none 不加號
+  });
+
+  it('formatCad 的 minus 模式：不論正負一律加 -（Minor 5，支出金額本身是正數儲存）', () => {
+    expect(formatCad(520, 'minus')).toBe('-$5.20');
+    expect(formatCad(-520, 'minus')).toBe('-$5.20');
+    expect(formatCad(0, 'minus')).toBe('-$0.00');
   });
 
   it('formatCompact：≥$1000 顯示 $1.2k（§4 月曆格）', () => {

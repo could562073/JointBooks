@@ -4,9 +4,14 @@ import { resetDb } from '../db/schema';
 
 const s = () => useLedger.getState();
 
+// 模組載入當下、任何測試跑之前的完整初始狀態；用它整個替換，而不是只重置
+// 「category / txns / ready」三個欄位——否則 year、month、selectedDay、tab、
+// dimension、showWhoTags 會沿用上一個測試留下的值，跨測試互相汙染（Minor 7）。
+const initialState = useLedger.getState();
+
 beforeEach(async () => {
   await resetDb();
-  useLedger.setState({ ready: false, categories: [], txns: [] });
+  useLedger.setState(initialState, true);
   await s().load();
 });
 
@@ -89,9 +94,20 @@ describe('分類操作', () => {
 });
 
 describe('開關（§7.3）', () => {
-  it('每筆顯示記帳人預設開啟，可切換', () => {
+  it('每筆顯示記帳人預設開啟，可切換', async () => {
     expect(s().showWhoTags).toBe(true);
-    s().toggleWhoTags();
+    await s().toggleWhoTags();
     expect(s().showWhoTags).toBe(false);
+  });
+
+  it('I9：切換會持久化到 meta，重新 load() 仍保留（不是每次啟動都重置成 true）', async () => {
+    expect(s().notifyOnPartnerEntry).toBe(true);
+    await s().toggleNotify();
+    expect(s().notifyOnPartnerEntry).toBe(false);
+
+    useLedger.setState({ ready: false, categories: [], txns: [] });
+    await s().load();
+
+    expect(s().notifyOnPartnerEntry).toBe(false);
   });
 });

@@ -41,11 +41,14 @@ export function formatCents(cents: number): string {
 /**
  * "auto"：負數加 "-"，正數不加（支出用）
  * "plus"：一律加 "+"（收入用）
+ * "minus"：不論正負一律加 "-"（支出金額一律以正數儲存，畫面要強制補上 "-"，
+ *          取代到處寫 `-${formatCad(c,'none')}`，§4 明細列的支出前綴）
  * "none"：不加號
  */
-export function formatCad(cents: number, sign: 'auto' | 'none' | 'plus' = 'auto'): string {
+export function formatCad(cents: number, sign: 'auto' | 'none' | 'plus' | 'minus' = 'auto'): string {
   const body = `$${formatCents(cents)}`;
   if (sign === 'plus') return `+${body}`;
+  if (sign === 'minus') return `-${body}`;
   if (sign === 'none') return body;
   return cents < 0 ? `-${body}` : body;
 }

@@ -3,7 +3,7 @@ import {
   totalsIn, dayTotal, calendarCells, budgetMultiplier, budgetRows,
   trendSeries, comparePrevious, txnsOn,
 } from './aggregate';
-import { defaultCategories, makeCategory } from './categories';
+import { defaultCategories, makeCategory, nextColorSet, nextOrder } from './categories';
 import { rangeOf } from './date';
 import type { Category, Txn } from './types';
 
@@ -53,7 +53,9 @@ describe('totalsIn / dayTotal', () => {
 
   it('I1：使用者自建的第二個收入分類，即使名稱不是「收入」也照樣算收入', () => {
     // 增補檔 §B-2 允許自建收入分類；kindOf 必須看 id → kind，不是看名字
-    const sideJob = makeCategory({ kind: 'income', name: '副業', existingCount: CATS.length });
+    const sideJob = makeCategory({
+      kind: 'income', name: '副業', colorSet: nextColorSet(CATS), order: nextOrder(CATS),
+    });
     const catsWithSideJob = [...CATS, sideJob];
     const t: Txn = {
       id: 'side-job-1', date: '2026-09-10', mainId: sideJob.id, subId: sideJob.subs[0]!.id,

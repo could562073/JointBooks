@@ -1,9 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import {
-  defaultCategories, makeCategory, renameCategory, setIcon, setBudget,
+  defaultCategories, makeCategory, nextColorSet, nextOrder, renameCategory, setIcon, setBudget,
   addSub, removeSub, softDelete, selectable, resolveNames,
 } from './categories';
-import { PALETTE } from './palette';
 import type { Txn } from './types';
 
 let n = 0;
@@ -56,20 +55,46 @@ describe('預設分類（§3）', () => {
 });
 
 describe('makeCategory（§11-5）', () => {
-  it('新分類：bag、$150、一個同名子分類、配色依序循環', () => {
-    const c = makeCategory({ kind: 'expense', name: '水電', existingCount: 6, newId: ids });
+  it('新分類：bag、$150、一個同名子分類', () => {
+    const cats = fresh();
+    const c = makeCategory({
+      kind: 'expense', name: '水電',
+      colorSet: nextColorSet(cats), order: nextOrder(cats), newId: ids,
+    });
     expect(c.icon).toBe('bag');
     expect(c.budgetCents).toBe(15_000);
     expect(c.subs).toHaveLength(1);
     expect(c.subs[0]!.name).toBe('水電');
-    expect(c.colorSet).toBe(6);
-    expect(PALETTE[c.colorSet % 6]).toEqual(PALETTE[0]);
     expect(c.active).toBe(true);
   });
 
   it('收入分類沒有預算', () => {
-    const c = makeCategory({ kind: 'income', name: '副業', existingCount: 1, newId: ids });
+    const cats = fresh();
+    const c = makeCategory({
+      kind: 'income', name: '副業',
+      colorSet: nextColorSet(cats), order: nextOrder(cats), newId: ids,
+    });
     expect(c.budgetCents).toBeNull();
+  });
+
+  it('I7：配色是單調計數器（含已假刪的分類），軟刪一個分類後新分類不會撞色', () => {
+    let cats = fresh();
+    cats = cats.map((c) => (c.name === '娛樂' ? softDelete(c) : c));
+    const c = makeCategory({
+      kind: 'expense', name: '水電',
+      colorSet: nextColorSet(cats), order: nextOrder(cats), newId: ids,
+    });
+    expect(cats.some((x) => x.colorSet === c.colorSet)).toBe(false);
+  });
+
+  it('I7：新分類的 order 比既有最小值還小，插入清單最上方（§7-2、§15.1-12）', () => {
+    const cats = fresh();
+    const c = makeCategory({
+      kind: 'expense', name: '水電',
+      colorSet: nextColorSet(cats), order: nextOrder(cats), newId: ids,
+    });
+    const sorted = [...cats, c].sort((a, b) => a.order - b.order);
+    expect(sorted[0]!.id).toBe(c.id);
   });
 });
 
@@ -95,7 +120,11 @@ describe('分類編輯', () => {
   });
 
   it('§11-6：子分類至少留一個', () => {
-    let c = makeCategory({ kind: 'expense', name: '水電', existingCount: 6, newId: ids });
+    const cats = fresh();
+    let c = makeCategory({
+      kind: 'expense', name: '水電',
+      colorSet: nextColorSet(cats), order: nextOrder(cats), newId: ids,
+    });
     expect(c.subs).toHaveLength(1);
     c = removeSub(c, c.subs[0]!.id);
     expect(c.subs).toHaveLength(1);   // 拒絕刪成空

@@ -1,6 +1,7 @@
 import { db } from '../db/schema';
 import { defaultCategories, softDelete } from '../domain/categories';
 import type { Category, Currency, Person, Range, Txn } from '../domain/types';
+import { newId } from '../lib/uuid';
 
 export type NewTxnInput = {
   date: string;
@@ -80,6 +81,16 @@ export const ledgerRepo = {
     return rows.filter((t) => !t.deleted);
   },
 
+  /** §7.3 的持久化偏好設定（開關等），存在 meta key-value 表（I9） */
+  async getMeta<T>(key: string): Promise<T | undefined> {
+    const row = await db.meta.get(key);
+    return row?.value as T | undefined;
+  },
+
+  async setMeta(key: string, value: unknown): Promise<void> {
+    await db.meta.put({ key, value });
+  },
+
   /** §15.1-6：金額為 0 不寫入，回傳 null */
   async addTxn(input: NewTxnInput): Promise<Txn | null> {
     if (input.amountCents === 0) return null;
@@ -87,7 +98,7 @@ export const ledgerRepo = {
     const names = await snapshot(input.mainId, input.subId);
     const now = new Date().toISOString();
     const t: Txn = {
-      id: crypto.randomUUID(),
+      id: newId(),
       ...input,
       // §14.4：CAD 時實扣等於原幣金額
       actualCadCents: input.currency === 'CAD' ? input.amountCents : input.actualCadCents,

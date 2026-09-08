@@ -1,8 +1,9 @@
 import type { IconKey } from '../components/Icon';
 import type { Category, CategoryKind, SubCategory, Txn } from './types';
 import { NEW_CATEGORY_BUDGET_CENTS, NEW_CATEGORY_ICON } from './constants';
+import { newId } from '../lib/uuid';
 
-const uuid = () => crypto.randomUUID();
+const uuid = newId;
 
 type Seed = {
   kind: CategoryKind;
@@ -40,10 +41,28 @@ export function defaultCategories(newId: () => string = uuid): Category[] {
   }));
 }
 
+/**
+ * 配色是單調遞增的計數器，包含已假刪的分類——若只算「使用中」的分類數，
+ * 軟刪一個分類後下一個新分類的 colorSet 就會撞到既有分類，且撞色後兩者
+ * 的 colorSet 相同、排序不確定（I7）。
+ */
+export function nextColorSet(cats: Category[]): number {
+  return cats.length === 0 ? 0 : Math.max(...cats.map((c) => c.colorSet)) + 1;
+}
+
+/**
+ * 新分類要插入清單最上方（§7-2、§15.1-12），比目前最小的 order 還小；
+ * 不能沿用 colorSet 的計數器邏輯，否則遞增的 order 會把新分類排到最後面（I7）。
+ */
+export function nextOrder(cats: Category[]): number {
+  return cats.length === 0 ? 0 : Math.min(...cats.map((c) => c.order)) - 1;
+}
+
 export function makeCategory(args: {
   kind: CategoryKind;
   name: string;
-  existingCount: number;
+  colorSet: number;
+  order: number;
   newId?: () => string;
 }): Category {
   const newId = args.newId ?? uuid;
@@ -55,8 +74,8 @@ export function makeCategory(args: {
     icon: NEW_CATEGORY_ICON,
     budgetCents: args.kind === 'income' ? null : NEW_CATEGORY_BUDGET_CENTS,
     subs: [{ id: newId(), name }],
-    colorSet: args.existingCount,
-    order: args.existingCount,
+    colorSet: args.colorSet,
+    order: args.order,
     active: true,
   };
 }

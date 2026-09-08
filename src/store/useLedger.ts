@@ -5,6 +5,10 @@ import type { Category, Dimension, Txn } from '../domain/types';
 
 export type Tab = 'daily' | 'stats' | 'settings';
 
+/** §7.3 兩個開關持久化到 meta 表用的 key（I9） */
+const SHOW_WHO_TAGS_KEY = 'showWhoTags';
+const NOTIFY_ON_PARTNER_ENTRY_KEY = 'notifyOnPartnerEntry';
+
 export type LedgerState = {
   ready: boolean;
   tab: Tab;
@@ -28,8 +32,8 @@ export type LedgerState = {
   deleteTxn(id: string): Promise<void>;
   saveCategory(c: Category): Promise<void>;
   deleteCategory(id: string): Promise<void>;
-  toggleWhoTags(): void;
-  toggleNotify(): void;
+  toggleWhoTags(): Promise<void>;
+  toggleNotify(): Promise<void>;
 };
 
 const now = parseDate(todayLocal());
@@ -48,11 +52,18 @@ export const useLedger = create<LedgerState>((set, get) => ({
 
   async load() {
     await ledgerRepo.bootstrap();
-    const [categories, txns] = await Promise.all([
+    const [categories, txns, showWhoTags, notifyOnPartnerEntry] = await Promise.all([
       ledgerRepo.listCategories(),
       ledgerRepo.listTxns(),
+      ledgerRepo.getMeta<boolean>(SHOW_WHO_TAGS_KEY),
+      ledgerRepo.getMeta<boolean>(NOTIFY_ON_PARTNER_ENTRY_KEY),
     ]);
-    set({ categories, txns, ready: true });
+    set({
+      categories, txns, ready: true,
+      // §7.3：兩個開關預設開啟；讀不到（第一次啟動）就維持預設值
+      showWhoTags: showWhoTags ?? true,
+      notifyOnPartnerEntry: notifyOnPartnerEntry ?? true,
+    });
   },
 
   setTab(tab) { set({ tab }); },
@@ -102,8 +113,17 @@ export const useLedger = create<LedgerState>((set, get) => ({
     set({ categories: await ledgerRepo.listCategories() });
   },
 
-  toggleWhoTags() { set({ showWhoTags: !get().showWhoTags }); },
-  toggleNotify() { set({ notifyOnPartnerEntry: !get().notifyOnPartnerEntry }); },
+  /** §7.3：切換後立即反映在畫面，並持久化到 meta，下次啟動仍記得（I9） */
+  async toggleWhoTags() {
+    const next = !get().showWhoTags;
+    set({ showWhoTags: next });
+    await ledgerRepo.setMeta(SHOW_WHO_TAGS_KEY, next);
+  },
+  async toggleNotify() {
+    const next = !get().notifyOnPartnerEntry;
+    set({ notifyOnPartnerEntry: next });
+    await ledgerRepo.setMeta(NOTIFY_ON_PARTNER_ENTRY_KEY, next);
+  },
 }));
 
 export function selectedDate(s: LedgerState): string {
