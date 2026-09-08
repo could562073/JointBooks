@@ -7,9 +7,9 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/test-setup.ts'],
   },
-  // Vitest resolves assets through Vite's transform pipeline, so this is not dead build-only config.
-  // Without it, SVGs are inlined as data URIs and Icon.test.tsx's path assertions fail.
-  // vite.config.ts carries the same option separately for the real build.
+  // Vitest 透過 Vite 的轉換流程解析資源，所以這不是只給正式建置用的死設定。
+  // 沒有這行，SVG 會被內嵌成 data URI，Icon.test.tsx 的路徑斷言就會失敗。
+  // vite.config.ts 另外有一份相同設定，用於正式建置。
   build: {
     assetsInlineLimit: 0,
   },

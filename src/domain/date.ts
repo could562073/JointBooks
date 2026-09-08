@@ -54,7 +54,7 @@ export function isoWeek(d: Date): { year: number; week: number } {
   const isoYear = t.getFullYear();
   const jan4 = new Date(isoYear, 0, 4);
   jan4.setDate(jan4.getDate() - mondayIndex(jan4) + 3);
-  // Both dates moved to Thursday, so difference is always exact weeks; round() absorbs float error only
+  // 兩個日期都已移到週四，所以差值必為整數週；round() 只是用來吸收浮點誤差
   const week = 1 + Math.round((t.getTime() - jan4.getTime()) / (7 * 86_400_000));
   return { year: isoYear, week };
 }
