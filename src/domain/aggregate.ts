@@ -37,27 +37,27 @@ function kindOf(cats: Category[], t: Txn): 'income' | 'expense' {
 }
 
 /**
- * 聚合不傳 cats 時無法判斷收支，因此內部一律要求呼叫端先給分類表。
- * 為了讓 totalsIn 的簽名保持簡單，這裡用 mainName === '收入' 作為 fallback
- * 只在分類表尚未載入時發生（例如第一次冷啟動）。
+ * 收支判定一律以 id 查分類表的 kind 為準，不可退回名稱比對。
+ * 增補檔 §B-2 允許使用者自建收入分類（例如「副業」），改名 collision 也可能發生在
+ * 預設的「收入」分類上——任何 mainName === '收入' 的 fallback 都會在這兩種情況下
+ * 把使用者自建的收入分類誤判為支出。呼叫端一律要先備妥分類表。
  */
-function isIncome(t: Txn, cats?: Category[]): boolean {
-  if (cats) return kindOf(cats, t) === 'income';
-  return t.mainName === '收入';
+function isIncome(cats: Category[], t: Txn): boolean {
+  return kindOf(cats, t) === 'income';
 }
 
-export function totalsIn(txns: Txn[], r: Range, cats?: Category[]): Totals {
+export function totalsIn(txns: Txn[], r: Range, cats: Category[]): Totals {
   let incomeCents = 0;
   let expenseCents = 0;
   for (const t of txns) {
     if (!live(t) || !inRange(t.date, r)) continue;
-    if (isIncome(t, cats)) incomeCents += t.actualCadCents;
+    if (isIncome(cats, t)) incomeCents += t.actualCadCents;
     else expenseCents += t.actualCadCents;
   }
   return { incomeCents, expenseCents, netCents: incomeCents - expenseCents };
 }
 
-export function dayTotal(txns: Txn[], date: string, cats?: Category[]): Totals {
+export function dayTotal(txns: Txn[], date: string, cats: Category[]): Totals {
   return totalsIn(txns, { start: date, end: nextDay(date) }, cats);
 }
 
@@ -68,7 +68,7 @@ function nextDay(date: string): string {
 }
 
 /** §4 月曆：每格的支出、有無收入、以及相對當月最大值的熱度 */
-export function calendarCells(txns: Txn[], y: number, m: number, cats?: Category[]): DayCell[] {
+export function calendarCells(txns: Txn[], y: number, m: number, cats: Category[]): DayCell[] {
   const dim = daysInMonth(y, m);
   const cells: DayCell[] = [];
 
@@ -78,7 +78,7 @@ export function calendarCells(txns: Txn[], y: number, m: number, cats?: Category
     let hasIncome = false;
     for (const t of txns) {
       if (!live(t) || t.date !== date) continue;
-      if (isIncome(t, cats)) hasIncome = true;
+      if (isIncome(cats, t)) hasIncome = true;
       else expenseCents += t.actualCadCents;
     }
     cells.push({ date, day, expenseCents, hasIncome, heat: 0 });
@@ -129,7 +129,7 @@ export function budgetRows(
 
 /** §6 趨勢折線的資料點。X 軸標籤依維度變 */
 export function trendSeries(
-  txns: Txn[], dim: Dimension, anchor: string, cats?: Category[]
+  txns: Txn[], dim: Dimension, anchor: string, cats: Category[]
 ): TrendPoint[] {
   const r = rangeOf(dim, anchor);
 
@@ -168,14 +168,14 @@ export function trendSeries(
   }));
 }
 
-function bucketOf(txns: Txn[], r: Range, cats?: Category[]) {
+function bucketOf(txns: Txn[], r: Range, cats: Category[]) {
   const t = totalsIn(txns, r, cats);
   return { expenseCents: t.expenseCents, incomeCents: t.incomeCents };
 }
 
 /** §6 總覽卡的「與上期增減」pill */
 export function comparePrevious(
-  txns: Txn[], dim: Dimension, anchor: string, cats?: Category[]
+  txns: Txn[], dim: Dimension, anchor: string, cats: Category[]
 ): { deltaRatio: number; direction: 'up' | 'down' | 'flat' } {
   const cur = totalsIn(txns, rangeOf(dim, anchor), cats).netCents;
   const prev = totalsIn(txns, previousRange(dim, rangeOf(dim, anchor)), cats).netCents;

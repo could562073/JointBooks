@@ -3,7 +3,7 @@ import {
   totalsIn, dayTotal, calendarCells, budgetMultiplier, budgetRows,
   trendSeries, comparePrevious, txnsOn,
 } from './aggregate';
-import { defaultCategories } from './categories';
+import { defaultCategories, makeCategory } from './categories';
 import { rangeOf } from './date';
 import type { Category, Txn } from './types';
 
@@ -34,21 +34,36 @@ describe('totalsIn / dayTotal', () => {
   ];
 
   it('依 kind 分收支，一律用 actualCadCents（§1、§11-4）', () => {
-    const t = totalsIn(txns, rangeOf('month', '2026-09-06'));
+    const t = totalsIn(txns, rangeOf('month', '2026-09-06'), CATS);
     expect(t.incomeCents).toBe(312_000);
     expect(t.expenseCents).toBe(205_000 + 520 + 1_675);
     expect(t.netCents).toBe(312_000 - (205_000 + 520 + 1_675));
   });
 
   it('軟刪與區間外都不計入', () => {
-    const t = totalsIn(txns, rangeOf('month', '2026-09-06'));
+    const t = totalsIn(txns, rangeOf('month', '2026-09-06'), CATS);
     // 若把 10/1 的 9,999 或軟刪的 5,000 算進去就不會是這個數
     expect(t.expenseCents).toBe(207_195);
   });
 
   it('dayTotal 只算單日', () => {
-    expect(dayTotal(txns, '2026-09-05').expenseCents).toBe(2_195);
-    expect(dayTotal(txns, '2026-09-06').expenseCents).toBe(0);
+    expect(dayTotal(txns, '2026-09-05', CATS).expenseCents).toBe(2_195);
+    expect(dayTotal(txns, '2026-09-06', CATS).expenseCents).toBe(0);
+  });
+
+  it('I1：使用者自建的第二個收入分類，即使名稱不是「收入」也照樣算收入', () => {
+    // 增補檔 §B-2 允許自建收入分類；kindOf 必須看 id → kind，不是看名字
+    const sideJob = makeCategory({ kind: 'income', name: '副業', existingCount: CATS.length });
+    const catsWithSideJob = [...CATS, sideJob];
+    const t: Txn = {
+      id: 'side-job-1', date: '2026-09-10', mainId: sideJob.id, subId: sideJob.subs[0]!.id,
+      mainName: '副業', subName: '副業', amountCents: 50_000, currency: 'CAD',
+      actualCadCents: 50_000, by: '我', note: '',
+      createdAt: '2026-09-10T00:00:00.000Z', updatedAt: '2026-09-10T00:00:00.000Z', deleted: false,
+    };
+    const totals = totalsIn([t], rangeOf('month', '2026-09-06'), catsWithSideJob);
+    expect(totals.incomeCents).toBe(50_000);
+    expect(totals.expenseCents).toBe(0);
   });
 });
 
@@ -60,26 +75,26 @@ describe('calendarCells（§4）', () => {
   ];
 
   it('格數等於當月天數', () => {
-    expect(calendarCells(txns, 2026, 8)).toHaveLength(30);
-    expect(calendarCells(txns, 2026, 1)).toHaveLength(28);
+    expect(calendarCells(txns, 2026, 8, CATS)).toHaveLength(30);
+    expect(calendarCells(txns, 2026, 1, CATS)).toHaveLength(28);
   });
 
   it('熱度以當月最大支出為分母，範圍 0–1', () => {
-    const cells = calendarCells(txns, 2026, 8);
+    const cells = calendarCells(txns, 2026, 8, CATS);
     expect(cells[0]!.heat).toBe(1);                     // 9/1 是最大值
     expect(cells[1]!.heat).toBeCloseTo(2_900 / 220_000, 6);
     expect(cells[2]!.heat).toBe(0);
   });
 
   it('有收入的那天標記 hasIncome', () => {
-    const cells = calendarCells(txns, 2026, 8);
+    const cells = calendarCells(txns, 2026, 8, CATS);
     expect(cells[14]!.hasIncome).toBe(true);            // 9/15
     expect(cells[14]!.expenseCents).toBe(0);            // 收入不算進支出
     expect(cells[0]!.hasIncome).toBe(false);
   });
 
   it('當月完全沒支出時熱度一律 0，不可除以零', () => {
-    const cells = calendarCells([], 2026, 8);
+    const cells = calendarCells([], 2026, 8, CATS);
     expect(cells.every((c) => c.heat === 0)).toBe(true);
   });
 });
@@ -138,21 +153,21 @@ describe('budgetRows（§6）', () => {
 
 describe('trendSeries（§6）', () => {
   it('週維度給 7 個點，標籤是星期', () => {
-    const s = trendSeries([], 'week', '2026-09-06');
+    const s = trendSeries([], 'week', '2026-09-06', CATS);
     expect(s).toHaveLength(7);
     expect(s[0]!.label).toBe('一');
     expect(s[6]!.label).toBe('日');
   });
 
   it('月維度給當月的 ISO 週，標籤是 W##', () => {
-    const s = trendSeries([], 'month', '2026-09-06');
+    const s = trendSeries([], 'month', '2026-09-06', CATS);
     expect(s.every((p) => /^W\d+$/.test(p.label))).toBe(true);
     expect(s.length).toBeGreaterThanOrEqual(4);
     expect(s.length).toBeLessThanOrEqual(6);
   });
 
   it('年維度給 12 個月，標籤是 N月', () => {
-    const s = trendSeries([], 'year', '2026-09-06');
+    const s = trendSeries([], 'year', '2026-09-06', CATS);
     expect(s).toHaveLength(12);
     expect(s[0]!.label).toBe('1月');
     expect(s[11]!.label).toBe('12月');
@@ -164,7 +179,7 @@ describe('trendSeries（§6）', () => {
       txn({ date: '2026-03-20', actualCadCents: 3_000 }),
       txn({ date: '2026-07-01', actualCadCents: 100_000, mainId: cat('收入').id }),
     ];
-    const s = trendSeries(txns, 'year', '2026-09-06');
+    const s = trendSeries(txns, 'year', '2026-09-06', CATS);
     expect(s[2]!.expenseCents).toBe(8_000);   // 3 月
     expect(s[6]!.incomeCents).toBe(100_000);  // 7 月
   });
@@ -177,13 +192,13 @@ describe('comparePrevious（§6 增減 pill）', () => {
   ];
 
   it('本期支出較少 → 結餘上升', () => {
-    const c = comparePrevious(txns, 'month', '2026-09-06');
+    const c = comparePrevious(txns, 'month', '2026-09-06', CATS);
     expect(c.direction).toBe('up');
   });
 
   it('前期為零時不回傳 Infinity', () => {
     const c = comparePrevious([txn({ date: '2026-09-10', actualCadCents: 5_000 })],
-      'month', '2026-09-06');
+      'month', '2026-09-06', CATS);
     expect(Number.isFinite(c.deltaRatio)).toBe(true);
   });
 });
