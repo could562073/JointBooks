@@ -48,7 +48,7 @@ export function Mantou({
         <span
           data-part="hi"
           className={styles.hi}
-          style={{ width: `${width * 0.46}%`, background: c.hi }}
+          style={{ width: '46%', background: c.hi }}
         />
         <span data-part="eye" className={styles.eye}
               style={{ width: eye, height: eye * 1.25, background: c.eye, left: '32%' }} />
