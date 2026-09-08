@@ -9,7 +9,6 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       devOptions: { enabled: true },
-      includeAssets: ['icons/apple-touch-icon.png', 'fonts/*.woff2'],
       manifest: {
         name: '加拿大共用記帳',
         short_name: '共用記帳',
@@ -38,11 +37,6 @@ export default defineConfig({
         // 那是獨立的最佳化任務。
         globPatterns: ['**/*.{js,css,html,svg,png}'],
         runtimeCaching: [
-          {
-            urlPattern: /\/assets\/icons\/.*\.svg$/,
-            handler: 'CacheFirst',
-            options: { cacheName: 'category-icons', expiration: { maxEntries: 20 } },
-          },
           {
             urlPattern: /\/fonts\/.*\.woff2$/,
             handler: 'CacheFirst',
