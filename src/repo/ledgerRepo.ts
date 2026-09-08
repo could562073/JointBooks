@@ -85,7 +85,7 @@ export const ledgerRepo = {
     return t;
   },
 
-  /** 更新交易。改分類時重新快照名稱；改到非 CAD 幣別時必須供給 actualCadCents，否則拋錯。 */
+  /** 更新交易。改分類時重新快照名稱；改到非 CAD 幣別時必須供給 actualCadCents，否則拋錯。找不到 id 時拋錯。 */
   async updateTxn(id: string, patch: Partial<NewTxnInput>): Promise<Txn> {
     const cur = await db.txns.get(id);
     if (!cur) throw new Error(`找不到紀錄 ${id}`);
