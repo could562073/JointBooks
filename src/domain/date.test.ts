@@ -109,6 +109,13 @@ describe('統計期間（增補檔 D-3）', () => {
       .toEqual({ start: '2025-01-01', end: '2026-01-01' });
   });
 
+  it('previousRange 跨年：1 月的前一期是前一年 12 月', () => {
+    const jan = rangeOf('month', '2026-01-15');
+    expect(jan).toEqual({ start: '2026-01-01', end: '2026-02-01' });
+    expect(previousRange('month', jan))
+      .toEqual({ start: '2025-12-01', end: '2026-01-01' });
+  });
+
   it('inRange 是半開區間', () => {
     const r = rangeOf('month', '2026-09-06');
     expect(inRange('2026-09-01', r)).toBe(true);
