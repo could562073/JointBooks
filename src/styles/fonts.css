@@ -1,0 +1,16 @@
+@import './fonts.generated.css';
+
+:root {
+  --f-title: 'Zen Maru Gothic', 'Noto Sans TC', system-ui, sans-serif;
+  --f-body: 'Noto Sans TC', system-ui, sans-serif;
+  --f-num: 'Baloo 2', 'Noto Sans TC', system-ui, sans-serif;
+}
+
+body { font-family: var(--f-body); }
+
+/* §2：數字一律 Baloo 2 700 */
+.num {
+  font-family: var(--f-num);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}

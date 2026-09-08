@@ -1,0 +1,20 @@
+:root {
+  --ease-enter: cubic-bezier(.2,.8,.2,1);
+  --ease-move: cubic-bezier(.22,1,.36,1);
+  --ease-sheet: cubic-bezier(.32,.72,0,1);
+  --ease-exit: ease-out;
+}
+
+/*
+ * §10 通則：prefers-reduced-motion 時全部降為 120ms 淡入淡出。
+ * 手勢仍須可用（直接到位，不做中間動畫），所以只壓時長，不用 animation: none。
+ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 120ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 120ms !important;
+    transition-timing-function: ease !important;
+    scroll-behavior: auto !important;
+  }
+}

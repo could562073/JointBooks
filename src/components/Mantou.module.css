@@ -1,0 +1,52 @@
+.root { position: relative; display: inline-block; flex: none; }
+
+.body { position: relative; display: block; }
+
+.hi {
+  position: absolute;
+  top: 12%;
+  left: 14%;
+  height: 22%;
+  border-radius: 50%;
+  opacity: .8;
+}
+
+.eye { position: absolute; top: 46%; border-radius: 50%; }
+
+.mouth {
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-style: solid;
+  background: transparent;
+}
+
+.blush {
+  position: absolute;
+  bottom: 24%;
+  width: 16%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--c-blush);
+  opacity: .55;
+}
+
+.foot {
+  position: absolute;
+  bottom: -6%;
+  width: 22%;
+  height: 12%;
+  border-radius: var(--r-pill);
+}
+
+/* MOTION 30：呆滯呼吸 */
+.breathing {
+  will-change: transform;
+  animation: breathe 3.4s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(0, -4px, 0); }
+}
