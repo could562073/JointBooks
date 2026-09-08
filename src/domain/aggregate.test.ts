@@ -109,8 +109,17 @@ describe('budgetMultiplier（增補檔 D-1）', () => {
   });
 
   it('週 = 7 / 當月天數', () => {
-    expect(budgetMultiplier('week', '2026-09-06')).toBeCloseTo(7 / 30, 6);
+    // 用不跨月的錨點（該週週一與錨點同月）；跨月案例見 I6 測試
+    expect(budgetMultiplier('week', '2026-09-10')).toBeCloseTo(7 / 30, 6);
     expect(budgetMultiplier('week', '2026-02-10')).toBeCloseTo(7 / 28, 6);
+  });
+
+  it('I6：跨月的同一週，倍率不能因為點哪一天而不同', () => {
+    // 2026-08-31（一）～2026-09-07（一）是同一個顯示週，週一落在 8 月
+    const fromMonthEnd = budgetMultiplier('week', '2026-08-31');  // 點到月底那天
+    const fromMonthStart = budgetMultiplier('week', '2026-09-01'); // 點到隔月第一天
+    expect(fromMonthEnd).toBe(fromMonthStart);
+    expect(fromMonthEnd).toBeCloseTo(7 / 31, 6);  // 週一（8/31）所在的 8 月有 31 天
   });
 });
 
@@ -140,7 +149,7 @@ describe('budgetRows（§6）', () => {
   it('§11-1：換維度時倍率跟著換', () => {
     const y = budgetRows(txns, CATS, 'year', '2026-09-06');
     expect(y.find((r) => r.name === '租屋')!.budgetCents).toBe(210_000 * 12);
-    const w = budgetRows(txns, CATS, 'week', '2026-09-06');
+    const w = budgetRows(txns, CATS, 'week', '2026-09-10');  // 不跨月的錨點
     expect(w.find((r) => r.name === '租屋')!.budgetCents)
       .toBe(Math.round(210_000 * (7 / 30)));
   });
@@ -183,6 +192,34 @@ describe('trendSeries（§6）', () => {
     expect(s[2]!.expenseCents).toBe(8_000);   // 3 月
     expect(s[6]!.incomeCents).toBe(100_000);  // 7 月
   });
+
+  it('I10：月維度依 ISO 週分桶，金額落在正確的桶（含只有 6 天的首週與 3 天的末週）', () => {
+    const txns = [
+      txn({ date: '2026-09-02', actualCadCents: 1_000 }),                        // W36（9/1–9/6）
+      txn({ date: '2026-09-05', actualCadCents:   500 }),                        // W36
+      txn({ date: '2026-09-10', actualCadCents: 2_000 }),                        // W37（9/7–9/13）
+      txn({ date: '2026-09-15', actualCadCents: 5_000, mainId: cat('收入').id }), // W38（9/14–9/20），收入
+      txn({ date: '2026-09-22', actualCadCents: 3_000 }),                        // W39（9/21–9/27）
+      txn({ date: '2026-09-29', actualCadCents:   700 }),                        // W40（9/28–9/30，只有 3 天）
+    ];
+    const s = trendSeries(txns, 'month', '2026-09-06', CATS);
+    const by = Object.fromEntries(s.map((p) => [p.label, p]));
+
+    expect(by['W36']!.expenseCents).toBe(1_500);
+    expect(by['W37']!.expenseCents).toBe(2_000);
+    expect(by['W38']!.incomeCents).toBe(5_000);
+    expect(by['W38']!.expenseCents).toBe(0);
+    expect(by['W39']!.expenseCents).toBe(3_000);
+    expect(by['W40']!.expenseCents).toBe(700);
+
+    // 這是正確行為、不是 bug：9 月的 W36 桶只涵蓋 9/1–9/6（該 ISO 週的週一其實是
+    // 8/31，不屬於 9 月），所以每一桶加總起來剛好等於整月合計，不多不少、不重疊。
+    const sumExpense = s.reduce((a, p) => a + p.expenseCents, 0);
+    const sumIncome = s.reduce((a, p) => a + p.incomeCents, 0);
+    const monthTotal = totalsIn(txns, rangeOf('month', '2026-09-06'), CATS);
+    expect(sumExpense).toBe(monthTotal.expenseCents);
+    expect(sumIncome).toBe(monthTotal.incomeCents);
+  });
 });
 
 describe('comparePrevious（§6 增減 pill）', () => {
@@ -200,6 +237,14 @@ describe('comparePrevious（§6 增減 pill）', () => {
     const c = comparePrevious([txn({ date: '2026-09-10', actualCadCents: 5_000 })],
       'month', '2026-09-06', CATS);
     expect(Number.isFinite(c.deltaRatio)).toBe(true);
+  });
+
+  it('Minor 4：前期為零、本期轉虧損時，deltaRatio 要是負的（不能顯示「▼ +100%」）', () => {
+    // 純支出（沒有收入分類），本期淨額為負；前期沒有任何紀錄，淨額為零
+    const c = comparePrevious([txn({ date: '2026-09-10', actualCadCents: 5_000 })],
+      'month', '2026-09-06', CATS);
+    expect(c.direction).toBe('down');
+    expect(c.deltaRatio).toBe(-1);
   });
 });
 

@@ -2,7 +2,7 @@ import type { IconKey } from '../components/Icon';
 import type { Category, Dimension, Range, Txn } from './types';
 import {
   addMonths, daysInMonth, eachDay, inRange, isoWeek, parseDate, rangeOf,
-  previousRange, toDateString,
+  previousRange, toDateString, weekdayLabels,
 } from './date';
 
 export type Totals = { incomeCents: number; expenseCents: number; netCents: number };
@@ -93,12 +93,16 @@ export function calendarCells(txns: Txn[], y: number, m: number, cats: Category[
 /**
  * 增補檔 D-1：週 = 7 / 當月天數、月 = 1、年 = 12。
  * （§6 原本寫 ×0.25 / ×11.4，判定為未經推導的數值，已修正。）
+ *
+ * 週倍率的「當月天數」要以該週週一所在的月份為準，不能用 anchor（被點的那一天）：
+ * 同一個顯示週跨月時，anchor 落在月初或月底會算出不同天數，同一條預算條就會因為
+ * 使用者點了哪一天而顯示不同數字。倍率是這個「週」的屬性，不是「點擊」的屬性。
  */
 export function budgetMultiplier(dim: Dimension, anchor: string): number {
   if (dim === 'month') return 1;
   if (dim === 'year') return 12;
-  const d = parseDate(anchor);
-  return 7 / daysInMonth(d.getFullYear(), d.getMonth());
+  const monday = parseDate(rangeOf('week', anchor).start);
+  return 7 / daysInMonth(monday.getFullYear(), monday.getMonth());
 }
 
 export function budgetRows(
@@ -134,8 +138,9 @@ export function trendSeries(
   const r = rangeOf(dim, anchor);
 
   if (dim === 'week') {
+    const labels = weekdayLabels();
     return eachDay(r).map((date, i) => ({
-      label: ['一', '二', '三', '四', '五', '六', '日'][i]!,
+      label: labels[i] ?? '',
       ...bucketOf(txns, { start: date, end: nextDay(date) }, cats),
     }));
   }
@@ -177,12 +182,15 @@ function bucketOf(txns: Txn[], r: Range, cats: Category[]) {
 export function comparePrevious(
   txns: Txn[], dim: Dimension, anchor: string, cats: Category[]
 ): { deltaRatio: number; direction: 'up' | 'down' | 'flat' } {
-  const cur = totalsIn(txns, rangeOf(dim, anchor), cats).netCents;
-  const prev = totalsIn(txns, previousRange(dim, rangeOf(dim, anchor)), cats).netCents;
+  const r = rangeOf(dim, anchor);
+  const cur = totalsIn(txns, r, cats).netCents;
+  const prev = totalsIn(txns, previousRange(dim, r), cats).netCents;
 
   if (prev === 0) {
+    // 前期為零時比例無意義，但符號仍要跟方向一致，不可一律 +1
+    // （否則本期由零轉虧損也會顯示「▼ +100%」這種矛盾的正負號）
     return {
-      deltaRatio: cur === 0 ? 0 : 1,
+      deltaRatio: cur === 0 ? 0 : cur > 0 ? 1 : -1,
       direction: cur > 0 ? 'up' : cur < 0 ? 'down' : 'flat',
     };
   }
