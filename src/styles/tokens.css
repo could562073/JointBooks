@@ -33,6 +33,11 @@
   --c-sync: #4E9B7A;
   --c-blush: #F79BA0;
 
+  /* 灰階（empty 狀態饅頭） */
+  --c-muted-body: #DEDCE6;
+  --c-muted-hi: #CDCBD6;
+  --c-muted-eye: #8D89A1;
+
   /* 圓角 */
   --r-lg: 24px;   /* 大卡 */
   --r-md: 20px;   /* 列表卡 */

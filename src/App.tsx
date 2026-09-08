@@ -1,26 +1,21 @@
-import { Icon, ICON_KEYS } from './components/Icon';
-import { Mantou } from './components/Mantou';
+import { lazy, Suspense } from 'react';
+
+// 只在 dev 模式下才會走到這裡；production 建置時 import.meta.env.DEV 會被
+// 靜態替換成 false，這整個分支連同 lazy import 都不會被送到使用者手上。
+// DebugGallery 用 dynamic import，就算沒被消掉也只會落在獨立的 chunk，
+// 不會混進一直被下載的正式進入點 chunk 裡。
+const DebugGallery = lazy(() => import('./debug/DebugGallery'));
 
 export default function App() {
-  const debug = new URLSearchParams(location.search).get('debug');
+  const debugKey = import.meta.env.DEV
+    ? new URLSearchParams(location.search).get('debug')
+    : null;
 
-  if (debug === 'icons') {
+  if (debugKey) {
     return (
-      <div data-testid="icon-gallery" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: 16 }}>
-        {ICON_KEYS.map((k) => (
-          <Icon key={k} name={k} size={24} box={44} boxRadius={14} />
-        ))}
-      </div>
-    );
-  }
-
-  if (debug === 'mantou') {
-    return (
-      <div style={{ padding: 40, display: 'flex', gap: 24, alignItems: 'flex-end' }}>
-        <Mantou data-testid="mantou-breathing" variant="full" width={72} breathing />
-        <Mantou variant="tab" width={22} />
-        <Mantou variant="empty" width={64} />
-      </div>
+      <Suspense fallback={null}>
+        <DebugGallery debugKey={debugKey} />
+      </Suspense>
     );
   }
 

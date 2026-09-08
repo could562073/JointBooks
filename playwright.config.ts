@@ -6,6 +6,12 @@ import { defineConfig, devices } from '@playwright/test';
 // 不會互相碰撞。見 build.spec.ts 開頭註解說明為什麼需要這第二顆。
 export default defineConfig({
   testDir: './e2e',
+  // Important 6 把 ?debug= 展示櫃改成 lazy import，dev 模式下第一次打開它會
+  // 多一趟「等 chunk 抓回來」的路程。單一測試不會感覺到，但這裡預設用高並行
+  // workers 打同一顆 dev server（見 vite.config.ts 的 server.warmup 註解），
+  // 5000ms 的預設值在滿載時偶爾不夠、會誤判成真的壞掉。量過：暖機後單一
+  // 冷啟動約 1.1s，這裡給到 10s 純粹是吃滿載排隊的餘裕，不是在蓋掉真的壞掉。
+  expect: { timeout: 10_000 },
   webServer: [
     {
       command: 'npm run dev',

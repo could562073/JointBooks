@@ -31,7 +31,8 @@ describe('Mantou', () => {
   it('empty 變體是灰階、嘴向上、無腳', () => {
     const { container } = render(<Mantou variant="empty" width={64} />);
     const body = container.querySelector('[data-part="body"]') as HTMLElement;
-    expect(body.getAttribute('style')).toMatch(/#DEDCE6|rgb\(222, ?220, ?230\)/i);
+    // 只能用 tokens.css 的變數，不可用色碼字面量：斷言也要比對變數名稱，不比對色碼。
+    expect(body.style.background).toBe('var(--c-muted-body)');
     expect(container.querySelector('[data-part="mouth"]')?.getAttribute('data-dir')).toBe('up');
     expect(container.querySelectorAll('[data-part="foot"]')).toHaveLength(0);
   });
@@ -59,5 +60,22 @@ describe('Mantou', () => {
     expect(down.style.borderTopWidth).toBe('0px');
     expect(down.style.borderBottomWidth).toBe('1.5px');
     expect(down.getAttribute('data-dir')).toBe('down');
+  });
+
+  // 嘴和眼睛共用 PALETTE 的 eye 欄位（Mantou.tsx 裡 mouth 的 borderColor、
+  // eye 的 background 都是 c.eye）。只能用變數，不可用色碼字面量：斷言比對
+  // 變數名稱，不比對色碼。
+  it('嘴／眼共用的顏色欄位套用 token 變數，不是色碼字面量', () => {
+    const { container: fullContainer } = render(<Mantou variant="full" width={64} />);
+    const fullMouth = fullContainer.querySelector('[data-part="mouth"]') as HTMLElement;
+    const fullEye = fullContainer.querySelector('[data-part="eye"]') as HTMLElement;
+    expect(fullMouth.style.borderColor).toBe('var(--c-face)');
+    expect(fullEye.style.background).toBe('var(--c-face)');
+
+    const { container: emptyContainer } = render(<Mantou variant="empty" width={64} />);
+    const emptyMouth = emptyContainer.querySelector('[data-part="mouth"]') as HTMLElement;
+    const emptyEye = emptyContainer.querySelector('[data-part="eye"]') as HTMLElement;
+    expect(emptyMouth.style.borderColor).toBe('var(--c-muted-eye)');
+    expect(emptyEye.style.background).toBe('var(--c-muted-eye)');
   });
 });

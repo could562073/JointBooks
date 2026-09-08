@@ -2,10 +2,11 @@ import styles from './Mantou.module.css';
 
 export type MantouVariant = 'full' | 'tab' | 'empty';
 
+// 只能用 tokens.css 的變數，不可用色碼字面量（Plan 01 Task 2）。
 const PALETTE = {
-  full:  { body: '#B7A6E5', hi: '#CDC0F0', eye: '#3B3229', foot: '#9484CE' },
-  tab:   { body: '#B7A6E5', hi: '#CDC0F0', eye: '#3B3229', foot: '#9484CE' },
-  empty: { body: '#DEDCE6', hi: '#CDCBD6', eye: '#8D89A1', foot: '#CDCBD6' },
+  full:  { body: 'var(--c-primary)', hi: 'var(--c-hi)', eye: 'var(--c-face)', foot: 'var(--c-shade)' },
+  tab:   { body: 'var(--c-primary)', hi: 'var(--c-hi)', eye: 'var(--c-face)', foot: 'var(--c-shade)' },
+  empty: { body: 'var(--c-muted-body)', hi: 'var(--c-muted-hi)', eye: 'var(--c-muted-eye)', foot: 'var(--c-muted-hi)' },
 } as const;
 
 // 寬 > 高：高度是寬度的 0.82

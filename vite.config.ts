@@ -49,7 +49,16 @@ export default defineConfig({
       },
     }),
   ],
-  server: { port: 5173 },
+  server: {
+    port: 5173,
+    // App.tsx 只在 import.meta.env.DEV 時 lazy-import 這個 debug 展示櫃，
+    // 所以它現在是一顆獨立 chunk，dev server 預設不會轉譯它，要等第一次真的
+    // 打 ?debug= 才會現轉。平常單一使用者感覺不到；但 e2e 對 3 個 breakpoint
+    // project 同時起跑、同時第一次打 ?debug=icons／?debug=mantou 時，會撞上
+    // 同一個 dev server process 現轉譯的排隊延遲。開機就先暖機，把這個 race
+    // 消掉，同時仍然保留 production 建置時它是獨立 chunk（見 Important 6）。
+    warmup: { clientFiles: ['./src/debug/DebugGallery.tsx'] },
+  },
   build: {
     assetsInlineLimit: 0, // Don't inline SVG icons; keep them as separate files
   },
