@@ -8,7 +8,7 @@ describe('toCents / fromCents', () => {
     expect(toCents('5.2')).toBe(520);
     expect(toCents('5.20')).toBe(520);
     expect(toCents('0.01')).toBe(1);
-    expect(toCents(2050)).toBe(205_000);
+    expect(toCents('2050')).toBe(205_000);
     expect(toCents('')).toBe(0);
   });
 
@@ -18,6 +18,7 @@ describe('toCents / fromCents', () => {
     // Number('1.005') * 100 === 100.49999999999999 → Math.round 會錯給 100。
     // 字面量解析才拿得到 101。
     expect(toCents('1.005')).toBe(101);
+    expect(toCents('-1.005')).toBe(-101);
     expect(toCents('48.62')).toBe(4862);
     expect(toCents('0.29')).toBe(29);
     expect(toCents('-5.2')).toBe(-520);
@@ -42,6 +43,9 @@ describe('格式化', () => {
     expect(formatCad(520, 'plus')).toBe('+$5.20');  // 收入前綴 +
     expect(formatCad(-520, 'none')).toBe('$5.20');
     expect(formatCad(207_400)).toBe('$2,074.00');
+    expect(formatCad(0)).toBe('$0.00');           // 零不加負號
+    expect(formatCad(0, 'plus')).toBe('+$0.00');  // 零 + plus 加 +
+    expect(formatCad(0, 'none')).toBe('$0.00');   // 零 + none 不加號
   });
 
   it('formatCompact：≥$1000 顯示 $1.2k（§4 月曆格）', () => {
@@ -56,6 +60,7 @@ describe('格式化', () => {
     expect(formatOriginal(520, 'CAD')).toBe('CAD');
     expect(formatOriginal(128_000, 'TWD')).toBe('1,280 TWD');
     expect(formatOriginal(4_999, 'USD')).toBe('49.99 USD');
+    expect(formatOriginal(-128_000, 'TWD')).toBe('1,280 TWD');  // 負值視為幅度
   });
 });
 
@@ -84,6 +89,9 @@ describe('pushDigit：數字鍵盤輸入規則（§5）', () => {
   it('總長上限 9 字', () => {
     expect(pushDigit('123456789', '1')).toBe('123456789');
     expect(pushDigit('12345678', '9')).toBe('123456789');
+    expect(pushDigit('1234567', '.')).toBe('1234567.');  // 7 字 + 點 = 8 字
+    expect(pushDigit('1234567.', '5')).toBe('1234567.5');  // 8 字 + 5 = 9 字
+    expect(pushDigit('1234567.5', '5')).toBe('1234567.5');  // 已滿 9 字，無法再加
   });
 
   it('⌫ 退位', () => {

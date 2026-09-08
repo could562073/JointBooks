@@ -8,11 +8,7 @@ import {
  * 字串走「字面量」解析而不是 Number(s) * 100 —— 後者會踩浮點：
  * 1.005 * 100 === 100.49999999999999，Math.round 會得到 100 而不是 101。
  */
-export function toCents(input: string | number): number {
-  if (typeof input === 'number') {
-    return Number.isFinite(input) ? Math.round(input * 100) : 0;
-  }
-
+export function toCents(input: string): number {
   const s = input.trim();
   if (!s || !/^-?\d*\.?\d*$/.test(s)) return 0;
 
@@ -64,20 +60,26 @@ export function formatCompact(cents: number): string {
   return `$${Math.round(abs / 100)}`;
 }
 
-/** §4 明細下方小字：CAD 就只顯示 "CAD"，其他顯示原幣金額 + 幣別 */
+/**
+ * §4 明細下方小字：CAD 就只顯示 "CAD"，其他顯示原幣金額 + 幣別
+ * 整數金額不顯示小數（如 1,280 TWD），有小數時顯示兩位（如 49.99 USD）
+ * 輸入視為幅度（無符號）；金額的正負來自交易分類而非幣值
+ */
 export function formatOriginal(cents: number, cur: Currency): string {
   if (cur === 'CAD') return 'CAD';
+
   const abs = Math.abs(cents);
   const dollars = Math.floor(abs / 100);
   const centsFraction = abs % 100;
 
-  // 只在有小數時顯示小數
+  // 只在有小數時顯示小數；避免浮點運算
   if (centsFraction === 0) {
     return `${dollars.toLocaleString('en-CA')} ${cur}`;
   }
 
-  const value = dollars + centsFraction / 100;
-  return `${value.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${cur}`;
+  // 整數部分 + 千分位 + 小數點 + 補零的小數部分
+  const formatted = `${dollars.toLocaleString('en-CA')}.${String(centsFraction).padStart(2, '0')}`;
+  return `${formatted} ${cur}`;
 }
 
 /** §5 數字鍵盤：小數最多兩位、總長 9 字 */
