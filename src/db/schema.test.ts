@@ -61,8 +61,26 @@ describe('LedgerDb', () => {
   });
 
   it('resetDb 清空所有表', async () => {
+    // Seed all four tables
     await db.txns.put(txn({ id: 'a', date: '2026-09-01' }));
+    await db.categories.bulkPut(defaultCategories());
+    const t = txn({ id: 'b', date: '2026-09-01' });
+    await db.outbox.add({ txnId: 'b', op: 'add', payload: t, queuedAt: '1', serverRowId: null, attempts: 0 });
+    await db.meta.put({ key: 'spreadsheetId', value: '1aB9kQ' });
+
+    // Verify all tables have data
+    expect(await db.txns.count()).toBeGreaterThan(0);
+    expect(await db.categories.count()).toBeGreaterThan(0);
+    expect(await db.outbox.count()).toBeGreaterThan(0);
+    expect(await db.meta.count()).toBeGreaterThan(0);
+
+    // Clear all tables
     await resetDb();
+
+    // Verify all tables are empty
     expect(await db.txns.count()).toBe(0);
+    expect(await db.categories.count()).toBe(0);
+    expect(await db.outbox.count()).toBe(0);
+    expect(await db.meta.count()).toBe(0);
   });
 });
