@@ -23,6 +23,12 @@ describe('bootstrap', () => {
     await ledgerRepo.bootstrap();
     expect(await db.categories.count()).toBe(7);
   });
+
+  it('I5：併發呼叫不會各自讀到 0 筆而重複寫入（React StrictMode 會讓 effect 跑兩次）', async () => {
+    await resetDb();   // 這個測試要從真正的空庫開始，不能沿用 beforeEach 已寫入的 7 筆
+    await Promise.all([ledgerRepo.bootstrap(), ledgerRepo.bootstrap()]);
+    expect(await db.categories.count()).toBe(7);
+  });
 });
 
 describe('addTxn', () => {
@@ -121,7 +127,7 @@ describe('updateTxn / deleteTxn', () => {
     const t = await seed();
     await expect(
       ledgerRepo.updateTxn(t.id, { currency: 'TWD' })
-    ).rejects.toThrow(/改為非 CAD 幣別時必須供給 actualCadCents/);
+    ).rejects.toThrow(/非 CAD 幣別下變更幣別或金額時必須供給 actualCadCents/);
   });
 
   it('改為非 CAD 幣別且供給 actualCadCents 時成功', async () => {
@@ -134,6 +140,42 @@ describe('updateTxn / deleteTxn', () => {
     expect(u.currency).toBe('TWD');
     expect(u.amountCents).toBe(7500);
     expect(u.actualCadCents).toBe(250);
+  });
+
+  it('I3：幣別本來就非 CAD，只改金額卻不給 actualCadCents 時拋錯（guard 不能只看 patch.currency）', async () => {
+    const t = await seed();
+    // 先讓它變成一筆 TWD 紀錄：128000 原幣、實扣 5720
+    await ledgerRepo.updateTxn(t.id, { currency: 'TWD', amountCents: 128_000, actualCadCents: 5_720 });
+
+    await expect(
+      ledgerRepo.updateTxn(t.id, { amountCents: 200_000 })
+    ).rejects.toThrow(/非 CAD 幣別下變更幣別或金額時必須供給 actualCadCents/);
+
+    // 拋錯前的值必須維持不變，不能留下半套更新
+    const stillOld = (await ledgerRepo.listTxns()).find((x) => x.id === t.id)!;
+    expect(stillOld.amountCents).toBe(128_000);
+    expect(stillOld.actualCadCents).toBe(5_720);
+  });
+
+  it('I3：幣別本來就非 CAD，改金額同時供給 actualCadCents 時成功', async () => {
+    const t = await seed();
+    await ledgerRepo.updateTxn(t.id, { currency: 'TWD', amountCents: 128_000, actualCadCents: 5_720 });
+
+    const u = await ledgerRepo.updateTxn(t.id, { amountCents: 200_000, actualCadCents: 8_940 });
+    expect(u.amountCents).toBe(200_000);
+    expect(u.actualCadCents).toBe(8_940);
+  });
+
+  it('I2：分類被硬刪後，更新不相關欄位不會把名稱快照清空', async () => {
+    const c = cat('外食');
+    const t = await seed();
+    await db.categories.delete(c.id);   // 模擬分類被硬刪 / id 從此查不到
+
+    const u = await ledgerRepo.updateTxn(t.id, { note: '換備註' });
+
+    expect(u.mainName).toBe('外食');
+    expect(u.subName).toBe('飲料');
+    expect(u.note).toBe('換備註');
   });
 
   it('deleteCategory 找不到時無聲返回（冪等）', async () => {
@@ -168,6 +210,8 @@ describe('分類刪除（§15.1-13、§15.1-14）', () => {
     const c = await seedThree();
     const range = rangeOf('month', '2026-09-02');
     const before = totalsIn(await ledgerRepo.listTxns(), range, await ledgerRepo.listCategories());
+    // Minor 8：先確認 before 不是零，否則 after === before 這個 assert 就算兩邊都是 0 也會過
+    expect(before.expenseCents).toBe(3_000);
 
     await ledgerRepo.deleteCategory(c.id);
 
