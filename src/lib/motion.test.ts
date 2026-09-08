@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { EASE, DUR, d, prefersReducedMotion } from './motion';
+import { EASE, DUR, d, prefersReducedMotion, easeOutCubic } from './motion';
 
 describe('motion 常數', () => {
   it('四條 easing 逐字符合 §10 通則', () => {
@@ -32,6 +32,35 @@ describe('motion 常數', () => {
 
   it('離場比進場短約 20%', () => {
     expect(DUR.sheetOut / DUR.sheetIn).toBeCloseTo(0.76, 1);
+  });
+
+  it('先前缺漏的四個時長：外框淡出、同步脈動、年月面板、收支變色', () => {
+    expect(DUR.outlineFade).toBe(120);   // #18 #38
+    expect(DUR.syncPulse).toBe(2400);    // #25
+    expect(DUR.yearPanelIn).toBe(260);   // #33
+    expect(DUR.kindColor).toBe(280);     // #36
+
+    // 這四個是各自獨立命名的常數——即使 outlineFade 恰好和 reduced 同值、
+    // kindColor 恰好和 toastIn 同值，也不是同一個東西，未來不可互相借用，
+    // 只能各自維護、各自比對規格。
+    expect(DUR).toHaveProperty('outlineFade');
+    expect(DUR).toHaveProperty('syncPulse');
+    expect(DUR).toHaveProperty('yearPanelIn');
+    expect(DUR).toHaveProperty('kindColor');
+  });
+});
+
+describe('easeOutCubic', () => {
+  it('p=0 時回傳 0（動畫起點）', () => {
+    expect(easeOutCubic(0)).toBe(0);
+  });
+
+  it('p=1 時回傳 1（動畫終點）', () => {
+    expect(easeOutCubic(1)).toBe(1);
+  });
+
+  it('p=0.5 時符合 1-(1-p)^3 的公式值', () => {
+    expect(easeOutCubic(0.5)).toBeCloseTo(0.875, 10);
   });
 });
 

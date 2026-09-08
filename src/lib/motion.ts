@@ -54,6 +54,10 @@ export const DUR = {
   fabPress: 120,       // #28 懸浮 ＋ 按下
   fabRelease: 180,     // #28 鬆手回彈
   breathe: 3400,       // #30 呼吸（3.2–3.6s）
+  outlineFade: 120,    // #18 #38 選中外框淡出（數值巧合等於 reduced，意義不同，別借用）
+  syncPulse: 2400,     // #25 同步中圓點脈動
+  yearPanelIn: 260,    // #33 年／月選擇面板進場（別借用 popIn=240 或 rowCollapse=260）
+  kindColor: 280,      // #36 收支分類顏色轉場（數值巧合等於 toastIn，別借用）
   reduced: 120,        // prefers-reduced-motion 統一時長
 } as const;
 
@@ -65,4 +69,13 @@ export function prefersReducedMotion(): boolean {
 /** 取實際要用的時長；reduced-motion 時一律 120ms */
 export function d(ms: number): number {
   return prefersReducedMotion() ? DUR.reduced : ms;
+}
+
+/**
+ * #11 #31 收支數字 count-up 用的 easing 函式。
+ * EASE 裡的四條都是 CSS 字串，requestAnimationFrame 迴圈用不了，count-up
+ * 動畫要的是可以直接對 progress（0–1）求值的 JS 函式。
+ */
+export function easeOutCubic(p: number): number {
+  return 1 - (1 - p) ** 3;
 }
