@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile, stat } from 'node:fs/promises';
 import { chromium } from 'playwright';
 
 const OUT = 'public/icons';
@@ -31,11 +31,22 @@ const targets = [
 ];
 
 const browser = await chromium.launch();
-for (const t of targets) {
-  const page = await browser.newPage({ viewport: { width: t.size, height: t.size } });
-  await page.setContent(`<body style="margin:0">${svg(t.size, t.pad)}</body>`);
-  await writeFile(`${OUT}/${t.file}`, await page.screenshot({ omitBackground: false }));
-  await page.close();
-  console.log(t.file);
+try {
+  for (const t of targets) {
+    const page = await browser.newPage({ viewport: { width: t.size, height: t.size } });
+    await page.setContent(`<body style="margin:0">${svg(t.size, t.pad)}</body>`);
+    const filePath = `${OUT}/${t.file}`;
+    await writeFile(filePath, await page.screenshot({ omitBackground: false }));
+
+    // Verify file was actually written with reasonable size
+    const info = await stat(filePath);
+    if (info.size < 1000) {
+      throw new Error(`Icon ${t.file} written but suspiciously small: ${info.size} bytes (expected >= 1000)`);
+    }
+
+    await page.close();
+    console.log(t.file);
+  }
+} finally {
+  await browser.close();
 }
-await browser.close();

@@ -16,15 +16,31 @@ test.describe('PWA 外殼', () => {
     expect(sizes).toContain('192x192');
     expect(sizes).toContain('512x512');
     expect(m.icons.some((i: { purpose?: string }) => i.purpose?.includes('maskable'))).toBe(true);
+
+    // Verify all icon URLs are actually reachable and return 200
+    for (const icon of m.icons) {
+      const iconUrl = new URL(icon.src, 'http://localhost:5173').toString();
+      const res = await request.get(iconUrl);
+      expect(res.status()).toBe(200);
+    }
   });
 
-  test('iOS meta 齊備', async ({ page }) => {
+  test('iOS meta 齊備', async ({ page, request }) => {
     await page.goto('/');
     await expect(page.locator('meta[name="apple-mobile-web-app-capable"]'))
       .toHaveAttribute('content', 'yes');
     await expect(page.locator('meta[name="apple-mobile-web-app-status-bar-style"]'))
       .toHaveAttribute('content', 'default');
-    await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveCount(1);
+
+    const appleIconLink = page.locator('link[rel="apple-touch-icon"]');
+    await expect(appleIconLink).toHaveCount(1);
+
+    // Verify apple-touch-icon URL is reachable
+    const iconHref = await appleIconLink.getAttribute('href');
+    expect(iconHref).toBeTruthy();
+    const iconRes = await request.get(new URL(iconHref!, 'http://localhost:5173').toString());
+    expect(iconRes.status()).toBe(200);
+
     await expect(page.locator('meta[name="viewport"]'))
       .toHaveAttribute('content', /viewport-fit=cover/);
   });
@@ -53,7 +69,7 @@ test.describe('PWA 外殼', () => {
 
     expect(v.declaredTop).not.toBe('');
     // 桌機的 env(safe-area-inset-*) 為 0，故 max(30px, 0px) 應算出 30px
-    expect(parseFloat(v.bottom)).toBeGreaterThanOrEqual(30);
+    expect(parseFloat(v.bottom)).toBe(30);
     expect(parseFloat(v.top)).toBeGreaterThanOrEqual(0);
   });
 
