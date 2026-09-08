@@ -6,7 +6,8 @@ import type { Txn } from '../domain/types';
 const txn = (over: Partial<Txn> & { id: string; date: string }): Txn => ({
   mainId: 'm1', subId: 's1', mainName: '超市', subName: '食材',
   amountCents: 1_000, currency: 'CAD', actualCadCents: 1_000,
-  by: '我', note: '', updatedAt: '2026-09-01T00:00:00.000Z', deleted: false,
+  by: '我', note: '',
+  createdAt: '2026-09-01T00:00:00.000Z', updatedAt: '2026-09-01T00:00:00.000Z', deleted: false,
   ...over,
 });
 

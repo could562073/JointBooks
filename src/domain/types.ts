@@ -42,6 +42,8 @@ export type Txn = {
   actualCadCents: number;
   by: Person;
   note: string;
+  /** ISO 8601，新增時寫入一次，之後永不變動；§4 明細依此升冪排序 */
+  createdAt: string;
   /** ISO 8601，衝突判定用 */
   updatedAt: string;
   deleted: boolean;

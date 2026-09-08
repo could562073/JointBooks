@@ -194,9 +194,9 @@ export function comparePrevious(
   };
 }
 
-/** §4 明細列表：該日、未刪、依時間升冪 */
-export function txnsOn(txns: Txn[], date: string, _cats: Category[]): Txn[] {
+/** §4 明細列表：該日、未刪、依「新增時間」升冪（不可用 updatedAt，否則編輯會讓紀錄跳位置） */
+export function txnsOn(txns: Txn[], date: string): Txn[] {
   return txns
     .filter((t) => live(t) && t.date === date)
-    .sort((a, b) => a.updatedAt.localeCompare(b.updatedAt));
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 }

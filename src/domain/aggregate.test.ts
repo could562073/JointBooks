@@ -17,7 +17,8 @@ function txn(over: Partial<Txn> & { date: string; actualCadCents: number }): Txn
     id: crypto.randomUUID(),
     mainId: c.id, subId: c.subs[0]!.id, mainName: c.name, subName: c.subs[0]!.name,
     amountCents: over.actualCadCents, currency: 'CAD',
-    by: '我', note: '', updatedAt: '2026-09-01T00:00:00.000Z', deleted: false,
+    by: '我', note: '',
+    createdAt: '2026-09-01T00:00:00.000Z', updatedAt: '2026-09-01T00:00:00.000Z', deleted: false,
     ...over,
   };
 }
@@ -188,14 +189,31 @@ describe('comparePrevious（§6 增減 pill）', () => {
 });
 
 describe('txnsOn（§4 明細列表）', () => {
-  it('依時間升冪排序，軟刪不列', () => {
+  it('依新增時間（createdAt）升冪排序，軟刪不列', () => {
     const txns = [
-      txn({ date: '2026-09-05', actualCadCents: 2_900, updatedAt: '2026-09-05T20:30:00.000Z' }),
-      txn({ date: '2026-09-05', actualCadCents: 520,  updatedAt: '2026-09-05T08:40:00.000Z' }),
-      txn({ date: '2026-09-05', actualCadCents: 999,  updatedAt: '2026-09-05T09:00:00.000Z', deleted: true }),
+      txn({ date: '2026-09-05', actualCadCents: 2_900, createdAt: '2026-09-05T20:30:00.000Z' }),
+      txn({ date: '2026-09-05', actualCadCents: 520,  createdAt: '2026-09-05T08:40:00.000Z' }),
+      txn({ date: '2026-09-05', actualCadCents: 999,  createdAt: '2026-09-05T09:00:00.000Z', deleted: true }),
     ];
-    const list = txnsOn(txns, '2026-09-05', CATS);
+    const list = txnsOn(txns, '2026-09-05');
     expect(list).toHaveLength(2);
+    expect(list[0]!.actualCadCents).toBe(520);
+    expect(list[1]!.actualCadCents).toBe(2_900);
+  });
+
+  it('編輯備註（更新 updatedAt）不會改變排序位置（I8）', () => {
+    const txns = [
+      txn({
+        date: '2026-09-05', actualCadCents: 520, createdAt: '2026-09-05T08:00:00.000Z',
+        updatedAt: '2026-09-05T23:00:00.000Z',   // 剛編輯過，updatedAt 很晚
+      }),
+      txn({
+        date: '2026-09-05', actualCadCents: 2_900, createdAt: '2026-09-05T18:00:00.000Z',
+        updatedAt: '2026-09-05T18:00:00.000Z',
+      }),
+    ];
+    const list = txnsOn(txns, '2026-09-05');
+    // 若誤用 updatedAt 排序，520 那筆會被排到後面
     expect(list[0]!.actualCadCents).toBe(520);
     expect(list[1]!.actualCadCents).toBe(2_900);
   });

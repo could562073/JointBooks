@@ -110,6 +110,7 @@ export type Txn = {
   actualCadCents: number;  // 實際扣款 CAD，整數分；CAD 時等於 amountCents
   by: '我' | '妻';
   note: string;            // 可為空字串
+  createdAt: string;       // ISO 8601，新增時寫入一次，之後永不變動；明細依此升冪排序
   updatedAt: string;       // ISO 8601，衝突判定用
   deleted: boolean;        // 軟刪除
 };
@@ -134,7 +135,7 @@ export type Txn = {
 
 ### C-3 Google Sheets 欄位
 
-**紀錄頁**（A–M）：
+**紀錄頁**（A–N）：
 
 | 欄 | 名稱 | 內容 |
 | --- | --- | --- |
@@ -151,6 +152,7 @@ export type Txn = {
 | K | 主分類ID | → 配置頁 |
 | L | 子分類ID | → 配置頁 |
 | M | deleted | TRUE / FALSE |
+| N | createdAt | ISO 8601（新增時間，明細依此排序；§4／I8） |
 
 **配置頁**（A–H）：`主分類ID | 主分類 | 子分類ID | 子分類 | 圖示 | 月預算 CAD | 排序 | 啟用`
 外加 `kind` 欄（I）。`啟用=FALSE` 的分類不出現在記帳選單。

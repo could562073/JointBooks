@@ -70,13 +70,15 @@ export const ledgerRepo = {
     if (input.amountCents === 0) return null;
 
     const names = await snapshot(input.mainId, input.subId);
+    const now = new Date().toISOString();
     const t: Txn = {
       id: crypto.randomUUID(),
       ...input,
       // §14.4：CAD 時實扣等於原幣金額
       actualCadCents: input.currency === 'CAD' ? input.amountCents : input.actualCadCents,
       ...names,
-      updatedAt: new Date().toISOString(),
+      createdAt: now,
+      updatedAt: now,
       deleted: false,
     };
 

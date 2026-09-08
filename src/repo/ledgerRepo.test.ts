@@ -36,6 +36,7 @@ describe('addTxn', () => {
     expect(t!.subName).toBe('飲料');
     expect(t!.deleted).toBe(false);
     expect(t!.updatedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    expect(t!.createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
   });
 
   it('§15.1-6：金額為 0 不寫入', async () => {
@@ -85,11 +86,12 @@ describe('updateTxn / deleteTxn', () => {
     expect(u.subName).toBe('食材');
   });
 
-  it('updatedAt 每次更新都往前推', async () => {
+  it('updatedAt 每次更新都往前推，createdAt 永不變動（I8）', async () => {
     const t = await seed();
     await new Promise((r) => setTimeout(r, 2));
     const u = await ledgerRepo.updateTxn(t.id, { note: '拿鐵' });
     expect(u.updatedAt > t.updatedAt).toBe(true);
+    expect(u.createdAt).toBe(t.createdAt);
   });
 
   it('分類被改名後，任何編輯都捕捉新名稱', async () => {

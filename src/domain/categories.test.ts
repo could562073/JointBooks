@@ -135,7 +135,7 @@ describe('selectable 與 resolveNames', () => {
       id: 't1', date: '2026-09-05', mainId: food.id, subId: food.subs[0]!.id,
       mainName: '外食', subName: '飲料', amountCents: 520, currency: 'CAD',
       actualCadCents: 520, by: '我', note: '咖啡',
-      updatedAt: '2026-09-05T08:40:00.000Z', deleted: false,
+      createdAt: '2026-09-05T08:40:00.000Z', updatedAt: '2026-09-05T08:40:00.000Z', deleted: false,
     };
     cats = cats.map((c) => (c.id === food.id ? renameCategory(c, '餐飲') : c));
     expect(resolveNames(cats, t)).toEqual({ main: '餐飲', sub: '飲料' });
@@ -148,7 +148,7 @@ describe('selectable 與 resolveNames', () => {
       id: 't1', date: '2026-09-05', mainId: food.id, subId: food.subs[0]!.id,
       mainName: '外食', subName: '飲料', amountCents: 520, currency: 'CAD',
       actualCadCents: 520, by: '我', note: '',
-      updatedAt: '2026-09-05T08:40:00.000Z', deleted: false,
+      createdAt: '2026-09-05T08:40:00.000Z', updatedAt: '2026-09-05T08:40:00.000Z', deleted: false,
     };
     cats = cats.map((c) => (c.id === food.id ? softDelete(c) : c));
     expect(resolveNames(cats, t).main).toBe('外食');
@@ -159,7 +159,7 @@ describe('selectable 與 resolveNames', () => {
       id: 't1', date: '2026-09-05', mainId: 'gone', subId: 'gone',
       mainName: '舊分類', subName: '舊子分類', amountCents: 100, currency: 'CAD',
       actualCadCents: 100, by: '我', note: '',
-      updatedAt: '2026-09-05T08:40:00.000Z', deleted: false,
+      createdAt: '2026-09-05T08:40:00.000Z', updatedAt: '2026-09-05T08:40:00.000Z', deleted: false,
     };
     expect(resolveNames(fresh(), t)).toEqual({ main: '舊分類', sub: '舊子分類' });
   });
