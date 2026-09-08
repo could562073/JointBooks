@@ -423,3 +423,23 @@ Final fix wave: all 7 addressed (commits 248df8a..321398a). Controller verified 
     any of the fix wave landed, did not recur across ~10 later full runs, and touches nothing
     this diff changed. Revisit only if it returns.
 ALL COMPLETE. Merging feat/01-foundation to main per the user's instruction.
+
+---
+
+## 事後更正（2026-09-08，Plan 02 Task 6 期間發現）
+
+上面第 10 條 deferred minor 說 `vitest.config.ts` 的 `build.assetsInlineLimit` 是死設定
+（理由是「Vitest 從不跑 build」）。**那是錯的。**
+
+Vitest 透過 Vite 的 transform pipeline 解析資產，所以這個選項在測試時真的有作用。
+刪掉之後 `Icon.test.tsx` 會失敗：
+
+    AssertionError: expected 'data:image/svg+xml,%3csvg%20xmlns=...' to match /\.svg/
+
+15 個分類 SVG 會被內聯成 data URI，路徑斷言就對不上了。
+
+錯誤傳播的路徑值得記下來：Plan 01 的整支分支 review 宣稱它是死的 → controller 把這條
+記進 ledger 但沒有驗證 → 後來把它折進 Plan 02 Task 6 的 dispatch 當成一條刪除指令 →
+implementer 拒絕執行並附上證據，才把它擋下來。第一步之後的每一步都在繼承一個沒人測過的宣稱。
+
+現在 `vitest.config.ts` 裡已加註記說明為何不能刪。
