@@ -17,11 +17,12 @@ test.describe('PWA 外殼', () => {
     expect(sizes).toContain('512x512');
     expect(m.icons.some((i: { purpose?: string }) => i.purpose?.includes('maskable'))).toBe(true);
 
-    // Verify all icon URLs are actually reachable and return 200
+    // Verify all icon URLs are actually reachable with correct content type
     for (const icon of m.icons) {
       const iconUrl = new URL(icon.src, 'http://localhost:5173').toString();
       const res = await request.get(iconUrl);
       expect(res.status()).toBe(200);
+      expect(res.headers()['content-type']).toMatch(/^image\//);
     }
   });
 
@@ -35,11 +36,12 @@ test.describe('PWA 外殼', () => {
     const appleIconLink = page.locator('link[rel="apple-touch-icon"]');
     await expect(appleIconLink).toHaveCount(1);
 
-    // Verify apple-touch-icon URL is reachable
+    // Verify apple-touch-icon URL is reachable with correct content type
     const iconHref = await appleIconLink.getAttribute('href');
     expect(iconHref).toBeTruthy();
     const iconRes = await request.get(new URL(iconHref!, 'http://localhost:5173').toString());
     expect(iconRes.status()).toBe(200);
+    expect(iconRes.headers()['content-type']).toMatch(/^image\//);
 
     await expect(page.locator('meta[name="viewport"]'))
       .toHaveAttribute('content', /viewport-fit=cover/);
