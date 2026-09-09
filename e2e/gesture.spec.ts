@@ -35,7 +35,12 @@ async function drag(
   await page.waitForTimeout(50);
 }
 
-test.beforeEach(async ({ page }) => { await page.goto('/?debug=gesture'); });
+test.beforeEach(async ({ page }) => {
+  await page.goto('/?debug=gesture');
+  // goto() 只等到 load，不保證 lazy-import 的 debug chunk 已經 parse／render
+  // 完成——第一個互動可能跟 chunk 載入賽跑。等一個把手真正 visible 再開始。
+  await page.getByTestId('drag-panelDismiss').waitFor({ state: 'visible' });
+});
 
 test('§11-15：未超過 10px 門檻時，卡內按鈕仍收得到 click', async ({ page }) => {
   const btn = page.getByTestId('btn-categoryCard');

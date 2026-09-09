@@ -14,7 +14,16 @@ const CSS_TO_EASE: Record<string, keyof typeof EASE> = {
 };
 
 test.describe('motion 常數：CSS 與 TS 兩份 easing 必須逐字一致', () => {
-  test.beforeEach(async ({ page }) => { await page.goto('/'); });
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    // goto() 只等到 load，不保證樣式表已經套用完成——直接讀 custom property
+    // 可能讀到空字串。輪詢到非空再往下走。
+    await expect
+      .poll(() => page.evaluate(
+        () => getComputedStyle(document.documentElement).getPropertyValue('--ease-enter').trim()
+      ))
+      .not.toBe('');
+  });
 
   for (const [cssVar, key] of Object.entries(CSS_TO_EASE)) {
     test(`${cssVar} 等於 EASE.${key}`, async ({ page }) => {
