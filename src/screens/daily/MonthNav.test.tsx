@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { MonthNav } from './MonthNav';
-import { monthLabel } from './monthLabel';
+import { monthLabel } from './labels';
 
 const noop = () => {};
 

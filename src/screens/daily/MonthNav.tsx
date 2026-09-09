@@ -1,5 +1,5 @@
 import styles from './MonthNav.module.css';
-import { monthLabel } from './monthLabel';
+import { monthLabel } from './labels';
 
 type Props = {
   year: number;
