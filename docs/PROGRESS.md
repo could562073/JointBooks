@@ -13,33 +13,43 @@ Repo：`git@github.com:could562073/JointBooks.git`（private）
 | --- | --- | --- |
 | 01 | 地基與設計系統 | ✅ 已合併 main |
 | 02 | 領域邏輯與本地資料層 | ✅ 已合併 main |
-| **03** | **手勢引擎與動畫基礎層** | **🔨 進行中，分支 `feat/03-gesture-motion`** |
-| 04 | 日常頁 | 未寫計畫 |
+| 03 | 手勢引擎與動畫基礎層 | ✅ 已合併 main |
+| **04** | **日常頁** | **🔨 下一份，直接實作（未寫計畫）** |
 | 05 | 記一筆／編輯面板 | 未寫計畫 |
 | 06 | 統計頁 | 未寫計畫 |
 | 07 | 配置頁＋分類子頁 | 未寫計畫 |
 | 08 | Google OAuth ＋ Sheets 同步 | 未寫計畫 |
 | 09 | 邀請流程＋驗收套件 | 未寫計畫 |
 
-目前測試：**Vitest 178、Playwright 56（ip13）**，typecheck 兩個 project 都乾淨。
+目前測試：**Vitest 183、Playwright 56（ip13）**，typecheck 兩個 project 都乾淨。
 
-### Plan 03 的任務進度
+### Plan 03 已完成
 
 | | 任務 | 狀態 |
 | --- | --- | --- |
 | T1 | 手勢門檻常數 `GESTURE` | ✅ 完成（1 輪修正） |
 | T2 | 決策純函式 `gestureMath` | ✅ 完成（零 issue） |
 | T3 | `useReducedMotion` | ✅ 完成（零 issue） |
-| T4 | `useDragGesture` ＋ 真實瀏覽器測試 | 🔨 實作與 fix 完成，**scoped re-review 未跑** |
-| T5 | `docs/MOTION.md` 37 條清單 | 未開始 |
+| T4 | `useDragGesture` ＋ 真實瀏覽器測試 | ✅ 完成；殘餘 flake 已找到根因並修掉（見下方陷阱節） |
+| T5 | `docs/MOTION.md` 37 條清單 | ✅ 完成 |
 
-**接手指令**（在專案目錄開 Claude Code 後貼這句）：
+T4 的 scoped re-review 與整支分支 review **沒有跑**，因為擁有者在此時把工作方式改成
+以功能進度為主。記在這裡是為了讓它可見，不是預設它不重要。
+
+---
+
+## 工作方式（2026-09-09 起，擁有者指示）
+
+- **以功能實作為主**，不要停在基礎建設上打轉。
+- **只寫單元測試。** 需要瀏覽器／互動層才驗得到的，**跳過**。
+- 跳過的每一條都要寫進 `docs/MANUAL-TESTS.md`，附「怎麼操作」與「該看到什麼」，
+  讓擁有者手動驗。不准只寫一句無法執行的空話。
+
+**接手指令**：
 
 ```
-繼續跑 Plan 03，照 .superpowers/sdd/2026-09-07-03-gesture-motion/progress.md 接手
+讀 docs/PROGRESS.md，然後繼續實作 Plan 04 日常頁
 ```
-
-那份 ledger 有完整的接手指引與 T4 未完成 fix round 的細節。
 
 ---
 
@@ -86,13 +96,22 @@ Repo：`git@github.com:could562073/JointBooks.git`（private）
 - **`crypto.randomUUID` 需要 secure context**，plain-HTTP LAN 會拋錯（已加 fallback）。
 - **`page.goto()` 在 `load` 就 resolve**，不保證 lazy chunk 解析完、也不保證樣式套上了。
   已在 `gesture.spec.ts` 與 `motion-tokens.spec.ts` 加就緒等待（commit 87bce78）。
-- **但 e2e 仍有殘餘 flake，而且尚未解決。** 加了就緒等待之後仍有失敗，且**每次落在不同的
-  spec**（motion-tokens、gesture、tokens、pwa 都出現過）。這個分布排除了「特定測試缺
-  就緒訊號」的解釋，指向環境：這台機器是 WSL2、專案在 `/mnt/c`（Windows 掛載，I/O 慢），
-  而 Playwright 的 worker 數是預設的 9。
-  **下一步該試的是在 `playwright.config.ts` 釘住 `workers`（2 或 4）**，那是設定改動不是
-  測試改動，也是證據真正支持的假設。
-  **不要用調高 timeout 來壓它** —— 已因類似問題從 5s 拉到 10s，當時的 review 就說那是遮掩。
+- **e2e 的隨機失敗已解決，根因不是就緒也不是 worker 數。** 症狀是每次落在不同的 spec
+  （motion-tokens、gesture、tokens、pwa 都出現過），約 1/8 輪一次。抓到的錯誤是
+  `read ECONNRESET`，trace 顯示那支測試的四個請求共用同一條 keep-alive socket、間隔
+  只有 21–77ms、中間沒有任何閒置 —— 不是一般的 keep-alive 逾時。
+  用 keep-alive 探針量到：**dev server 的 event loop 每輪都會卡住約 5.5 秒**（延遲
+  5594→5413→5227ms 逐次少 ~190ms，是佇列在卡完後一次排空的特徵）。Node 的
+  `keepAliveTimeout` 預設正好 5 秒，卡頓一跨過去，一條「客戶端已經把下一個請求寫進去」
+  的閒置 socket 就會在 loop 恢復時被銷毀，客戶端收到 ECONNRESET。
+  修法是在 `vite.config.ts` 把 dev server 的 `keepAliveTimeout` 提到 30 秒（commit
+  cf7fe08）。**這不是調高 timeout 來遮掩** —— 被銷毀的是一條已經收到請求的連線，
+  屬於傳輸層競態。卡頓本身是 dev 模式下 567 個字型 subset（18 MB）的服務成本，
+  屬於 Plan 08 的 subset 任務。
+- **前一版 ledger 裡「釘住 `workers`」的假設是錯的，已實測推翻。** workers 開 9／4／2
+  三組，卡頓都是 ~5.5 秒、完全沒有隨 worker 數下降；workers=2 反而有一次卡到 16.6 秒。
+  dev server 單獨跑最大延遲 368ms、dev server 加上同時跑完整 build 是 360ms，兩者都不卡。
+  **教訓：把假設寫進交接文件時要標明它還沒被驗證**，否則下一手會照著做。
 
 ### 流程
 
