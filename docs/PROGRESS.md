@@ -30,7 +30,7 @@ Repo：`git@github.com:could562073/JointBooks.git`（private）
 | T1 | 手勢門檻常數 `GESTURE` | ✅ 完成（1 輪修正） |
 | T2 | 決策純函式 `gestureMath` | ✅ 完成（零 issue） |
 | T3 | `useReducedMotion` | ✅ 完成（零 issue） |
-| T4 | `useDragGesture` ＋ 真實瀏覽器測試 | 🔨 實作完成，**fix round 進行中** |
+| T4 | `useDragGesture` ＋ 真實瀏覽器測試 | 🔨 實作與 fix 完成，**scoped re-review 未跑** |
 | T5 | `docs/MOTION.md` 37 條清單 | 未開始 |
 
 **接手指令**（在專案目錄開 Claude Code 後貼這句）：
@@ -84,9 +84,15 @@ Repo：`git@github.com:could562073/JointBooks.git`（private）
 - **jsdom 沒有真的 `setPointerCapture`、沒有版面、`PointerEvent` 是模擬的** ——
   手勢一定要用 Playwright 在真實瀏覽器測。
 - **`crypto.randomUUID` 需要 secure context**，plain-HTTP LAN 會拋錯（已加 fallback）。
-- **9 worker 併發下 `page.goto()` 在 `load` 就 resolve**，不保證 lazy chunk 解析完、
-  也不保證樣式套上了 —— 這是 T4 目前正在修的 flake 成因。
-  **不要用調高 timeout 來壓它**（已因類似問題從 5s 拉到 10s，那是遮掩不是修復）。
+- **`page.goto()` 在 `load` 就 resolve**，不保證 lazy chunk 解析完、也不保證樣式套上了。
+  已在 `gesture.spec.ts` 與 `motion-tokens.spec.ts` 加就緒等待（commit 87bce78）。
+- **但 e2e 仍有殘餘 flake，而且尚未解決。** 加了就緒等待之後仍有失敗，且**每次落在不同的
+  spec**（motion-tokens、gesture、tokens、pwa 都出現過）。這個分布排除了「特定測試缺
+  就緒訊號」的解釋，指向環境：這台機器是 WSL2、專案在 `/mnt/c`（Windows 掛載，I/O 慢），
+  而 Playwright 的 worker 數是預設的 9。
+  **下一步該試的是在 `playwright.config.ts` 釘住 `workers`（2 或 4）**，那是設定改動不是
+  測試改動，也是證據真正支持的假設。
+  **不要用調高 timeout 來壓它** —— 已因類似問題從 5s 拉到 10s，當時的 review 就說那是遮掩。
 
 ### 流程
 
