@@ -1,0 +1,22 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  /* 上下各留一點，讓拇指有得抓；把手本身沒有其他可點目標，按下即接管 */
+  padding: 8px 0 6px;
+  cursor: grab;
+  user-select: none;
+}
+
+.bar {
+  width: 44px;
+  height: 4px;
+  border-radius: var(--r-pill);
+  background: rgba(74, 63, 54, .16);
+}
+
+.hint {
+  font-size: 11px;
+  color: var(--c-text-3);
+}
