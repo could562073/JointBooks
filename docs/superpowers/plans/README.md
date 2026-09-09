@@ -1,5 +1,8 @@
 # 加拿大共用記帳 PWA — 實作計畫總表
 
+> **先讀 [`docs/PROGRESS.md`](../../PROGRESS.md)** —— 那是唯一的入口，寫著現在做到哪、
+> 累積的陷阱、以及接手指令。本檔只講九份計畫怎麼切、彼此怎麼依賴。
+
 **Spec:** `HANDOFF.md` + `docs/HANDOFF-AMENDMENTS.md`（增補檔優先）
 
 ## 為什麼拆成多份計畫

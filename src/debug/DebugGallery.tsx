@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Icon, ICON_KEYS } from '../components/Icon';
 import { Mantou } from '../components/Mantou';
+import { GestureHarness } from './GestureHarness';
 
 // 每個未來的視覺元件只在這裡加一個 key，不再需要碰 App.tsx。
 // App.tsx 只負責在 dev 模式下、依 ?debug= 這個 query key lazy 載入這個檔案，
@@ -20,6 +21,7 @@ const GALLERIES: Record<string, ReactNode> = {
       <Mantou variant="empty" width={64} />
     </div>
   ),
+  gesture: <GestureHarness />,
 };
 
 type Props = {

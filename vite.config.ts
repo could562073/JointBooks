@@ -6,6 +6,25 @@ export default defineConfig({
   base: '/',
   plugins: [
     react(),
+    {
+      // Node 的 http server 預設 keepAliveTimeout 是 5 秒。實測這台機器上跑 e2e
+      // 時，dev server 的 event loop 每輪都會卡住約 5.5 秒（workers 開 2 時量到
+      // 過 16.6 秒），一旦卡頓跨過 5 秒，一條「客戶端已經把下一個請求寫進去」
+      // 的閒置 keep-alive socket 會在 loop 恢復時先處理到期的計時器而被銷毀，
+      // 客戶端就收到 ECONNRESET。症狀是每次落在不同的 spec 上的隨機失敗。
+      //
+      // 這不是把逾時調大來遮掩失敗：被銷毀的是一條已經收到請求的連線，屬於
+      // 傳輸層競態，不是斷言太嚴。真正該修的卡頓來源是 dev 模式下 567 個字型
+      // subset（18 MB）的服務成本，那是 Plan 08 的 subset 任務。
+      name: 'jointbooks:keep-alive-longer-than-dev-server-stalls',
+      configureServer(server) {
+        const http = server.httpServer;
+        // Vite 的 HttpServer 是聯集型別，HTTP/2 那支沒有這個屬性，故需縮小。
+        if (http && 'keepAliveTimeout' in http) {
+          http.keepAliveTimeout = 30_000; // 遠大於觀測到的最長卡頓
+        }
+      },
+    },
     VitePWA({
       registerType: 'autoUpdate',
       devOptions: { enabled: true },
