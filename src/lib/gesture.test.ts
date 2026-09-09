@@ -54,9 +54,9 @@ describe('GESTURE preset 逐條對 §10', () => {
     }
   });
 
-  it('有界的 preset 才需要阻尼有意義：無界者的 damping 不被使用', () => {
-    // 這條是文件性的：min/max 皆為 null 時 damping 永遠走不到，
-    // 但仍給值以免日後加界線時忘了設。
+  it('monthSwipe 兩端無界', () => {
+    // 無界 preset 的 damping 是否被 apply 由 gestureMath.test.ts 的 applyBounds
+    // 「無界的 preset 原樣回傳」案例驗證，不在常數單測。
     expect(GESTURE.monthSwipe.min).toBeNull();
     expect(GESTURE.monthSwipe.max).toBeNull();
   });

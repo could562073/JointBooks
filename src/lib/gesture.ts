@@ -62,7 +62,8 @@ export const GESTURE: Record<
     tapPx: 0, abandonPx: null,
   },
 
-  /** #27 下拉重整。上限 64px，全程阻尼 .5 */
+  /** #27 下拉重整。§10 規格：上限 64px、阻尼 .5。snapDistancePx 設為上限，
+   * 是用天花板作為吸附距離的慣例，不是規格指定值 */
   pullRefresh: {
     axis: 'y', takeoverPx: 0, followRatio: 1,
     min: 0, max: 64, damping: 0.5,
