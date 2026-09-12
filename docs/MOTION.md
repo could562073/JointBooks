@@ -31,8 +31,8 @@
 | 22 | 邀請面板進場／下滑關閉 | `DUR.sheetIn` `DUR.panelSnap` `GESTURE.panelDismiss` | 09 | 未開始 |
 | 23 | 複製成功回饋 | `DUR.copyFeedback` `DUR.copyRevert` | 09 | 未開始 |
 | 24 | QR 展開 | `DUR.popIn` `EASE.enter` | 09 | 未開始 |
-| 25 | 對方新增的通知 | `DUR.toastIn` `DUR.toastHold` `DUR.toastOut` `DUR.syncPulse` `EASE.exit` | 08 | 未開始 |
-| 26 | 同步中狀態 | `DUR.syncSpin` `DUR.syncSettle` | 08 | 未開始 |
+| 25 | 對方新增的通知 | `DUR.toastIn` `DUR.toastHold` `DUR.toastOut` `DUR.syncPulse` `EASE.exit` | 08 | 已實作 |
+| 26 | 同步中狀態 | `DUR.syncSpin` `DUR.syncSettle` | 08 | 已實作 |
 | 27 | 下拉重新整理 | `DUR.pullSpin` `DUR.pullSettle` `GESTURE.pullRefresh` | 04 | 已實作 |
 | 28 | 懸浮 ＋ 按壓態 | `DUR.fabPress` `DUR.fabRelease` `EASE.exit` | 04 | 已實作 |
 | 29 | 底部分頁列毛玻璃 | — | 04 | 已實作 |
