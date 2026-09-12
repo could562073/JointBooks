@@ -13,7 +13,6 @@ import { MonthPicker } from './MonthPicker';
 import { PullIndicator } from './PullIndicator';
 import { SummaryCards } from './SummaryCards';
 import { TxnList } from './TxnList';
-import { periodLabel } from './labels';
 import { useCalendarCollapse } from './useCalendarCollapse';
 import { useMonthSwipe } from './useMonthSwipe';
 import { usePullRefresh } from './usePullRefresh';
@@ -122,7 +121,6 @@ export function DailyScreen({ onEdit, onAdd }: Props) {
             incomeCents={monthTotals.incomeCents}
             expenseCents={monthTotals.expenseCents}
             netCents={monthTotals.netCents}
-            periodLabel={periodLabel(year, month)}
           />
           <div style={{ touchAction: swipe.touchAction }} {...swipe.handlers}>
             <MonthCalendar
