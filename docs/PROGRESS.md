@@ -14,14 +14,14 @@ Repo：`git@github.com:could562073/JointBooks.git`（private）
 | 01 | 地基與設計系統 | ✅ 已合併 main |
 | 02 | 領域邏輯與本地資料層 | ✅ 已合併 main |
 | 03 | 手勢引擎與動畫基礎層 | ✅ 已合併 main |
-| **04** | **日常頁** | **🔨 下一份，直接實作（未寫計畫）** |
+| **04** | **日常頁** | **🔨 實作中，§4 全數完成（分支 `feat/04-daily-screen`）** |
 | 05 | 記一筆／編輯面板 | 未寫計畫 |
 | 06 | 統計頁 | 未寫計畫 |
 | 07 | 配置頁＋分類子頁 | 未寫計畫 |
 | 08 | Google OAuth ＋ Sheets 同步 | 未寫計畫 |
 | 09 | 邀請流程＋驗收套件 | 未寫計畫 |
 
-目前測試：**Vitest 183、Playwright 56（ip13）**，typecheck 兩個 project 都乾淨。
+目前測試：**Vitest 350、Playwright 56（ip13）**，typecheck 兩個 project 都乾淨，`npm run build` 通過。
 
 ### Plan 03 已完成
 
@@ -35,6 +35,35 @@ Repo：`git@github.com:could562073/JointBooks.git`（private）
 
 T4 的 scoped re-review 與整支分支 review **沒有跑**，因為擁有者在此時把工作方式改成
 以功能進度為主。記在這裡是為了讓它可見，不是預設它不重要。
+
+### Plan 04 已完成（2026-09-11）
+
+分支 `feat/04-daily-screen`，8 個 commit。`src/screens/daily/` 共 30 個檔案。
+
+| | 區塊 | 狀態 |
+| --- | --- | --- |
+| 月份導覽 | `MonthNav` + `labels` | ✅ 跨年進退在 store，▾ 轉 180° |
+| 年月選擇器 | `MonthPicker` + `picker` | ✅ 四年份 pill、12 月方格、夾到月底 |
+| 收支三卡 | `SummaryCards` | ✅ 整月合計 + count-up + 結餘卡饅頭 |
+| 月曆 | `MonthCalendar` + `calendarLayout` | ✅ 熱度底色、獨立滑塊、左右滑換月、週起始 |
+| 把手 | `CalendarHandle` + `collapse` | ✅ 跟手收合、吸附／彈回／點擊三態 |
+| 日期標題 | `DayHeader` | ✅ 當日支出 count-up，零值顯示破折號 |
+| 明細 | `TxnList` + `txnRow` | ✅ 依序浮現、空狀態、記帳人頭像開關 |
+| 懸浮 ＋ | `Fab` | ✅ 按壓態，只在日常頁 |
+| 分頁列 | `components/TabBar` | ✅ 毛玻璃、可位移滑塊、饅頭壓扁 |
+| 下拉重整 | `usePullRefresh` + `PullIndicator` | ✅ 有守門，不吃掉原生捲動 |
+| 容器 | `DailyScreen` + `App` 外殼 | ✅ 外層不捲動，明細 scroll 不被收合重置 |
+
+MOTION：`docs/MOTION.md` 上屬於 Plan 04 的 14 條全部轉為**已實作**
+（5、6、7、8、9、10、13、27、28、29、30、31、33、34）。「已驗收」要等
+擁有者跑完 `docs/MANUAL-TESTS.md` 的 D1–D28。
+
+**還沒做的：**
+- 明細列點進編輯只是空的 callback，要等 Plan 05 的記一筆面板。
+- 統計頁與配置頁是佔位方塊，等 Plan 06／07。
+- 下拉重整目前只重讀本機 Dexie；真的同步是 Plan 08。
+- 週起始的**設定值**還在 Plan 07（store 無此欄位），domain 與元件都已支援，
+  Plan 07 補上 store 欄位傳進 `MonthCalendar` 的 `weekStart` 即可。
 
 ---
 

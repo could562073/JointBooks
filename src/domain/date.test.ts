@@ -129,3 +129,37 @@ describe('統計期間（增補檔 D-3）', () => {
     expect(days).toEqual(['2026-09-01', '2026-09-02', '2026-09-03']);
   });
 });
+
+describe('週起始（§15.1-3）', () => {
+  it('週一起始是預設，星期列從一開始', () => {
+    expect(weekdayLabels()).toEqual(['一', '二', '三', '四', '五', '六', '日']);
+    expect(weekdayLabels('mon')).toEqual(['一', '二', '三', '四', '五', '六', '日']);
+  });
+
+  it('週日起始時星期列從日開始', () => {
+    expect(weekdayLabels('sun')).toEqual(['日', '一', '二', '三', '四', '五', '六']);
+  });
+
+  it('首格空白數跟著位移，不是只有星期列換字', () => {
+    // 2026-09-01 是週二：週一起始時前面空 1 格，週日起始時空 2 格
+    expect(firstCellOffset(2026, 8, 'mon')).toBe(1);
+    expect(firstCellOffset(2026, 8, 'sun')).toBe(2);
+  });
+
+  it('月初剛好是週日時，兩種設定差最多', () => {
+    // 2026-02-01 是週日：週一起始要空 6 格，週日起始不用空
+    expect(firstCellOffset(2026, 1, 'mon')).toBe(6);
+    expect(firstCellOffset(2026, 1, 'sun')).toBe(0);
+  });
+
+  it('週末的欄位跟著週起始換位置', () => {
+    expect([0, 1, 2, 3, 4, 5, 6].filter((c) => isWeekend(c, 'mon'))).toEqual([5, 6]);
+    expect([0, 1, 2, 3, 4, 5, 6].filter((c) => isWeekend(c, 'sun'))).toEqual([0, 6]);
+  });
+
+  it('isoWeek 不受這個顯示設定影響，一律以週一為準', () => {
+    // ISO 8601 的定義就是週一起始，週起始只管月曆長相
+    expect(isoWeek(new Date(2026, 8, 6))).toEqual(isoWeek(new Date(2026, 8, 6)));
+    expect(isoWeek(new Date(2026, 8, 7)).week).toBe(isoWeek(new Date(2026, 8, 6)).week + 1);
+  });
+});

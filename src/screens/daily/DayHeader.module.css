@@ -1,0 +1,22 @@
+/* §4：日期標題列是固定的，明細在它下面自己捲動，所以這裡不能有 margin 塌陷 */
+.row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 14px 4px 10px;
+  border-bottom: 1px solid rgba(74, 63, 54, .1);
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+.total {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--c-text);
+  /* 數字跳動時寬度不要抖 */
+  font-variant-numeric: tabular-nums;
+}

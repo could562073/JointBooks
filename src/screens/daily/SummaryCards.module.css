@@ -1,0 +1,49 @@
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  padding: 0 16px 12px;
+  flex: none;
+}
+
+.card {
+  /* 結餘卡的饅頭要疊在角落，定位參考點就是卡片本身 */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 10px 11px;
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-card);
+  min-width: 0;
+}
+
+.label { font-size: 11px; opacity: .75; }
+
+.value {
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sub {
+  font-size: 9px;
+  opacity: .6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.income { background: var(--c-income-bg); color: var(--c-income); }
+.expense { background: var(--c-expense-bg); color: var(--c-expense); }
+.net { background: var(--c-face); color: #fff; }
+
+/* 結餘卡的饅頭疊在右上角，不佔文字的版位 */
+.mascot {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  opacity: .9;
+}

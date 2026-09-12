@@ -30,21 +30,41 @@ export function addMonths(y: number, m: number, delta: number): { y: number; m: 
   return { y: Math.floor(total / 12), m: ((total % 12) + 12) % 12 };
 }
 
+/**
+ * §7「週起始」設定。`'mon'` 是預設，跟 ISO 週一致——isoWeek() 一律以週一
+ * 為準，那是 ISO 8601 的定義，不隨這個顯示設定改變。
+ */
+export type WeekStart = 'mon' | 'sun';
+
 /** 週一起始：getDay() 的 0=週日 轉成 6 */
 function mondayIndex(d: Date): number {
   return (d.getDay() + 6) % 7;
 }
 
-export function firstCellOffset(y: number, m: number): number {
-  return mondayIndex(new Date(y, m, 1));
+/** 依週起始把 getDay()（0=週日）換成月曆上的欄位索引 */
+function columnIndex(d: Date, weekStart: WeekStart): number {
+  return weekStart === 'sun' ? d.getDay() : mondayIndex(d);
 }
 
-export function weekdayLabels(): string[] {
-  return ['一', '二', '三', '四', '五', '六', '日'];
+/**
+ * 月曆第一格之前要留幾個空白。
+ * §15.1-3：週起始改成週日時，空白數要跟著位移，不是只有星期列的字換位置。
+ */
+export function firstCellOffset(y: number, m: number, weekStart: WeekStart = 'mon'): number {
+  return columnIndex(new Date(y, m, 1), weekStart);
 }
 
-export function isWeekend(colIndex: number): boolean {
-  return colIndex === 5 || colIndex === 6;
+export function weekdayLabels(weekStart: WeekStart = 'mon'): string[] {
+  return weekStart === 'sun'
+    ? ['日', '一', '二', '三', '四', '五', '六']
+    : ['一', '二', '三', '四', '五', '六', '日'];
+}
+
+/** 週末在第幾欄要看週起始：週一起始時是第 5、6 欄，週日起始時是第 0、6 欄 */
+export function isWeekend(colIndex: number, weekStart: WeekStart = 'mon'): boolean {
+  return weekStart === 'sun'
+    ? colIndex === 0 || colIndex === 6
+    : colIndex === 5 || colIndex === 6;
 }
 
 export function isoWeek(d: Date): { year: number; week: number } {

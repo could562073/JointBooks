@@ -1,0 +1,53 @@
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 16px 12px;
+  flex: none;
+}
+
+.arrow {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--c-card);
+  box-shadow: var(--sh-card);
+  color: var(--c-text);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  flex: 1 1 auto;
+  border: 0;
+  background: none;
+  padding: 2px 8px;
+  cursor: pointer;
+  color: inherit;
+}
+
+.chevron {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 13px;
+  will-change: transform;
+}
+
+.zh {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+.en {
+  font-size: 11px;
+  color: var(--c-text-3);
+}

@@ -1,0 +1,41 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  /* §4：外層容器不捲動，只有明細區有自己的 scroll */
+  overflow: hidden;
+}
+
+.collapsible {
+  flex: none;
+  /* 換月滑入的 ±38px 位移不該把版面撐出橫向捲軸 */
+  overflow: hidden;
+}
+
+.sliding {
+  will-change: transform, opacity;
+}
+
+/* MOTION #7 #34：換月後從來的方向滑進來 */
+.fromRight { animation: monthFromRight var(--slide) var(--ease-move) both; }
+.fromLeft  { animation: monthFromLeft  var(--slide) var(--ease-move) both; }
+
+@keyframes monthFromRight {
+  from { opacity: .35; transform: translate3d(38px, 0, 0); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes monthFromLeft {
+  from { opacity: .35; transform: translate3d(-38px, 0, 0); }
+  to   { opacity: 1; transform: none; }
+}
+
+.scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  /* 懸浮 ＋ 與分頁列會蓋住最後幾列，留出讓得開的空間 */
+  padding-bottom: 96px;
+}
