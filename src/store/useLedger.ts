@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { ledgerRepo, type NewTxnInput } from '../repo/ledgerRepo';
 import { addMonths, clampDay, todayLocal, parseDate } from '../domain/date';
 import type { Category, Dimension, Txn } from '../domain/types';
+import type { SyncState } from '../sync/state';
 
 export type Tab = 'daily' | 'stats' | 'settings';
 
@@ -20,8 +21,13 @@ export type LedgerState = {
   txns: Txn[];
   showWhoTags: boolean;
   notifyOnPartnerEntry: boolean;
+  /** §14.6 的同步狀態機，直接餵給 MOTION #26 的狀態點 */
+  syncState: SyncState;
+  lastSyncAt: number | null;
 
   load(): Promise<void>;
+  setSyncState(s: SyncState): void;
+  markSynced(at?: number): void;
   setTab(t: Tab): void;
   goMonth(delta: number): void;
   setMonth(y: number, m: number): void;
@@ -49,6 +55,12 @@ export const useLedger = create<LedgerState>((set, get) => ({
   txns: [],
   showWhoTags: true,
   notifyOnPartnerEntry: true,
+  syncState: 'idle',
+  lastSyncAt: null,
+
+  setSyncState(syncState) { set({ syncState }); },
+
+  markSynced(at = Date.now()) { set({ syncState: 'synced', lastSyncAt: at }); },
 
   async load() {
     await ledgerRepo.bootstrap();

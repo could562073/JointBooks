@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Icon } from '../../components/Icon';
+import { SyncStatus } from '../../components/SyncStatus';
 import { Toggle } from '../../components/Toggle';
 import { DUR } from '../../lib/motion';
 import { CategoriesPage } from './CategoriesPage';
 import { colorSetOf } from '../../domain/palette';
 import { formatCad } from '../../domain/money';
+import type { SyncState } from '../../sync/state';
 import { useLedger } from '../../store/useLedger';
 import { categorySummary, stackedIcons } from './settingsSummary';
 import styles from './SettingsScreen.module.css';
@@ -12,6 +14,9 @@ import styles from './SettingsScreen.module.css';
 type Props = {
   /** 邀請成員 → 邀請面板（§8.2，Plan 09） */
   onInvite(): void;
+  syncState: SyncState;
+  lastSyncAt: number | null;
+  onRetrySync(): void;
 };
 
 /**
@@ -20,7 +25,7 @@ type Props = {
  * 增補檔 A 已移除「月結日」與「週起始」兩列（固定 1 號／週一，常數在
  * domain/constants），所以「其他」區只剩兩個開關。
  */
-export function SettingsScreen({ onInvite }: Props) {
+export function SettingsScreen({ onInvite, syncState, lastSyncAt, onRetrySync }: Props) {
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const categories = useLedger((s) => s.categories);
   const txns = useLedger((s) => s.txns);
@@ -71,8 +76,9 @@ export function SettingsScreen({ onInvite }: Props) {
               <span className={styles.avatar} style={{ background: '#DDA6D0' }} aria-hidden="true">妻</span>
               <div className={styles.memberText}>
                 <span className={styles.memberName}>老婆</span>
-                {/* 最後同步時間要等 Plan 08 的同步狀態機才有真值 */}
-                <span className={styles.memberSub}>可編輯 · 尚未同步</span>
+                <span className={styles.memberSub}>
+                  可編輯 · <SyncStatus state={syncState} lastSyncAt={lastSyncAt} onRetry={onRetrySync} />
+                </span>
               </div>
             </div>
 

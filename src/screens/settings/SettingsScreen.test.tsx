@@ -18,7 +18,12 @@ beforeEach(async () => {
 });
 afterEach(() => vi.unstubAllGlobals());
 
-const BASE = { onInvite: () => {} };
+const BASE = {
+  onInvite: () => {},
+  syncState: 'synced' as const,
+  lastSyncAt: null,
+  onRetrySync: () => {},
+};
 
 describe('SettingsScreen 的帳本成員', () => {
   it('列出我與老婆', () => {
