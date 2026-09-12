@@ -1,0 +1,16 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  /* 用 dvh 而不是 vh：iOS Safari 的網址列收展會讓 vh 算錯，底部分頁列被切掉 */
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.stub {
+  flex: 1 1 auto;
+  display: grid;
+  place-items: center;
+  color: var(--c-text-3);
+  font-size: 13px;
+}

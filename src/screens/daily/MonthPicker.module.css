@@ -4,8 +4,9 @@
   animation: panelIn var(--panel-in) var(--ease-enter) both;
 }
 
+/* MOTION #33：面板 translateY 10px→0 + opacity，260ms ease-enter */
 @keyframes panelIn {
-  from { opacity: 0; transform: translateY(-6px); }
+  from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: none; }
 }
 
@@ -15,12 +16,12 @@
 .fromLeft  { animation: slideFromLeft  var(--slide) var(--ease-move) both; }
 
 @keyframes slideFromRight {
-  from { opacity: 0; transform: translateX(18px); }
+  from { opacity: .35; transform: translate3d(38px, 0, 0); }
   to   { opacity: 1; transform: none; }
 }
 
 @keyframes slideFromLeft {
-  from { opacity: 0; transform: translateX(-18px); }
+  from { opacity: .35; transform: translate3d(-38px, 0, 0); }
   to   { opacity: 1; transform: none; }
 }
 
@@ -49,8 +50,6 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 6px;
   flex: 1 1 auto;
-  /* 滑入時位移不該把外框撐出橫向捲軸 */
-  overflow: hidden;
 }
 
 .yearPill {
@@ -71,6 +70,9 @@
 
 .months {
   display: grid;
+  /* 滑入時的 ±38px 位移不該把版面撐出橫向捲軸 */
+  overflow: hidden;
+  will-change: transform, opacity;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
   margin-top: 10px;

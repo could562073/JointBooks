@@ -20,7 +20,15 @@ export type CalendarCollapse = {
  * 這支是薄殼——門檻判定在 gestureMath、高度換算在 collapse.ts，這裡只有 state
  * 與 DOM 樣式（專案分層規則 R1）。
  */
-export function useCalendarCollapse(initialCollapsed = false): CalendarCollapse {
+export function useCalendarCollapse(
+  initialCollapsed = false,
+  /**
+   * 外部強制收起（§4：年月選擇器展開時，收支三卡與月曆先收起）。
+   * 這不會動到 collapsed 本身——選擇器收掉之後要回到使用者原本的收展狀態，
+   * 不是一律變成展開。
+   */
+  forced = false
+): CalendarCollapse {
   const [collapsed, setCollapsed] = useState(initialCollapsed);
   const [offset, setOffset] = useState(0);
   const reduced = useReducedMotion();
@@ -43,7 +51,9 @@ export function useCalendarCollapse(initialCollapsed = false): CalendarCollapse 
   );
 
   const { handlers, dragging, touchAction } = useDragGesture(GESTURE.calendarHandle, cb);
-  const { maxHeight, opacity } = collapseStyle(collapsed, dragging ? offset : 0);
+  const { maxHeight, opacity } = forced
+    ? { maxHeight: 0, opacity: 0 }
+    : collapseStyle(collapsed, dragging ? offset : 0);
 
   const noTransition = dragging || reduced;
 

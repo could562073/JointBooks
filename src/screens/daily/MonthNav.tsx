@@ -1,3 +1,4 @@
+import { DUR, EASE } from '../../lib/motion';
 import styles from './MonthNav.module.css';
 import { monthLabel } from './labels';
 
@@ -30,7 +31,21 @@ export function MonthNav({ year, month, pickerOpen, onPrev, onNext, onTogglePick
         aria-expanded={pickerOpen}
         data-testid="month-title"
       >
-        <span className={styles.zh}>{zh} {pickerOpen ? '▴' : '▾'}</span>
+        <span className={styles.zh}>
+          {zh}
+          {/* MOTION #33：▾ 轉 180° 而不是換成 ▴——同一個字元轉過去，動得起來 */}
+          <span
+            className={styles.chevron}
+            style={{
+              transform: pickerOpen ? 'rotate(180deg)' : 'none',
+              transition: `transform ${DUR.chevron}ms ${EASE.exit}`,
+            }}
+            data-testid="month-chevron"
+            aria-hidden="true"
+          >
+            ▾
+          </span>
+        </span>
         <span className={styles.en}>{en}</span>
       </button>
 

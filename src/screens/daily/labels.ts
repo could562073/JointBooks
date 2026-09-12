@@ -1,3 +1,5 @@
+import { daysInMonth } from '../../domain/date';
+
 const EN = [
   'January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December',
@@ -20,4 +22,12 @@ const ZH_WEEKDAY = ['週日', '週一', '週二', '週三', '週四', '週五', 
  */
 export function dayTitle(y: number, m: number, day: number): string {
   return `${m + 1}月${day}日 · ${ZH_WEEKDAY[new Date(y, m, day).getDay()]}`;
+}
+
+/**
+ * §4 結餘卡副標的結算期間：`9月1日 – 9月30日`。
+ * 用 daysInMonth 而不是寫死 30/31，2 月與閏年才會對。
+ */
+export function periodLabel(y: number, m: number): string {
+  return `${m + 1}月1日 – ${m + 1}月${daysInMonth(y, m)}日`;
 }

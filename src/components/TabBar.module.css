@@ -1,0 +1,61 @@
+.bar {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 14px;
+  display: flex;
+  padding: 5px;
+  border-radius: 22px;
+  /*
+   * MOTION #29：內容要真的透在玻璃後面，所以底是半透明漸層 + backdrop-filter，
+   * 不是一塊不透明的淺色。-webkit- 前置給 iOS Safari。
+   */
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, .62) 0%,
+    rgba(255, 255, 255, .38) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .7),
+    0 0 0 .5px rgba(74, 63, 54, .1);
+  z-index: 20;
+}
+
+/* 選中框是一塊獨立滑塊，位移而不是各頁籤自己變底色 */
+.slider {
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  /* left／width 由 JS 給，跟月曆滑塊同一套 */
+  border-radius: 17px;
+  background: rgba(255, 255, 255, .92);
+  box-shadow: 0 2px 0 rgba(74, 63, 54, .06);
+  will-change: left;
+}
+
+.tab {
+  position: relative;
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  border: 0;
+  background: none;
+  /* §0：可點元素 ≥44px */
+  min-height: 44px;
+  padding: 4px 0;
+  cursor: pointer;
+  color: var(--c-text-3);
+}
+
+.tab[data-active] {
+  color: var(--c-text);
+}
+
+.label {
+  font-size: 10px;
+  line-height: 1.2;
+}

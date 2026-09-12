@@ -1,0 +1,31 @@
+.fab {
+  position: fixed;
+  right: 18px;
+  bottom: 102px;
+  width: 54px;
+  height: 54px;
+  border: 0;
+  border-radius: 19px;
+  background: linear-gradient(160deg, #8B75D6 0%, #6B57B8 55%, #5A46A6 100%);
+  /*
+   * §2：只有 inset 高光與髮絲邊，不加投射陰影。
+   * 頂部白高光 + 底部暗面做出實體感，最後一條是 0.5px 髮絲邊。
+   */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .38),
+    inset 0 -2px 3px rgba(40, 28, 80, .28),
+    0 0 0 .5px rgba(74, 63, 54, .12);
+  color: #fff;
+  cursor: pointer;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  will-change: transform;
+}
+
+.plus {
+  font-size: 26px;
+  line-height: 1;
+  /* ＋ 的字身偏下，往上推 1px 才在視覺上置中 */
+  margin-top: -1px;
+}

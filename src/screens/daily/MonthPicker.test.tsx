@@ -32,6 +32,32 @@ describe('MonthPicker 的年份列', () => {
     expect(years()).toEqual(['2023年', '2024年', '2025年', '2026年']);
   });
 
+  // MOTION #34：換年時滑動的是月方格整區，不是年份列
+  it('換年會讓月方格整區重掛並帶上方向類別', () => {
+    render(<MonthPicker {...BASE} />);
+    const before = screen.getByTestId('month-grid');
+    fireEvent.click(screen.getByLabelText('後一年'));
+    // key 換了就是新節點，CSS 動畫才會重播（同方向連翻也要能重播）
+    expect(screen.getByTestId('month-grid')).not.toBe(before);
+  });
+
+  it('往後翻與往前翻用不同的滑入方向', () => {
+    render(<MonthPicker {...BASE} />);
+    fireEvent.click(screen.getByLabelText('後一年'));
+    const forward = screen.getByTestId('month-grid').className;
+    fireEvent.click(screen.getByLabelText('前一年'));
+    fireEvent.click(screen.getByLabelText('前一年'));
+    expect(screen.getByTestId('month-grid').className).not.toBe(forward);
+  });
+
+  it('直接點較早的年份 pill，方向是往前', () => {
+    render(<MonthPicker {...BASE} />);
+    fireEvent.click(screen.getByLabelText('後一年'));
+    const forward = screen.getByTestId('year-pills').getAttribute('data-dir');
+    fireEvent.click(screen.getByRole('button', { name: '2025年' }));
+    expect(screen.getByTestId('year-pills').getAttribute('data-dir')).not.toBe(forward);
+  });
+
   it('翻年的方向記在 data-dir 上，給 MOTION #34 用', () => {
     render(<MonthPicker {...BASE} />);
     fireEvent.click(screen.getByLabelText('後一年'));

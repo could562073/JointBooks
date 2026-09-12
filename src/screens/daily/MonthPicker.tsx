@@ -32,6 +32,13 @@ export function MonthPicker({ year, month, onPick, onClose }: Props) {
     setYearDir(delta);
   }
 
+  /** 直接點 pill 也算換年，方向看點到的年份在錨點的哪一邊（MOTION #34） */
+  function pickYear(y: number) {
+    if (y === anchor) return;
+    setYearDir(y > anchor ? 1 : -1);
+    setAnchor(y);
+  }
+
   return (
     <div
       className={styles.panel}
@@ -41,20 +48,14 @@ export function MonthPicker({ year, month, onPick, onClose }: Props) {
       <div className={styles.yearRow}>
         <button className={styles.yearArrow} onClick={() => shiftYear(-1)} aria-label="前一年">‹</button>
 
-        {/* key 帶著錨點，換年就重新掛載一次，CSS 動畫才會重播 */}
-        <div
-          key={anchor}
-          className={`${styles.years} ${yearDir > 0 ? styles.fromRight : styles.fromLeft}`}
-          data-testid="year-pills"
-          data-dir={yearDir}
-        >
+        <div className={styles.years} data-testid="year-pills" data-dir={yearDir}>
           {pickerYears(anchor).map((y) => (
             <button
               key={y}
               className={styles.yearPill}
               data-selected={y === anchor ? '' : undefined}
               aria-pressed={y === anchor}
-              onClick={() => setAnchor(y)}
+              onClick={() => pickYear(y)}
             >
               {y}年
             </button>
@@ -64,7 +65,13 @@ export function MonthPicker({ year, month, onPick, onClose }: Props) {
         <button className={styles.yearArrow} onClick={() => shiftYear(1)} aria-label="後一年">›</button>
       </div>
 
-      <div className={styles.months}>
+      {/* MOTION #34：換年時滑動的是月方格整區，不是年份列。
+          key 帶著錨點，換年就重新掛載一次，CSS 動畫才會重播 */}
+      <div
+        key={anchor}
+        className={`${styles.months} ${yearDir > 0 ? styles.fromRight : styles.fromLeft}`}
+        data-testid="month-grid"
+      >
         {Array.from({ length: 12 }, (_, i) => {
           const current = isCurrentMonthCell(anchor, year, month, i);
           return (

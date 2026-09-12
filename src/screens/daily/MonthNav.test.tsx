@@ -55,14 +55,22 @@ describe('MonthNav', () => {
     expect(onTogglePicker).toHaveBeenCalledTimes(1);
   });
 
-  it('選擇器收合時是 ▾，展開時是 ▴，且 aria-expanded 同步', () => {
+  // MOTION #33 指定的是「▾ 轉 180°」，不是換成 ▴——同一個字元轉過去才動得起來
+  it('選擇器展開時 ▾ 轉 180°，收合時轉回來', () => {
     const { unmount } = renderNav({ pickerOpen: false });
-    expect(screen.getByTestId('month-title')).toHaveTextContent('▾');
+    expect(screen.getByTestId('month-chevron')).toHaveStyle({ transform: 'none' });
+    unmount();
+
+    renderNav({ pickerOpen: true });
+    expect(screen.getByTestId('month-chevron')).toHaveStyle({ transform: 'rotate(180deg)' });
+  });
+
+  it('aria-expanded 跟著選擇器狀態', () => {
+    const { unmount } = renderNav({ pickerOpen: false });
     expect(screen.getByTestId('month-title')).toHaveAttribute('aria-expanded', 'false');
     unmount();
 
     renderNav({ pickerOpen: true });
-    expect(screen.getByTestId('month-title')).toHaveTextContent('▴');
     expect(screen.getByTestId('month-title')).toHaveAttribute('aria-expanded', 'true');
   });
 });
