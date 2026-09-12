@@ -1,0 +1,90 @@
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 14px 16px;
+  border-radius: var(--r-lg);
+  background: var(--c-face);
+  box-shadow: 0 4px 0 rgba(74, 63, 54, .07);
+  color: #FFF6EC;
+}
+
+.top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.period {
+  display: block;
+  font-size: 11px;
+  opacity: .72;
+}
+
+.net {
+  display: block;
+  margin-top: 2px;
+  font-size: 27px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.mascot {
+  flex: none;
+}
+
+.delta {
+  align-self: flex-start;
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* §6：▲ 綠、▼ 橘 */
+.delta[data-direction="up"]   { background: var(--c-income-bg);  color: var(--c-income); }
+.delta[data-direction="down"] { background: var(--c-expense-bg); color: var(--c-expense); }
+.delta[data-direction="flat"] { background: rgba(255, 255, 255, .14); color: #FFF6EC; }
+
+.split {
+  display: flex;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.col {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.colLabel {
+  font-size: 11px;
+  opacity: .72;
+}
+
+.income, .expense {
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.income { color: var(--c-income-bar-b); }
+.expense { color: var(--c-income-bar-a); }
+
+/* 比例條：整條是收入，支出從左邊蓋上去 */
+.bar {
+  height: 6px;
+  border-radius: var(--r-pill);
+  background: var(--c-income-bar-b);
+  overflow: hidden;
+}
+
+.barExpense {
+  display: block;
+  height: 100%;
+  background: var(--c-income-bar-a);
+}

@@ -3,6 +3,7 @@ import { TabBar, tabDirection } from './components/TabBar';
 import { DUR } from './lib/motion';
 import { DailyScreen } from './screens/daily/DailyScreen';
 import { EntrySheet } from './screens/entry/EntrySheet';
+import { StatsScreen } from './screens/stats/StatsScreen';
 import { createMain, createSub } from './screens/entry/entryCategories';
 import { selectedDate as selectedDateOf } from './store/useLedger';
 import type { Txn } from './domain/types';
@@ -86,7 +87,9 @@ function Shell() {
         {ready && tab === 'daily' && (
           <DailyScreen onEdit={(t) => setEntry(t)} onAdd={() => setEntry('new')} />
         )}
-        {ready && tab !== 'daily' && (
+        {ready && tab === 'stats' && <StatsScreen />}
+        {/* 配置頁是 Plan 07，先留位子讓分頁列可以切 */}
+        {ready && tab === 'settings' && (
           <div className={styles.stub} data-testid={`stub-${tab}`}>
             這一頁還沒做
           </div>
