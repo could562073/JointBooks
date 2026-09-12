@@ -19,7 +19,10 @@ Repo：`git@github.com:could562073/JointBooks.git`（private）
 | 06 | 統計頁 | ✅ 已合併 main |
 | 07 | 配置頁＋分類子頁 | ✅ 已合併 main |
 | 08 | Google OAuth ＋ Sheets 同步 | ✅ 已合併 main |
-| **09** | **邀請流程＋§15 驗收套件** | **🔨 分支 `feat/09-invite`，功能已 commit，驗收套件待 commit** |
+| 09 | 邀請流程＋§15 驗收套件 | ✅ 已合併 main |
+
+**九份計畫全部完成。** 接下來是 `docs/MANUAL-TESTS.md` 的人工驗證，以及下方
+「延後給後續計畫的事」列的技術債。
 
 目前測試：**Vitest 947（85 檔）、Playwright 56（ip13）**，typecheck 兩個 project 都乾淨，
 `npm run build` 通過。
@@ -156,7 +159,7 @@ domain 的 `weekStart` / `cycleDay` 參數保留為「日後要加回設定時�
 `1,280.00` 會被 Sheets 存成文字，年報表頁的 SUMIFS 就加不到它。`rows.ts` 另寫
 了一組不帶分隔符的 `amount()`／容錯的 `parseAmount()`。
 
-### Plan 09 進行中（2026-09-12）
+### Plan 09 已完成（2026-09-12）
 
 分支 `feat/09-invite`。
 
