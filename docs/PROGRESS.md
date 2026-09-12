@@ -15,13 +15,13 @@ Repo：`git@github.com:could562073/JointBooks.git`（private）
 | 02 | 領域邏輯與本地資料層 | ✅ 已合併 main |
 | 03 | 手勢引擎與動畫基礎層 | ✅ 已合併 main |
 | 04 | 日常頁 | ✅ 已合併 main |
-| **05** | **記一筆／編輯面板** | **🔨 §5 全數完成（分支 `feat/05-entry-sheet`）** |
-| 06 | 統計頁 | 未寫計畫 |
+| 05 | 記一筆／編輯面板 | ✅ 已合併 main |
+| **06** | **統計頁** | **🔨 §6 全數完成（分支 `feat/06-stats-screen`）** |
 | 07 | 配置頁＋分類子頁 | 未寫計畫 |
 | 08 | Google OAuth ＋ Sheets 同步 | 未寫計畫 |
 | 09 | 邀請流程＋驗收套件 | 未寫計畫 |
 
-目前測試：**Vitest 514、Playwright 56（ip13）**，typecheck 兩個 project 都乾淨，`npm run build` 通過。
+目前測試：**Vitest 588、Playwright 56（ip13）**，typecheck 兩個 project 都乾淨，`npm run build` 通過。
 
 ### Plan 03 已完成
 
@@ -87,6 +87,32 @@ MOTION：`docs/MOTION.md` 上屬於 Plan 05 的 8 條全部轉為**已實作**
 **要擁有者裁示的一點：** §5 寫「新紀錄出現在明細**最前**」，§4 寫明細
 「依時間升冪排序」。兩條互斥。目前照 §4 實作（新紀錄 createdAt 最新，
 所以落在最後），因為 §4 的規則明確且已有測試。若要改成置頂請告知。
+
+### Plan 06 已完成（2026-09-11）
+
+分支 `feat/06-stats-screen`，3 個 commit。`src/screens/stats/` 共 10 個檔案。
+
+| | 區塊 | 狀態 |
+| --- | --- | --- |
+| 維度分段 | `components/SegmentedControl` | ✅ 與記一筆的支出／收入共用 |
+| 結餘總覽卡 | `OverviewCard` + `statsLabels` | ✅ 期間標籤、增減 pill、三個 count-up、比例條 |
+| 趨勢折線 | `TrendChart` + `trendGeometry` | ✅ 實線／虛線／面積／末點加大／描線 |
+| 預算使用 | `BudgetList` | ✅ 三種狀態、依序填充、超支閃紅 |
+| 容器 | `StatsScreen` | ✅ 接上 store，錨點用日常頁選中日 |
+| 月結日 | `domain/date` 的 `cycleDay` | ✅ domain 完成，設定值待 Plan 07 |
+
+MOTION：11、12、32 轉為**已實作**。手動驗證見 MANUAL-TESTS 的 S1–S10。
+
+**順手清掉的兩處重複**（見 `852c029`）：
+- `domain/money` 早有 `pushDigit`／`toCents`，我在 Plan 05 又寫了一份。
+  已合併成一份；行為因此有兩處變動（開頭按 `.` 得到 `0.`、前導零被吃掉），
+  比原型好但與原型不同，列此供裁示。
+- 分段控制第三次出現，把支出／收入與週／月／年合併成共用元件。
+
+**Plan 07 接手時只要做兩件事就能接通設定：**
+- 週起始 → store 加欄位，傳進 `MonthCalendar` 的 `weekStart`
+- 月結日 → store 加欄位，傳進 `rangeOf` / `budgetRows` / `trendSeries` /
+  `comparePrevious` 的 `cycleDay`
 
 ---
 

@@ -1,0 +1,100 @@
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--c-card);
+  box-shadow: var(--sh-card);
+}
+
+.mid {
+  flex: 1 1 auto;
+  /* ellipsis 的前提；少了它長分類名會把數字擠出去 */
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.name {
+  font-size: 13px;
+  color: var(--c-text);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.numbers {
+  flex: none;
+  font-size: 11px;
+  color: var(--c-text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.track {
+  height: 7px;
+  border-radius: var(--r-pill);
+  background: rgba(74, 63, 54, .07);
+  overflow: hidden;
+}
+
+.bar {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-pill);
+}
+
+/* MOTION #12：scaleX 0→1，600ms，transform-origin:left；每條延遲 50ms */
+.fill {
+  transform-origin: left;
+  animation: fill var(--fill) var(--ease) var(--delay) both;
+  will-change: transform;
+}
+
+@keyframes fill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* MOTION #12：超支條填滿後閃一次（opacity .6→1，200ms） */
+.fill[data-state="over"] {
+  animation:
+    fill var(--fill) var(--ease) var(--delay) both,
+    flash var(--flash) ease calc(var(--delay) + var(--fill)) 1;
+}
+
+@keyframes flash {
+  from { opacity: .6; }
+  to   { opacity: 1; }
+}
+
+.over {
+  font-size: 11px;
+  font-weight: 700;
+  color: #B4523F;
+}
+
+.empty {
+  margin: 0;
+  padding: 18px 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--c-text-3);
+}

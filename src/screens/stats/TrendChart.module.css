@@ -1,0 +1,62 @@
+.wrap {
+  padding: 12px 12px 8px;
+  border-radius: var(--r-md);
+  background: var(--c-card);
+  box-shadow: var(--sh-card);
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: 120px;
+}
+
+/* §6：支出下方淡色面積 */
+.area {
+  fill: rgba(148, 132, 206, .14);
+}
+
+/* §6：支出實線 #9484CE */
+.expense {
+  fill: none;
+  stroke: #9484CE;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* §6：收入虛線 #DDA6D0 */
+.income {
+  fill: none;
+  stroke: #DDA6D0;
+  stroke-width: 2;
+  stroke-dasharray: 4 4;
+  stroke-linecap: round;
+}
+
+/* MOTION #11：stroke-dashoffset 100%→0，600ms */
+.drawIn {
+  animation: draw var(--draw) var(--ease) both;
+}
+
+@keyframes draw {
+  from { stroke-dashoffset: var(--len); }
+  to   { stroke-dashoffset: 0; }
+}
+
+.lastDot {
+  fill: #9484CE;
+}
+
+.axis {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 2px;
+}
+
+.tick {
+  font-size: 9px;
+  color: var(--c-text-4);
+  /* 標籤多的時候（年維度 12 個）不要換行把高度撐開 */
+  white-space: nowrap;
+}

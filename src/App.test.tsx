@@ -35,6 +35,7 @@ describe('App 的外殼', () => {
 
     fireEvent.click(screen.getByTestId('tab-stats'));
     expect(screen.queryByTestId('daily-screen')).not.toBeInTheDocument();
+    expect(screen.getByTestId('stats-screen')).toBeInTheDocument();
     expect(screen.getByTestId('tab-bar')).toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId('tab-daily'));

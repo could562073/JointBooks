@@ -4,16 +4,15 @@
   padding: 4px;
   border-radius: var(--r-pill);
   background: rgba(74, 63, 54, .06);
-  flex: 1 1 auto;
-  max-width: 200px;
 }
 
 .slider {
   position: absolute;
   top: 4px;
   bottom: 4px;
-  /* left／width 由 JS 給，跟月曆與分頁列同一套 */
+  /* left／width 由 JS 給 */
   border-radius: var(--r-pill);
+  box-shadow: 0 2px 0 rgba(74, 63, 54, .05);
   will-change: left, background;
 }
 
@@ -22,7 +21,6 @@
   flex: 1 1 0;
   border: 0;
   background: none;
-  /* §0：可點元素 ≥44px（含 wrap 的內距） */
   min-height: 36px;
   font-size: 13px;
   font-weight: 700;
@@ -31,5 +29,5 @@
 }
 
 .seg[data-active] {
-  color: #fff;
+  color: var(--c-text);
 }

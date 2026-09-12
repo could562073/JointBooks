@@ -1,7 +1,8 @@
 import { selectable } from '../../domain/categories';
 import type { Category, CategoryKind, Currency, Person, Txn } from '../../domain/types';
 import type { NewTxnInput } from '../../repo/ledgerRepo';
-import { fromCents, toCents } from './amountInput';
+import { toCents } from '../../domain/money';
+import { centsToInput } from './amountInput';
 
 /** 數字鍵盤打在哪一個欄位上（§5：兩個欄位共用同一組鍵盤） */
 export type AmountField = 'amount' | 'cad';
@@ -48,9 +49,9 @@ export function draftFromTxn(cats: Category[], t: Txn): EntryDraft {
   const kind = cats.find((c) => c.id === t.mainId)?.kind ?? 'expense';
   return {
     kind,
-    amount: fromCents(t.amountCents),
+    amount: centsToInput(t.amountCents),
     // CAD 的紀錄沒有獨立的實扣欄位，帶空字串免得切到外幣時看到一個來路不明的數字
-    cad: t.currency === 'CAD' ? '' : fromCents(t.actualCadCents),
+    cad: t.currency === 'CAD' ? '' : centsToInput(t.actualCadCents),
     currency: t.currency,
     mainId: t.mainId, subId: t.subId,
     date: t.date, by: t.by, note: t.note,

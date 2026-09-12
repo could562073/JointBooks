@@ -70,6 +70,12 @@
   flex: none;
 }
 
+/* 分段控制不該撐滿整列，右邊要留給圖示鍵 */
+.header > :first-child {
+  flex: 1 1 auto;
+  max-width: 200px;
+}
+
 .headerBtns {
   display: flex;
   gap: 8px;

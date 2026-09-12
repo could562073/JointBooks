@@ -106,9 +106,9 @@ export function budgetMultiplier(dim: Dimension, anchor: string): number {
 }
 
 export function budgetRows(
-  txns: Txn[], cats: Category[], dim: Dimension, anchor: string
+  txns: Txn[], cats: Category[], dim: Dimension, anchor: string, cycleDay = 1
 ): BudgetRow[] {
-  const r = rangeOf(dim, anchor);
+  const r = rangeOf(dim, anchor, cycleDay);
   const mult = budgetMultiplier(dim, anchor);
 
   return cats
@@ -133,9 +133,9 @@ export function budgetRows(
 
 /** §6 趨勢折線的資料點。X 軸標籤依維度變 */
 export function trendSeries(
-  txns: Txn[], dim: Dimension, anchor: string, cats: Category[]
+  txns: Txn[], dim: Dimension, anchor: string, cats: Category[], cycleDay = 1
 ): TrendPoint[] {
-  const r = rangeOf(dim, anchor);
+  const r = rangeOf(dim, anchor, cycleDay);
 
   if (dim === 'week') {
     const labels = weekdayLabels();
@@ -180,11 +180,11 @@ function bucketOf(txns: Txn[], r: Range, cats: Category[]) {
 
 /** §6 總覽卡的「與上期增減」pill */
 export function comparePrevious(
-  txns: Txn[], dim: Dimension, anchor: string, cats: Category[]
+  txns: Txn[], dim: Dimension, anchor: string, cats: Category[], cycleDay = 1
 ): { deltaRatio: number; direction: 'up' | 'down' | 'flat' } {
-  const r = rangeOf(dim, anchor);
+  const r = rangeOf(dim, anchor, cycleDay);
   const cur = totalsIn(txns, r, cats).netCents;
-  const prev = totalsIn(txns, previousRange(dim, r), cats).netCents;
+  const prev = totalsIn(txns, previousRange(dim, r, cycleDay), cats).netCents;
 
   if (prev === 0) {
     // 前期為零時比例無意義，但符號仍要跟方向一致，不可一律 +1

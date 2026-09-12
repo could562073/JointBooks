@@ -144,7 +144,7 @@ describe('canSave', () => {
   it('金額 0 不給存（§5：金額為 0 時不寫入）', () => {
     expect(canSave(NEW())).toBe(false);
     expect(canSave({ ...NEW(), amount: '0' })).toBe(false);
-    expect(canSave({ ...NEW(), amount: '.' })).toBe(false);
+    expect(canSave({ ...NEW(), amount: '0.00' })).toBe(false);
   });
 
   it('CAD 有金額就能存', () => {

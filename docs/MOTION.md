@@ -18,8 +18,8 @@
 | 8 | 分頁切換—頁面 | `DUR.slide` `EASE.move` | 04 | 已實作 |
 | 9 | 分頁切換—滑塊 | `DUR.slide` `EASE.move` | 04 | 已實作 |
 | 10 | 分頁切換—饅頭 | `DUR.slide` `EASE.enter` | 04 | 已實作 |
-| 11 | 週／月／年切換 | `DUR.slide` `DUR.countUp` `DUR.trendDraw` | 06 | 未開始 |
-| 12 | 預算條填充 | `DUR.budgetFill` `DUR.budgetStagger` `DUR.budgetFlash` | 06 | 未開始 |
+| 11 | 週／月／年切換 | `DUR.slide` `DUR.countUp` `DUR.trendDraw` | 06 | 已實作 |
+| 12 | 預算條填充 | `DUR.budgetFill` `DUR.budgetStagger` `DUR.budgetFlash` | 06 | 已實作 |
 | 13 | 月曆收起／展開 | `DUR.calSnap` `GESTURE.calendarHandle` | 04 | 已實作 |
 | 14 | 分類子頁進場 | `DUR.slide` `EASE.move` | 07 | 未開始 |
 | 15 | 分類卡左滑刪除 | `DUR.cardSnap` `EASE.move` `GESTURE.categoryCard` | 07 | 未開始 |
@@ -38,7 +38,7 @@
 | 29 | 底部分頁列毛玻璃 | — | 04 | 已實作 |
 | 30 | 饅頭呆滯呼吸 | `DUR.breathe` | 01 | 已實作 |
 | 31 | 收支數字 count-up | `DUR.countUp` `DUR.dayTotal` | 04 | 已實作 |
-| 32 | 週／月／年滑塊 | `DUR.slide` `EASE.move` | 06 | 未開始 |
+| 32 | 週／月／年滑塊 | `DUR.slide` `EASE.move` | 06 | 已實作 |
 | 33 | 年月快速選擇 | `DUR.chevron` `DUR.yearPanelIn` `EASE.enter` | 04 | 已實作 |
 | 34 | 選擇面板換年 | `DUR.slide` `EASE.move` | 04 | 已實作 |
 | 35 | 記一筆面板下滑關閉 | `DUR.panelSnap` `EASE.move` `GESTURE.panelDismiss` | 05 | 已實作 |
