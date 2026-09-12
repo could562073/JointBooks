@@ -269,3 +269,60 @@ describe('EntrySheet 的刪除（MOTION #37）', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('EntrySheet 的離場（MOTION #2）', () => {
+  /** 這一段要看「有動畫」的路徑，所以把 reduced-motion 關掉 */
+  function stubNormalMotion() {
+    vi.stubGlobal('matchMedia', (q: string) => ({
+      matches: false, media: q, addEventListener() {}, removeEventListener() {},
+    }));
+  }
+
+  it('reduced-motion 時直接關，不等動畫', () => {
+    const onClose = vi.fn();
+    render(<EntrySheet {...BASE} onClose={onClose} />);
+    fireEvent.click(screen.getByTestId('entry-close'));
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('一般情況下先播離場動畫，260ms 後才真的關', () => {
+    stubNormalMotion();
+    vi.useFakeTimers();
+    const onClose = vi.fn();
+    render(<EntrySheet {...BASE} onClose={onClose} />);
+
+    fireEvent.click(screen.getByTestId('entry-close'));
+    expect(screen.getByTestId('entry-scrim')).toHaveAttribute('data-closing');
+    expect(onClose).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(260);
+    expect(onClose).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+  });
+
+  it('連點兩下只關一次', () => {
+    stubNormalMotion();
+    vi.useFakeTimers();
+    const onClose = vi.fn();
+    render(<EntrySheet {...BASE} onClose={onClose} />);
+
+    fireEvent.click(screen.getByTestId('entry-close'));
+    fireEvent.click(screen.getByTestId('entry-close'));
+    vi.advanceTimersByTime(600);
+    expect(onClose).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+  });
+
+  it('離場途中卸載不會對已消失的元件呼叫 onClose', () => {
+    stubNormalMotion();
+    vi.useFakeTimers();
+    const onClose = vi.fn();
+    const { unmount } = render(<EntrySheet {...BASE} onClose={onClose} />);
+
+    fireEvent.click(screen.getByTestId('entry-close'));
+    unmount();
+    vi.advanceTimersByTime(600);
+    expect(onClose).not.toHaveBeenCalled();
+    vi.useRealTimers();
+  });
+});

@@ -7,12 +7,18 @@
   z-index: 50;
 }
 
-/* MOTION #1：遮罩淡入 200ms */
-.scrimIn { animation: scrimIn var(--scrim) ease both; }
+/* MOTION #1：遮罩淡入 200ms／#2：淡出 220ms */
+.scrimIn  { animation: scrimIn  var(--scrim-in)  ease both; }
+.scrimOut { animation: scrimOut var(--scrim-out) ease both; }
 
 @keyframes scrimIn {
   from { opacity: 0; }
   to   { opacity: 1; }
+}
+
+@keyframes scrimOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
 }
 
 .sheet {
@@ -26,12 +32,18 @@
   will-change: transform;
 }
 
-/* MOTION #1：面板上滑進場 340ms */
-.sheetIn { animation: sheetIn var(--in) var(--ease-sheet) both; }
+/* MOTION #1：面板上滑進場 340ms／#2：下滑離場 260ms */
+.sheetIn  { animation: sheetIn  var(--in)  var(--ease-sheet) both; }
+.sheetOut { animation: sheetOut var(--out) var(--ease-exit)  both; }
 
 @keyframes sheetIn {
   from { transform: translateY(100%); }
   to   { transform: none; }
+}
+
+@keyframes sheetOut {
+  from { transform: none; }
+  to   { transform: translateY(100%); }
 }
 
 .handle {

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { Icon } from '../../components/Icon';
 import { colorSetOf } from '../../domain/palette';
@@ -55,8 +55,27 @@ export function EntrySheet({
   );
   const [openRow, setOpenRow] = useState<'date' | 'category' | null>(null);
   const [confirming, setConfirming] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const dismiss = useSheetDismiss(onClose);
+  /**
+   * MOTION #2：面板下滑離場 260ms 之後才真的卸載。
+   * reduced-motion 直接收掉——那個模式下使用者要的是立刻到位，不是慢動作。
+   */
+  const requestClose = useCallback(() => {
+    if (reduced) { onClose(); return; }
+    setClosing((c) => {
+      // 已經在關了就不要再排一次 timer，否則點兩下會關兩次
+      if (c) return c;
+      timer.current = setTimeout(onClose, DUR.sheetOut);
+      return true;
+    });
+  }, [reduced, onClose]);
+
+  // 卸載時清掉 timer，避免對已經不存在的元件呼叫 onClose
+  useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
+
+  const dismiss = useSheetDismiss(requestClose);
 
   const main = categories.find((c) => c.id === draft.mainId);
   const sub = main?.subs.find((s) => s.id === draft.subId);
@@ -79,19 +98,31 @@ export function EntrySheet({
   function save() {
     if (!saveable) return;
     onSave(toInput(draft));
-    onClose();
+    requestClose();
   }
 
   return (
     <div
-      className={reduced ? styles.scrim : `${styles.scrim} ${styles.scrimIn}`}
-      style={{ ['--in' as string]: `${DUR.sheetIn}ms`, ['--scrim' as string]: `${DUR.scrimSheetIn}ms` }}
-      onClick={onClose}
+      className={[
+        styles.scrim,
+        reduced ? '' : closing ? styles.scrimOut : styles.scrimIn,
+      ].filter(Boolean).join(' ')}
+      style={{
+        ['--in' as string]: `${DUR.sheetIn}ms`,
+        ['--out' as string]: `${DUR.sheetOut}ms`,
+        ['--scrim-in' as string]: `${DUR.scrimSheetIn}ms`,
+        ['--scrim-out' as string]: `${DUR.scrimSheetOut}ms`,
+      }}
+      data-closing={closing ? '' : undefined}
+      onClick={requestClose}
       data-testid="entry-scrim"
     >
       <div
         // 拖曳中要關掉進場動畫（MOTION #35），否則位移會跟動畫互相打架
-        className={reduced || dismiss.dragging ? styles.sheet : `${styles.sheet} ${styles.sheetIn}`}
+        className={[
+          styles.sheet,
+          reduced || dismiss.dragging ? '' : closing ? styles.sheetOut : styles.sheetIn,
+        ].filter(Boolean).join(' ')}
         style={dismiss.style}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
@@ -132,7 +163,7 @@ export function EntrySheet({
               </button>
             )}
             <button
-              type="button" className={styles.iconBtn} onClick={onClose}
+              type="button" className={styles.iconBtn} onClick={requestClose}
               aria-label="關閉" data-testid="entry-close"
             >✕</button>
           </div>
@@ -277,7 +308,7 @@ export function EntrySheet({
           onCancel={() => setConfirming(false)}
           onConfirm={() => {
             onDelete?.(txn.id);
-            onClose();
+            requestClose();
           }}
           testId="delete-confirm"
         />

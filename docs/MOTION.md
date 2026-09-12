@@ -8,10 +8,10 @@
 
 | # | 互動 | 常數來源 | 計畫 | 狀態 |
 | --- | --- | --- | --- | --- |
-| 1 | 記一筆面板進場 | `DUR.sheetIn` `DUR.scrimSheetIn` `EASE.sheet` | 05 | 未開始 |
-| 2 | 記一筆面板離場 | `DUR.sheetOut` `DUR.scrimSheetOut` `EASE.exit` | 05 | 未開始 |
-| 3 | 數字鍵按壓回饋 | `DUR.keyPress` `EASE.move` | 05 | 未開始 |
-| 4 | 儲存後新紀錄落定 | `DUR.sheetOut` `DUR.riseIn` `DUR.calCellPop` `EASE.enter` | 05 | 未開始 |
+| 1 | 記一筆面板進場 | `DUR.sheetIn` `DUR.scrimSheetIn` `EASE.sheet` | 05 | 已實作 |
+| 2 | 記一筆面板離場 | `DUR.sheetOut` `DUR.scrimSheetOut` `EASE.exit` | 05 | 已實作 |
+| 3 | 數字鍵按壓回饋 | `DUR.keyPress` `EASE.move` | 05 | 已實作 |
+| 4 | 儲存後新紀錄落定 | `DUR.sheetOut` `DUR.riseIn` `DUR.calCellPop` `EASE.enter` | 05 | 已實作 |
 | 5 | 明細依序浮現 | `DUR.riseIn` `DUR.riseStagger` `EASE.enter` | 04 | 已實作 |
 | 6 | 月曆選中框滑動 | `DUR.calSnap` `EASE.move` | 04 | 已實作 |
 | 7 | 月份切換（按鈕或左右滑） | `DUR.slide` `DUR.slideBack` `EASE.move` `GESTURE.monthSwipe` | 04 | 已實作 |
@@ -41,7 +41,7 @@
 | 32 | 週／月／年滑塊 | `DUR.slide` `EASE.move` | 06 | 未開始 |
 | 33 | 年月快速選擇 | `DUR.chevron` `DUR.yearPanelIn` `EASE.enter` | 04 | 已實作 |
 | 34 | 選擇面板換年 | `DUR.slide` `EASE.move` | 04 | 已實作 |
-| 35 | 記一筆面板下滑關閉 | `DUR.panelSnap` `EASE.move` `GESTURE.panelDismiss` | 05 | 未開始 |
-| 36 | 支出／收入切換滑塊 | `DUR.slide` `DUR.kindColor` `EASE.move` | 05 | 未開始 |
-| 37 | 刪除紀錄確認窗 | `DUR.dialogIn` `DUR.scrimIn` `DUR.rowCollapse` `EASE.enter` | 05 | 未開始 |
-| 38 | 記一筆日期選擇器 | `DUR.chevron` `DUR.popIn` `DUR.outlineFade` `EASE.enter` | 05 | 未開始 |
+| 35 | 記一筆面板下滑關閉 | `DUR.panelSnap` `EASE.move` `GESTURE.panelDismiss` | 05 | 已實作 |
+| 36 | 支出／收入切換滑塊 | `DUR.slide` `DUR.kindColor` `EASE.move` | 05 | 已實作 |
+| 37 | 刪除紀錄確認窗 | `DUR.dialogIn` `DUR.scrimIn` `DUR.rowCollapse` `EASE.enter` | 05 | 已實作 |
+| 38 | 記一筆日期選擇器 | `DUR.chevron` `DUR.popIn` `DUR.outlineFade` `EASE.enter` | 05 | 已實作 |
