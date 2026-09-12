@@ -23,6 +23,8 @@ type Props = {
   onEdit(txn: Txn): void;
   /** 點右下懸浮 ＋ 記一筆 */
   onAdd(): void;
+  /** MOTION #37：正在播刪除收合動畫的紀錄 id */
+  collapsingTxns?: ReadonlySet<string>;
 };
 
 /**
@@ -35,7 +37,7 @@ type Props = {
  * 收支三卡與月曆放在同一個收合區（跟原型的 460px 一致）：把手收的是這一塊，
  * 年月選擇器展開時強制收的也是這一塊，兩個需求指向同一個區域。
  */
-export function DailyScreen({ onEdit, onAdd }: Props) {
+export function DailyScreen({ onEdit, onAdd, collapsingTxns }: Props) {
   const { year, month, selectedDay, categories, txns, showWhoTags } = useLedger();
   const goMonth = useLedger((s) => s.goMonth);
   const setMonth = useLedger((s) => s.setMonth);
@@ -156,6 +158,7 @@ export function DailyScreen({ onEdit, onAdd }: Props) {
           categories={categories}
           showWhoTags={showWhoTags}
           onEdit={onEdit}
+          {...(collapsingTxns ? { collapsing: collapsingTxns } : {})}
         />
       </div>
 

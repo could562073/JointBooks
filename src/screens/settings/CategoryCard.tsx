@@ -16,6 +16,8 @@ type Props = {
   /** MOTION #17：剛新增的卡，名稱欄自動進入編輯（且**不**自動展開圖示選擇器） */
   autoEditName?: boolean;
   onEditedName?(): void;
+  /** MOTION #16：正在播刪除的收合動畫 */
+  collapsing?: boolean;
 };
 
 /**
@@ -24,7 +26,7 @@ type Props = {
  * 收入分類不顯示金額 pill（增補檔 B-2：收入分類沒有預算）。
  */
 export function CategoryCard({
-  category: c, onChange, onDelete, autoEditName = false, onEditedName,
+  category: c, onChange, onDelete, autoEditName = false, onEditedName, collapsing = false,
 }: Props) {
   const [pickingIcon, setPickingIcon] = useState(false);
   const [addingSub, setAddingSub] = useState(false);
@@ -32,7 +34,11 @@ export function CategoryCard({
   const set = colorSetOf(c.colorSet);
 
   return (
-    <li className={styles.wrap} data-testid={`cat-${c.id}`}>
+    <li
+      className={collapsing ? `${styles.wrap} jb-row-collapsing` : styles.wrap}
+      data-collapsing={collapsing ? '' : undefined}
+      data-testid={`cat-${c.id}`}
+    >
       {/* 刪除鍵墊在卡片底下，卡片滑開才露出來 */}
       <button
         type="button"

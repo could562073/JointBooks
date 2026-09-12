@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { defaultCategories } from '../../domain/categories';
 import type { Category, Txn } from '../../domain/types';
@@ -161,6 +161,26 @@ describe('CategoriesPage 的刪除（MOTION #16）', () => {
     render(<CategoriesPage {...BASE} onDelete={onDelete} />);
     fireEvent.click(screen.getByTestId(`cat-${EXPENSE[0]!.id}-delete`));
     fireEvent.click(screen.getByTestId('cat-delete-confirm-confirm'));
+    // 這一段的 matchMedia 是 reduced-motion，所以直接刪、不等收合動畫
     expect(onDelete).toHaveBeenCalledWith(EXPENSE[0]!.id);
+  });
+
+  it('一般情況下先播收合再刪（MOTION #16）', () => {
+    vi.stubGlobal('matchMedia', (q: string) => ({
+      matches: false, media: q, addEventListener() {}, removeEventListener() {},
+    }));
+    vi.useFakeTimers();
+    const onDelete = vi.fn();
+    render(<CategoriesPage {...BASE} onDelete={onDelete} />);
+
+    fireEvent.click(screen.getByTestId(`cat-${EXPENSE[0]!.id}-delete`));
+    fireEvent.click(screen.getByTestId('cat-delete-confirm-confirm'));
+
+    expect(screen.getByTestId(`cat-${EXPENSE[0]!.id}`)).toHaveAttribute('data-collapsing');
+    expect(onDelete).not.toHaveBeenCalled();
+
+    act(() => { vi.advanceTimersByTime(260); });
+    expect(onDelete).toHaveBeenCalledWith(EXPENSE[0]!.id);
+    vi.useRealTimers();
   });
 });

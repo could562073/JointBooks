@@ -4,6 +4,7 @@ import { SegmentedControl, type Segment } from '../../components/SegmentedContro
 import { makeCategory, nextColorSet, nextOrder, selectable } from '../../domain/categories';
 import type { Category, CategoryKind, Txn } from '../../domain/types';
 import { DUR } from '../../lib/motion';
+import { useRowRemoval } from '../../lib/useRowRemoval';
 import { CategoryCard } from './CategoryCard';
 import styles from './CategoriesPage.module.css';
 
@@ -37,6 +38,8 @@ export function CategoriesPage({ categories, txns, onSave, onDelete, onBack }: P
   const [confirming, setConfirming] = useState<Category | null>(null);
   /** 剛新增的分類 id：名稱欄要自動進入編輯（MOTION #17） */
   const [justAdded, setJustAdded] = useState<string | null>(null);
+  // MOTION #16：確認後卡片先收合再消失
+  const removal = useRowRemoval(onDelete);
 
   const rows = useMemo(() => selectable(categories, kind), [categories, kind]);
 
@@ -90,6 +93,7 @@ export function CategoriesPage({ categories, txns, onSave, onDelete, onBack }: P
             <CategoryCard
               key={c.id}
               category={c}
+              collapsing={removal.collapsing.has(c.id)}
               autoEditName={c.id === justAdded}
               onEditedName={() => setJustAdded(null)}
               onChange={onSave}
@@ -106,7 +110,7 @@ export function CategoriesPage({ categories, txns, onSave, onDelete, onBack }: P
           description="刪除後已記的帳不會被改動也不會消失，仍以原分類名稱留在統計裡。"
           confirmLabel="刪除"
           onCancel={() => setConfirming(null)}
-          onConfirm={() => { onDelete(confirming.id); setConfirming(null); }}
+          onConfirm={() => { removal.remove(confirming.id); setConfirming(null); }}
           testId="cat-delete-confirm"
         />
       )}

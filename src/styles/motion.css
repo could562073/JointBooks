@@ -18,3 +18,27 @@
     scroll-behavior: auto !important;
   }
 }
+
+/*
+ * MOTION #16／#37：刪除確認後那一列的高度收合。
+ *
+ * 放在全域而不是各自的 CSS Module，是因為分類卡與明細列要的是同一條動畫。
+ * 用 grid-template-rows 1fr→0fr 而不是 max-height：後者要先猜一個夠大的
+ * 上限，猜太大的話動畫前半段等於什麼都沒發生，收合看起來會「卡一下才動」。
+ */
+.jb-row-collapsing {
+  display: grid;
+  grid-template-rows: 1fr;
+  overflow: hidden;
+  /* 260ms = DUR.rowCollapse。與 Mantou 的 3.4s 同樣是寫死在 CSS 的動畫時長 */
+  animation: jb-row-collapse 260ms var(--ease-move) both;
+}
+
+.jb-row-collapsing > * {
+  min-height: 0;
+}
+
+@keyframes jb-row-collapse {
+  from { grid-template-rows: 1fr; opacity: 1; }
+  to   { grid-template-rows: 0fr; opacity: 0; }
+}
