@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { KindSegment, segmentLeft } from './KindSegment';
+import { segmentLeft } from '../../components/SegmentedControl';
+import { KindSegment } from './KindSegment';
 
 function stubMotion(reduced: boolean) {
   vi.stubGlobal('matchMedia', (q: string) => ({
@@ -16,8 +17,13 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe('segmentLeft', () => {
   it('兩等寬', () => {
-    expect(segmentLeft(0)).toBe('0.0000%');
-    expect(segmentLeft(1)).toBe('50.0000%');
+    expect(segmentLeft(0, 2)).toBe('0.0000%');
+    expect(segmentLeft(1, 2)).toBe('50.0000%');
+  });
+
+  it('三等寬', () => {
+    expect(segmentLeft(1, 3)).toBe('33.3333%');
+    expect(segmentLeft(2, 3)).toBe('66.6667%');
   });
 });
 

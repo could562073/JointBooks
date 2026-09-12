@@ -9,7 +9,8 @@ import { useReducedMotion } from '../../lib/useReducedMotion';
 import type { NewTxnInput } from '../../repo/ledgerRepo';
 import { dayTitle } from '../daily/labels';
 import { parseDate } from '../../domain/date';
-import { pressKey, type KeypadKey } from './amountInput';
+import { pushDigit } from '../../domain/money';
+import { keyChar, type KeypadKey } from './amountInput';
 import { CategoryPicker } from './CategoryPicker';
 import {
   actualCadCents, canSave, draftForNew, draftFromTxn, needsCadField,
@@ -83,9 +84,10 @@ export function EntrySheet({
   const saveable = canSave(draft);
 
   const key = useCallback((k: KeypadKey) => {
+    const c = keyChar(k);
     setDraft((d) => (d.field === 'cad'
-      ? { ...d, cad: pressKey(d.cad, k) }
-      : { ...d, amount: pressKey(d.amount, k) }));
+      ? { ...d, cad: pushDigit(d.cad, c) }
+      : { ...d, amount: pushDigit(d.amount, c) }));
   }, []);
 
   const focus = (field: AmountField) => setDraft((d) => ({ ...d, field }));
