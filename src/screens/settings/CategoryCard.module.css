@@ -1,0 +1,91 @@
+.wrap {
+  position: relative;
+  list-style: none;
+  border-radius: var(--r-md);
+  /* 刪除鍵墊在底下，卡片滑開時不能溢出圓角外 */
+  overflow: hidden;
+}
+
+.delete {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 84px;
+  border: 0;
+  background: rgba(217, 112, 92, .12);
+  color: #B4523F;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px 12px;
+  border-radius: var(--r-md);
+  background: var(--c-card);
+  box-shadow: var(--sh-card);
+  will-change: transform;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.iconBtn {
+  flex: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  /* §0：可點元素 ≥44px */
+  min-width: 44px;
+  min-height: 44px;
+  display: grid;
+  place-items: center;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.subs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.chip {
+  border: 0;
+  border-radius: var(--r-pill);
+  background: rgba(74, 63, 54, .06);
+  padding: 5px 11px;
+  min-height: 30px;
+  font-size: 12px;
+  color: var(--c-text-2);
+  cursor: pointer;
+}
+
+/* 只剩一個子分類時不給刪（§11-6），視覺上也要看得出來 */
+.chip:disabled {
+  opacity: .5;
+  cursor: default;
+}
+
+.add {
+  border: 1px dashed rgba(74, 63, 54, .28);
+  border-radius: var(--r-pill);
+  background: none;
+  padding: 5px 11px;
+  min-height: 30px;
+  font-size: 12px;
+  color: var(--c-text-3);
+  cursor: pointer;
+}

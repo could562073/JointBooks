@@ -1,0 +1,34 @@
+.panel {
+  display: grid;
+  /* 每顆 44×44（§7.2），一列放得下幾顆就放幾顆 */
+  grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+  gap: 4px;
+  padding: 8px 0 2px;
+}
+
+/* MOTION #18：面板 translateY 10px→0 + opacity，240ms */
+.panelIn {
+  animation: popIn var(--pop) var(--ease-enter) both;
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.cell {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  cursor: pointer;
+}
+
+/* MOTION #18：選中項外框 2px 淡入 120ms。inset 不改變尺寸，格子不會位移 */
+.cell[data-selected] {
+  box-shadow: inset 0 0 0 2px var(--c-primary);
+}

@@ -1,0 +1,27 @@
+.track {
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 26px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: rgba(74, 63, 54, .16);
+  cursor: pointer;
+  padding: 0;
+}
+
+.track[data-checked] {
+  background: var(--c-primary);
+}
+
+.knob {
+  position: absolute;
+  top: 3px;
+  /* left 由 JS 給，因為 MOTION #21 指定的是 left 位移而不是 transform */
+  width: 20px;
+  height: 20px;
+  border-radius: var(--r-pill);
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(74, 63, 54, .2);
+  will-change: left;
+}

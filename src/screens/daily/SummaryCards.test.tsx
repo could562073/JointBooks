@@ -18,7 +18,6 @@ const PROPS = {
   incomeCents: 520_000,
   expenseCents: 318_450,
   netCents: 201_550,
-  periodLabel: '9月1日 – 9月30日',
 };
 
 describe('SummaryCards', () => {
@@ -43,9 +42,10 @@ describe('SummaryCards', () => {
     expect(screen.getByTestId('card-net')).toHaveTextContent('-$450.00');
   });
 
-  it('結餘卡顯示結算期間副標', () => {
+  // 增補檔 D-4：月結日固定 1 日，副標固定「本月」、不顯示區間
+  it('結餘卡副標固定顯示「本月」', () => {
     render(<SummaryCards {...PROPS} />);
-    expect(screen.getByTestId('card-net')).toHaveTextContent('9月1日 – 9月30日');
+    expect(screen.getByTestId('card-net')).toHaveTextContent('本月');
   });
 
   it('金額為 0 時顯示 $0.00 而不是空白', () => {

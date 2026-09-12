@@ -8,9 +8,13 @@ type Props = {
   incomeCents: number;
   expenseCents: number;
   netCents: number;
-  /** 結餘卡副標的結算期間，例如 “9月1日 – 9月30日” */
-  periodLabel: string;
 };
+
+/**
+ * 增補檔 D-4：月結日固定 1 日，結餘卡副標固定顯示「本月」、不顯示區間。
+ * （§4 原本寫「副標顯示結算期間」，增補檔優先。）
+ */
+const PERIOD_LABEL = '本月';
 
 function Amount({ cents, signed }: { cents: number; signed: boolean }) {
   // MOTION #31：三個數字都要 count-up
@@ -22,7 +26,7 @@ function Amount({ cents, signed }: { cents: number; signed: boolean }) {
  * §4 收支三卡。三個數字都是**整月合計**，不隨選中日變動——選中日只影響下方的
  * 日期標題與明細。這是規格特別點出來的，寫在這裡免得之後有人「順手」接成當日。
  */
-export function SummaryCards({ incomeCents, expenseCents, netCents, periodLabel }: Props) {
+export function SummaryCards({ incomeCents, expenseCents, netCents }: Props) {
   return (
     <div className={styles.row} data-testid="summary-cards">
       <div className={`${styles.card} ${styles.income}`} data-testid="card-income">
@@ -40,7 +44,7 @@ export function SummaryCards({ incomeCents, expenseCents, netCents, periodLabel 
         <Mantou variant="full" width={30} breathing className={styles.mascot} data-testid="net-mantou" />
         <span className={styles.label}>結餘</span>
         <Amount cents={netCents} signed />
-        <span className={styles.sub}>{periodLabel}</span>
+        <span className={styles.sub}>{PERIOD_LABEL}</span>
       </div>
     </div>
   );

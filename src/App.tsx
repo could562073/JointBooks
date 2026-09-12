@@ -1,8 +1,10 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { TabBar, tabDirection } from './components/TabBar';
 import { DUR } from './lib/motion';
+import { useRowRemoval } from './lib/useRowRemoval';
 import { DailyScreen } from './screens/daily/DailyScreen';
 import { EntrySheet } from './screens/entry/EntrySheet';
+import { SettingsScreen } from './screens/settings/SettingsScreen';
 import { StatsScreen } from './screens/stats/StatsScreen';
 import { createMain, createSub } from './screens/entry/entryCategories';
 import { selectedDate as selectedDateOf } from './store/useLedger';
@@ -46,6 +48,9 @@ function Shell() {
 
   // null = 面板關著；'new' = 新增；Txn = 編輯那一筆
   const [entry, setEntry] = useState<'new' | Txn | null>(null);
+  // MOTION #37：刪除後那一列先收合再消失
+  const removeTxn = useCallback((id: string) => { void deleteTxn(id); }, [deleteTxn]);
+  const txnRemoval = useRowRemoval(removeTxn);
 
   // 就地新增分類：存進 store 之後把 id 交回面板，讓它立即選中（§5）
   const addMain = useCallback(async (name: string) => {
@@ -85,14 +90,15 @@ function Shell() {
       >
         {/* 統計頁與配置頁是 Plan 06／07，先留位子讓分頁列可以切 */}
         {ready && tab === 'daily' && (
-          <DailyScreen onEdit={(t) => setEntry(t)} onAdd={() => setEntry('new')} />
+          <DailyScreen
+            onEdit={(t) => setEntry(t)}
+            onAdd={() => setEntry('new')}
+            collapsingTxns={txnRemoval.collapsing}
+          />
         )}
         {ready && tab === 'stats' && <StatsScreen />}
-        {/* 配置頁是 Plan 07，先留位子讓分頁列可以切 */}
         {ready && tab === 'settings' && (
-          <div className={styles.stub} data-testid={`stub-${tab}`}>
-            這一頁還沒做
-          </div>
+          <SettingsScreen onInvite={() => {}} />
         )}
       </div>
 
@@ -113,7 +119,7 @@ function Shell() {
             if (entry === 'new') void addTxn(input);
             else void updateTxn(entry.id, input);
           }}
-          onDelete={(id) => void deleteTxn(id)}
+          onDelete={(id) => txnRemoval.remove(id)}
           onClose={() => setEntry(null)}
           onAddMain={addMain}
           onAddSub={addSubTo}

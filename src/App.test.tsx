@@ -46,6 +46,7 @@ describe('App 的外殼', () => {
     render(<App />);
     await waitFor(() => expect(screen.getByTestId('fab')).toBeInTheDocument());
     fireEvent.click(screen.getByTestId('tab-settings'));
+    expect(screen.getByTestId('settings-screen')).toBeInTheDocument();
     expect(screen.queryByTestId('fab')).not.toBeInTheDocument();
   });
 

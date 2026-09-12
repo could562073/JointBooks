@@ -15,9 +15,11 @@ type Props = {
   /** 配置頁的「每筆顯示記帳人」；關掉時頭像隱形但保留版位 */
   showWhoTags: boolean;
   onEdit(txn: Txn): void;
+  /** MOTION #37：正在播刪除收合動畫的紀錄 id */
+  collapsing?: ReadonlySet<string>;
 };
 
-export function TxnList({ txns, categories, showWhoTags, onEdit }: Props) {
+export function TxnList({ txns, categories, showWhoTags, onEdit, collapsing }: Props) {
   const reduced = useReducedMotion();
 
   if (txns.length === 0) {
@@ -40,6 +42,7 @@ export function TxnList({ txns, categories, showWhoTags, onEdit }: Props) {
           onEdit={onEdit}
           // MOTION #5：逐張浮現。reduced-motion 時不排延遲，整批直接就位
           delayMs={reduced ? 0 : riseDelay(i, DUR.riseStagger)}
+          collapsing={collapsing?.has(t.id) ?? false}
         />
       ))}
     </ul>
@@ -54,17 +57,20 @@ type RowProps = {
   onEdit(txn: Txn): void;
   /** MOTION #5 的逐張延遲（ms） */
   delayMs: number;
+  /** MOTION #37：正在播刪除的收合動畫 */
+  collapsing: boolean;
 };
 
-function TxnRow({ txn, category, showWhoTags, onEdit, delayMs }: RowProps) {
+function TxnRow({ txn, category, showWhoTags, onEdit, delayMs, collapsing }: RowProps) {
   const isIncome = category?.kind === 'income';
   const set = colorSetOf(category?.colorSet ?? 0);
 
   return (
     <li
-      className={styles.item}
+      className={collapsing ? `${styles.item} jb-row-collapsing` : styles.item}
       style={{ ['--rise-delay' as string]: `${delayMs}ms`, ['--rise' as string]: `${DUR.riseIn}ms` }}
       data-delay={delayMs}
+      data-collapsing={collapsing ? '' : undefined}
     >
       <button
         type="button"
