@@ -16,12 +16,12 @@ Repo：`git@github.com:could562073/JointBooks.git`（private）
 | 03 | 手勢引擎與動畫基礎層 | ✅ 已合併 main |
 | 04 | 日常頁 | ✅ 已合併 main |
 | 05 | 記一筆／編輯面板 | ✅ 已合併 main |
-| **06** | **統計頁** | **🔨 §6 全數完成（分支 `feat/06-stats-screen`）** |
-| 07 | 配置頁＋分類子頁 | 未寫計畫 |
+| 06 | 統計頁 | ✅ 已合併 main |
+| **07** | **配置頁＋分類子頁** | **🔨 §7 全數完成（分支 `feat/07-settings`）** |
 | 08 | Google OAuth ＋ Sheets 同步 | 未寫計畫 |
 | 09 | 邀請流程＋驗收套件 | 未寫計畫 |
 
-目前測試：**Vitest 588、Playwright 56（ip13）**，typecheck 兩個 project 都乾淨，`npm run build` 通過。
+目前測試：**Vitest 657、Playwright 56（ip13）**，typecheck 兩個 project 都乾淨，`npm run build` 通過。
 
 ### Plan 03 已完成
 
@@ -109,10 +109,28 @@ MOTION：11、12、32 轉為**已實作**。手動驗證見 MANUAL-TESTS 的 S1�
   比原型好但與原型不同，列此供裁示。
 - 分段控制第三次出現，把支出／收入與週／月／年合併成共用元件。
 
-**Plan 07 接手時只要做兩件事就能接通設定：**
-- 週起始 → store 加欄位，傳進 `MonthCalendar` 的 `weekStart`
-- 月結日 → store 加欄位，傳進 `rangeOf` / `budgetRows` / `trendSeries` /
-  `comparePrevious` 的 `cycleDay`
+**（更正）週起始與月結日不會有設定。** 增補檔 A 已把這兩列從配置頁移除，
+固定為週一／每月 1 日，常數在 `src/domain/constants.ts`。我在 Plan 06 的
+進度說明裡寫成「Plan 07 接通」是錯的，當時只讀了 §7.3 沒對增補檔。
+domain 的 `weekStart` / `cycleDay` 參數保留為「日後要加回設定時只改一處」的接縫。
+
+### Plan 07 已完成（2026-09-11）
+
+分支 `feat/07-settings`，4 個 commit。`src/screens/settings/` 共 14 個檔案。
+
+| | 區塊 | 狀態 |
+| --- | --- | --- |
+| 帳本成員 | `SettingsScreen` | ✅ 我／老婆／邀請成員（面板待 Plan 09） |
+| 分類摘要列 | `settingsSummary` | ✅ 疊圖示 + 「N 個分類 · 月額度 $X」 |
+| 兩個開關 | `components/Toggle` | ✅ MOTION #21，持久化到 meta 表 |
+| 分類子頁 | `CategoriesPage` | ✅ MOTION #14 進場、B-1 分段、#17 新增、#16 刪除 |
+| 分類卡 | `CategoryCard` + `cardSwipe` | ✅ #15 左滑、#18 圖示、#19 就地編輯、子分類增刪 |
+| 列收合 | `lib/useRowRemoval` | ✅ #16／#37 的最後一段，分類卡與明細列共用 |
+
+**MOTION 37 條裡只剩 5 條未實作**，全部屬於 Plan 08／09：
+22、23、24（邀請流程）、25、26（同步）。
+
+手動驗證見 MANUAL-TESTS 的 C1–C14。
 
 ---
 
