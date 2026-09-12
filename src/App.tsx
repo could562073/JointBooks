@@ -6,6 +6,15 @@ import { DailyScreen } from './screens/daily/DailyScreen';
 import { EntrySheet } from './screens/entry/EntrySheet';
 import { SettingsScreen } from './screens/settings/SettingsScreen';
 import { StatsScreen } from './screens/stats/StatsScreen';
+import { InvitePanel } from './invite/InvitePanel';
+import { JoinPage } from './invite/JoinPage';
+import { LoginPage } from './invite/LoginPage';
+import { buildInviteUrl, checkInvite } from './invite/inviteLink';
+import { joinStateOf, type JoinState } from './invite/joinFlow';
+import { routeOf } from './invite/route';
+import { isConfigured, readConfig } from './sync/config';
+import { joinedSid, setJoinedSid } from './sync/ledgerId';
+import { completeSignIn, hasSession, startSignIn } from './auth/session';
 import { createMain, createSub } from './screens/entry/entryCategories';
 import { selectedDate as selectedDateOf } from './store/useLedger';
 import type { Txn } from './domain/types';
@@ -31,7 +40,96 @@ export default function App() {
     );
   }
 
-  return <Shell />;
+  const route = routeOf(location.pathname, location.search);
+  if (route.kind === 'join') return <Join search={route.search} />;
+  if (route.kind === 'callback') return <Callback search={route.search} />;
+
+  return <Gate />;
+}
+
+/**
+ * 未設定 client id 時直接進主程式（純本機模式）；設定了但還沒登入就先給登入頁。
+ */
+function Gate() {
+  const config = readConfig(
+    import.meta.env as unknown as Record<string, string | undefined>,
+    location.origin
+  );
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!isConfigured(config)) { setSignedIn(true); return; }
+    let alive = true;
+    void hasSession().then((v) => { if (alive) setSignedIn(v); });
+    return () => { alive = false; };
+  }, [config]);
+
+  if (signedIn === null) return null;
+  if (signedIn) return <Shell />;
+
+  return (
+    <LoginPage
+      onSignIn={() => {
+        void startSignIn({ clientId: config.clientId!, redirectUri: config.redirectUri });
+      }}
+    />
+  );
+}
+
+/** §14.2 的 redirect 回程。成功或失敗都導回首頁，不留在這個中繼頁 */
+function Callback({ search }: { search: string }) {
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const config = readConfig(
+      import.meta.env as unknown as Record<string, string | undefined>,
+      location.origin
+    );
+    if (!isConfigured(config)) { location.replace('/'); return; }
+
+    void completeSignIn({ clientId: config.clientId!, redirectUri: config.redirectUri }, search)
+      .then((r) => {
+        if (r.kind === 'error') setError(r.error);
+        else location.replace('/');
+      });
+  }, [search]);
+
+  return (
+    <div data-testid="auth-callback">
+      {error ? `登入失敗：${error}` : '登入中…'}
+    </div>
+  );
+}
+
+/** §8.1 接受邀請頁。連結檢查與本機帳本 id 都是 async，所以先給 null 再補上 */
+function Join({ search }: { search: string }) {
+  const [state, setState] = useState<JoinState | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    void Promise.all([checkInvite(search), joinedSid()]).then(([check, sid]) => {
+      if (alive) setState(joinStateOf({ check, joinedSid: sid }));
+    });
+    return () => { alive = false; };
+  }, [search]);
+
+  if (!state) return null;
+
+  return (
+    <JoinPage
+      state={state}
+      // 加入＝把帳本 id 記在這台裝置上。權限本身是 Google 那邊給的，這裡
+      // 只是記下「我加入的是哪一本」，下次再點同一條連結才認得出已是成員
+      onJoin={() => {
+        const go = () => { location.href = '/'; };
+        if (state.kind === 'invite' || state.kind === 'already') {
+          void setJoinedSid(state.sid).then(go);
+        } else go();
+      }}
+      onBrowse={() => setState({ kind: 'browsing' })}
+      onHome={() => { location.href = '/'; }}
+    />
+  );
 }
 
 function Shell() {
@@ -50,6 +148,8 @@ function Shell() {
 
   // null = 面板關著；'new' = 新增；Txn = 編輯那一筆
   const [entry, setEntry] = useState<'new' | Txn | null>(null);
+  // null = 面板關著。開著時 url 可能仍是 null——那代表這台裝置還沒有雲端帳本
+  const [invite, setInvite] = useState<{ url: string | null } | null>(null);
   // MOTION #37：刪除後那一列先收合再消失
   const removeTxn = useCallback((id: string) => { void deleteTxn(id); }, [deleteTxn]);
   const txnRemoval = useRowRemoval(removeTxn);
@@ -101,7 +201,11 @@ function Shell() {
         {ready && tab === 'stats' && <StatsScreen />}
         {ready && tab === 'settings' && (
           <SettingsScreen
-            onInvite={() => {}}
+            onInvite={() => {
+              void joinedSid().then(async (sid) => {
+                setInvite({ url: sid ? await buildInviteUrl(location.origin, sid) : null });
+              });
+            }}
             syncState={syncState}
             lastSyncAt={lastSyncAt}
             onRetrySync={() => {}}
@@ -116,6 +220,18 @@ function Shell() {
         key 讓每次開啟都重新初始化 draft——同一個面板連開兩筆不同的紀錄時，
         少了它第二筆會沿用第一筆的 useState 初值。
       */}
+      {invite && (
+        <InvitePanel
+          url={invite.url}
+          onClose={() => setInvite(null)}
+          onPreview={() => {
+            if (!invite.url) return;
+            const u = new global.URL(invite.url);
+            location.href = u.pathname + u.search;
+          }}
+        />
+      )}
+
       {entry && (
         <EntrySheet
           key={entry === 'new' ? 'new' : entry.id}

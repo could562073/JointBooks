@@ -17,11 +17,15 @@ Repo：`git@github.com:could562073/JointBooks.git`（private）
 | 04 | 日常頁 | ✅ 已合併 main |
 | 05 | 記一筆／編輯面板 | ✅ 已合併 main |
 | 06 | 統計頁 | ✅ 已合併 main |
-| **07** | **配置頁＋分類子頁** | **🔨 §7 全數完成（分支 `feat/07-settings`）** |
-| 08 | Google OAuth ＋ Sheets 同步 | 未寫計畫 |
-| 09 | 邀請流程＋驗收套件 | 未寫計畫 |
+| 07 | 配置頁＋分類子頁 | ✅ 已合併 main |
+| 08 | Google OAuth ＋ Sheets 同步 | ✅ 已合併 main |
+| **09** | **邀請流程＋§15 驗收套件** | **🔨 分支 `feat/09-invite`，功能已 commit，驗收套件待 commit** |
 
-目前測試：**Vitest 657、Playwright 56（ip13）**，typecheck 兩個 project 都乾淨，`npm run build` 通過。
+目前測試：**Vitest 947（85 檔）、Playwright 56（ip13）**，typecheck 兩個 project 都乾淨，
+`npm run build` 通過。
+
+`docs/MOTION.md` 的 **37 條全部標為「已實作」**；「已驗收」要等擁有者跑完
+`docs/MANUAL-TESTS.md`。
 
 ### Plan 03 已完成
 
@@ -132,6 +136,54 @@ domain 的 `weekStart` / `cycleDay` 參數保留為「日後要加回設定時�
 
 手動驗證見 MANUAL-TESTS 的 C1–C14。
 
+### Plan 08 已完成（2026-09-12）
+
+分支 `feat/08-sync`，5 個 commit。
+
+| | 區塊 | 狀態 |
+| --- | --- | --- |
+| PKCE | `auth/pkce` | ✅ 對過 RFC 7636 附錄 B 的向量 |
+| Token | `auth/tokens` | ✅ 交換與續期，失敗不標記已登入 |
+| Sheets client | `sheets/client` | ✅ create／append／get／update／share |
+| 欄位對應 | `sheets/rows` | ✅ 增補檔 C-3 的 A–N；分類另加 J 欄配色 |
+| 建表 | `sheets/ledgerSheet` | ✅ 紀錄／配置／年報表／圖表四張 |
+| 合併與去重 | `sync/merge` | ✅ updatedAt 較新者勝，平手取遠端 |
+| 退避 | `sync/backoff` | ✅ 只重試 429／5xx，指數 + 0–25% jitter |
+| 狀態機 | `sync/state` | ✅ offline 優先 |
+| 引擎 | `sync/syncEngine` | ✅ 每次拉取重建 id→列號，append／update 分流 |
+
+**金額欄不能用 `formatCents`**：它會加千分位，而 `valueInputOption` 是 RAW，
+`1,280.00` 會被 Sheets 存成文字，年報表頁的 SUMIFS 就加不到它。`rows.ts` 另寫
+了一組不帶分隔符的 `amount()`／容錯的 `parseAmount()`。
+
+### Plan 09 進行中（2026-09-12）
+
+分支 `feat/09-invite`。
+
+| | 區塊 | 狀態 |
+| --- | --- | --- |
+| 邀請連結 | `invite/inviteLink` | ✅ 7 天 TTL、簽章、`checkInvite` |
+| 剪貼簿與分享 | `invite/clipboard` | ✅ Web Share，取消不算失敗、不支援才退回複製 |
+| 邀請面板 | `invite/InvitePanel` | ✅ MOTION #22／#23／#24，QR 依真實連結產生 |
+| 四個分支 | `invite/joinFlow` + `JoinPage` | ✅ 未加入／已是成員／過期／無效 |
+| 登入頁 | `invite/LoginPage` | ✅ 含未設定 client id 的純本機模式 |
+| 路由 | `invite/route` | ✅ app／join／callback 三條，無 router 套件 |
+| Session | `auth/session` | ✅ verifier 與 state 存 IndexedDB，access token 只在記憶體 |
+| 帳本 id | `sync/ledgerId` | ✅ 存 meta，接受邀請頁靠它判斷「已是成員」 |
+| §15 驗收套件 | `src/acceptance/` | ✅ 58 條，對照表在 `src/acceptance/README.md` |
+
+**邀請連結的簽章不是身分驗證。** 沒有後端就沒有只有伺服器知道的密鑰，任何拿到
+連結的人都能自己算一個新的 `t`。它擋的是過期與連結被改動；真正擋住亂猜的是
+`spreadsheetId` 本身。面板文案照這個事實寫「任何拿到這條連結的人都能加入」。
+
+**沒有帳本時不給連結。** 原先用佔位 sid `'pending'` 產出的連結簽章是**有效的**，
+對方點下去會「成功加入」一本不存在的帳——比什麼都不給更糟。改成顯示說明。
+
+**§15 驗收套件的範圍。** §15.1 原訂 Playwright 跑兩個斷點；依擁有者指示改用
+Vitest 從 `<App />` 最外層跑功能行為 1–22，版面 23–28 量的是
+`getBoundingClientRect()`（jsdom 一律回 0），連同 B 類截圖與 C 類真機手感一起
+列進 `docs/MANUAL-TESTS.md`。
+
 ---
 
 ## 工作方式（2026-09-09 起，擁有者指示）
@@ -215,6 +267,17 @@ domain 的 `weekStart` / `cycleDay` 參數保留為「日後要加回設定時�
   結果兩個 implementer 同時做同一個任務。
 - **不要在 implementer 還活著時寫它的報告檔** —— 它會看到檔案在兩次讀取之間變動。
 - **「重跑就過」不是結論。** 出現過三次，每次查下去都不是原本說的原因。
+
+---
+
+## 擁有者的裁決（規格互斥處）
+
+| # | 問題 | 裁決 | 落在哪 |
+| --- | --- | --- | --- |
+| 1 | §4 說明細「依時間升冪」、§5 說新紀錄「出現在最前」 | **依 createdAt 降冪**，最新一筆在最上方 | `domain/aggregate.txnsOn` |
+| 2 | 數字鍵盤空白時先打小數點，原型留空、實作補成 `0.` | **補成 `0.`** | `domain/money.pushDigit` |
+
+第 2 題順帶確認了前導零不保留（`0` 再打 `5` 是 `5`）維持現狀。
 
 ---
 

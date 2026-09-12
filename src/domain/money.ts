@@ -85,7 +85,13 @@ export function formatOriginal(cents: number, cur: Currency): string {
   return `${formatted} ${cur}`;
 }
 
-/** §5 數字鍵盤：小數最多兩位、總長 9 字 */
+/**
+ * §5 數字鍵盤：小數最多兩位、總長 9 字。
+ *
+ * 兩處與原型不同，都經使用者裁決保留：
+ *   1. 空白時先打小數點 → 補成 `0.`（原型留空）
+ *   2. 前導零不保留：`0` 後面打 `5` 是 `5`，不是 `05`
+ */
 export function pushDigit(draft: string, key: string): string {
   if (key === '⌫') return draft.slice(0, -1);
 
