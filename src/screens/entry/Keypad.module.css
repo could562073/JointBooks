@@ -1,0 +1,66 @@
+.pad {
+  display: grid;
+  /* §5：3 欄數字 + 第 4 欄的儲存鍵 */
+  grid-template-columns: repeat(3, 1fr) 1fr;
+  grid-template-rows: repeat(4, 1fr);
+  gap: 8px;
+  padding: 10px 16px 16px;
+  flex: none;
+}
+
+.key {
+  border: 0;
+  border-radius: var(--r-md);
+  background: var(--c-card);
+  /* 實體感陰影，按下時會被壓平（MOTION #3） */
+  box-shadow: 0 3px 0 rgba(74, 63, 54, .06);
+  color: var(--c-text);
+  font-size: 21px;
+  font-weight: 700;
+  /* §0：可點元素 ≥44px */
+  min-height: 46px;
+  cursor: pointer;
+  transition:
+    transform var(--press) var(--ease),
+    box-shadow var(--press) var(--ease),
+    background var(--press) var(--ease);
+}
+
+/* MOTION #3：下壓 3px、縮 .96、陰影壓平、底色轉淡紫 */
+.key[data-pressed] {
+  transform: translateY(3px) scale(.96);
+  box-shadow: 0 0 0 rgba(74, 63, 54, 0);
+  background: #EDE9FA;
+}
+
+/* §5：⌫ 是淡紫底 + 深紫圖示，不可用灰色 */
+.back {
+  background: #EDE9FA;
+  color: #6B57B8;
+}
+
+.save {
+  grid-column: 4;
+  grid-row: 1 / span 4;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--r-md);
+  background: linear-gradient(160deg, #8B75D6 0%, #6B57B8 55%, #5A46A6 100%);
+  box-shadow: 0 3px 0 rgba(74, 63, 54, .12);
+  cursor: pointer;
+  transition:
+    transform var(--press) var(--ease),
+    box-shadow var(--press) var(--ease);
+}
+
+/* MOTION #3：儲存鍵下壓 4px 且陰影壓平，但不縮放 */
+.save[data-pressed] {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 rgba(74, 63, 54, 0);
+}
+
+.save:disabled {
+  opacity: .4;
+  cursor: default;
+}

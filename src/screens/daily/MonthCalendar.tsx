@@ -4,6 +4,7 @@ import { formatCompact } from '../../domain/money';
 import { DUR, EASE } from '../../lib/motion';
 import { useReducedMotion } from '../../lib/useReducedMotion';
 import { CELL_H, cellPosition, heatColor, rowCount, sliderOffset } from './calendarLayout';
+import { useCellPop } from './useCellPop';
 import styles from './MonthCalendar.module.css';
 
 type Props = {
@@ -25,6 +26,7 @@ export function MonthCalendar({
   const offset = firstCellOffset(year, month, weekStart);
   const rows = rowCount(offset, daysInMonth(year, month));
   const sel = sliderOffset(cellPosition(offset, selectedDay));
+  const popping = useCellPop(year, month, cells);
 
   return (
     <div className={styles.wrap} data-testid="month-calendar">
@@ -64,7 +66,14 @@ export function MonthCalendar({
             >
               <span className={`${styles.day} ${isToday ? styles.today : ''}`}>{c.day}</span>
               {c.expenseCents > 0 && (
-                <span className={styles.spend}>{formatCompact(c.expenseCents)}</span>
+                <span
+                  // MOTION #4：金額變動時跳一下。reduced-motion 不掛動畫
+                  className={
+                    !reduced && popping.has(c.day) ? `${styles.spend} ${styles.pop}` : styles.spend
+                  }
+                  style={{ ['--pop' as string]: `${DUR.calCellPop}ms` }}
+                  data-popping={popping.has(c.day) ? '' : undefined}
+                >{formatCompact(c.expenseCents)}</span>
               )}
               {c.hasIncome && <span className={styles.incomeMark} data-testid={`income-${c.day}`} />}
             </button>

@@ -1,7 +1,11 @@
-import { lazy, Suspense, useEffect, useRef } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { TabBar, tabDirection } from './components/TabBar';
 import { DUR } from './lib/motion';
 import { DailyScreen } from './screens/daily/DailyScreen';
+import { EntrySheet } from './screens/entry/EntrySheet';
+import { createMain, createSub } from './screens/entry/entryCategories';
+import { selectedDate as selectedDateOf } from './store/useLedger';
+import type { Txn } from './domain/types';
 import { useLedger } from './store/useLedger';
 import styles from './App.module.css';
 
@@ -32,6 +36,33 @@ function Shell() {
   const tab = useLedger((s) => s.tab);
   const setTab = useLedger((s) => s.setTab);
   const load = useLedger((s) => s.load);
+  const categories = useLedger((s) => s.categories);
+  const selectedDate = useLedger(selectedDateOf);
+  const addTxn = useLedger((s) => s.addTxn);
+  const updateTxn = useLedger((s) => s.updateTxn);
+  const deleteTxn = useLedger((s) => s.deleteTxn);
+  const saveCategory = useLedger((s) => s.saveCategory);
+
+  // null = 面板關著；'new' = 新增；Txn = 編輯那一筆
+  const [entry, setEntry] = useState<'new' | Txn | null>(null);
+
+  // 就地新增分類：存進 store 之後把 id 交回面板，讓它立即選中（§5）
+  const addMain = useCallback(async (name: string) => {
+    const kind = entry && entry !== 'new'
+      ? categories.find((c) => c.id === entry.mainId)?.kind ?? 'expense'
+      : 'expense';
+    const r = createMain(categories, kind, name);
+    if (!r) return '';
+    await saveCategory(r.category);
+    return r.id;
+  }, [categories, entry, saveCategory]);
+
+  const addSubTo = useCallback(async (mainId: string, name: string) => {
+    const r = createSub(categories, mainId, name);
+    if (!r) return '';
+    await saveCategory(r.category);
+    return r.id;
+  }, [categories, saveCategory]);
 
   // MOTION #8 的進場方向。用 ref 記上一個分頁，render 期間不需要它觸發重繪
   const prev = useRef(tab);
@@ -53,7 +84,7 @@ function Shell() {
       >
         {/* 統計頁與配置頁是 Plan 06／07，先留位子讓分頁列可以切 */}
         {ready && tab === 'daily' && (
-          <DailyScreen onEdit={() => {}} onAdd={() => {}} />
+          <DailyScreen onEdit={(t) => setEntry(t)} onAdd={() => setEntry('new')} />
         )}
         {ready && tab !== 'daily' && (
           <div className={styles.stub} data-testid={`stub-${tab}`}>
@@ -63,6 +94,28 @@ function Shell() {
       </div>
 
       <TabBar tab={tab} onChange={setTab} />
+
+      {/*
+        面板掛在外殼而不是日常頁裡：它要蓋過分頁列，且編輯入口之後會不只一個。
+        key 讓每次開啟都重新初始化 draft——同一個面板連開兩筆不同的紀錄時，
+        少了它第二筆會沿用第一筆的 useState 初值。
+      */}
+      {entry && (
+        <EntrySheet
+          key={entry === 'new' ? 'new' : entry.id}
+          categories={categories}
+          defaultDate={selectedDate}
+          {...(entry === 'new' ? {} : { txn: entry })}
+          onSave={(input) => {
+            if (entry === 'new') void addTxn(input);
+            else void updateTxn(entry.id, input);
+          }}
+          onDelete={(id) => void deleteTxn(id)}
+          onClose={() => setEntry(null)}
+          onAddMain={addMain}
+          onAddSub={addSubTo}
+        />
+      )}
     </div>
   );
 }

@@ -61,3 +61,15 @@
   width: calc(100% / 7);
   height: var(--cell-h);
 }
+
+/* MOTION #4：儲存後該格金額 scale 1→1.12→1 */
+.pop {
+  animation: cellPop var(--pop) var(--ease-enter);
+  will-change: transform;
+}
+
+@keyframes cellPop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}

@@ -163,3 +163,64 @@ describe('MonthCalendar 的週起始（§15.1-3）', () => {
     expect(container.querySelectorAll('[aria-hidden="true"]')).toHaveLength(2);
   });
 });
+
+describe('MonthCalendar 的金額縮放（MOTION #4）', () => {
+  /** 這一段要看有動畫的路徑 */
+  function stubNormalMotion() {
+    vi.stubGlobal('matchMedia', (q: string) => ({
+      matches: false, media: q, addEventListener() {}, removeEventListener() {},
+    }));
+  }
+
+  function withSpend(day: number, cents: number) {
+    return cellsOf().map((c) => (c.day === day ? { ...c, expenseCents: cents } : c));
+  }
+
+  it('第一次渲染不跳', () => {
+    stubNormalMotion();
+    render(<MonthCalendar {...BASE} cells={withSpend(6, 5_000)} />);
+    expect(screen.getByTestId('cell-6').querySelector('[data-popping]')).toBeNull();
+  });
+
+  it('金額變動的那一格會跳', () => {
+    stubNormalMotion();
+    const { rerender } = render(<MonthCalendar {...BASE} cells={withSpend(6, 5_000)} />);
+    rerender(<MonthCalendar {...BASE} cells={withSpend(6, 7_500)} />);
+    expect(screen.getByTestId('cell-6').querySelector('[data-popping]')).not.toBeNull();
+  });
+
+  it('沒變動的格子不跳', () => {
+    stubNormalMotion();
+    const { rerender } = render(
+      <MonthCalendar {...BASE} cells={withSpend(6, 5_000).map((c) => (c.day === 7 ? { ...c, expenseCents: 100 } : c))} />
+    );
+    rerender(
+      <MonthCalendar {...BASE} cells={withSpend(6, 7_500).map((c) => (c.day === 7 ? { ...c, expenseCents: 100 } : c))} />
+    );
+    expect(screen.getByTestId('cell-7').querySelector('[data-popping]')).toBeNull();
+  });
+
+  it('換月時不會整排一起跳', () => {
+    stubNormalMotion();
+    const { rerender } = render(<MonthCalendar {...BASE} cells={withSpend(6, 5_000)} />);
+    // 換到另一個月，資料整批不同
+    rerender(
+      <MonthCalendar
+        {...BASE} month={7}
+        cells={cellsOf().map((c) => ({ ...c, expenseCents: c.day * 100 }))}
+      />
+    );
+    expect(screen.getByTestId('month-calendar').querySelectorAll('[data-popping]')).toHaveLength(0);
+  });
+
+  it('reduced-motion 時不掛動畫類別', () => {
+    vi.stubGlobal('matchMedia', (q: string) => ({
+      matches: q.includes('prefers-reduced-motion'),
+      media: q, addEventListener() {}, removeEventListener() {},
+    }));
+    const { rerender } = render(<MonthCalendar {...BASE} cells={withSpend(6, 5_000)} />);
+    rerender(<MonthCalendar {...BASE} cells={withSpend(6, 7_500)} />);
+    const span = screen.getByTestId('cell-6').querySelector('[data-popping]');
+    expect(span?.className.split(' ')).toHaveLength(1);
+  });
+});

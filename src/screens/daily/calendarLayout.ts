@@ -37,3 +37,20 @@ export function heatColor(ratio: number): string {
 export function sliderOffset(pos: { col: number; row: number }): { left: string; top: string } {
   return { left: `${((pos.col * 100) / 7).toFixed(4)}%`, top: `${pos.row * CELL_H}px` };
 }
+
+/**
+ * §10 #4：儲存後月曆該格的金額 scale 1→1.12→1。
+ *
+ * 只回報「金額真的變了」的那幾天。prev 為 null（第一次渲染、或剛換月）時回空陣列
+ * ——換月時每一格的值都跟上個月不一樣，不擋掉的話整排會一起跳，看起來像出錯。
+ */
+export function changedDays(
+  prev: readonly { day: number; expenseCents: number }[] | null,
+  next: readonly { day: number; expenseCents: number }[]
+): number[] {
+  if (!prev) return [];
+  const before = new Map(prev.map((c) => [c.day, c.expenseCents]));
+  return next
+    .filter((c) => before.has(c.day) && before.get(c.day) !== c.expenseCents)
+    .map((c) => c.day);
+}

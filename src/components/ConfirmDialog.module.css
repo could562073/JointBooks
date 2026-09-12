@@ -1,0 +1,87 @@
+.scrim {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(40, 32, 26, .38);
+  z-index: 60;
+}
+
+/* MOTION #37：遮罩 opacity 0→1，180ms */
+.scrimIn { animation: scrimIn var(--scrim) ease both; }
+
+@keyframes scrimIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.box {
+  width: 100%;
+  max-width: 320px;
+  padding: 18px 18px 14px;
+  border-radius: var(--r-lg);
+  background: var(--c-card);
+  box-shadow: 0 4px 0 rgba(74, 63, 54, .07);
+}
+
+/* MOTION #37：彈窗 scale .94→1 + opacity，220ms */
+.boxIn { animation: boxIn var(--dialog) var(--ease-enter) both; }
+
+@keyframes boxIn {
+  from { opacity: 0; transform: scale(.94); }
+  to   { opacity: 1; transform: none; }
+}
+
+.title {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+.subject {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  border-radius: var(--r-sm);
+  background: rgba(74, 63, 54, .05);
+  font-size: 13px;
+  color: var(--c-text);
+}
+
+.desc {
+  margin: 0 0 14px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--c-text-3);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.cancel, .confirm {
+  flex: 1 1 0;
+  border: 0;
+  border-radius: var(--r-pill);
+  /* §0：可點元素 ≥44px */
+  min-height: 44px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cancel {
+  background: rgba(74, 63, 54, .06);
+  color: var(--c-text-2);
+}
+
+.confirm {
+  background: rgba(217, 112, 92, .12);
+  color: #B4523F;
+}
