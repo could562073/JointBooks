@@ -18,7 +18,7 @@ beforeEach(async () => {
 });
 afterEach(() => vi.unstubAllGlobals());
 
-const BASE = { onOpenCategories: () => {}, onInvite: () => {} };
+const BASE = { onInvite: () => {} };
 
 describe('SettingsScreen 的帳本成員', () => {
   it('列出我與老婆', () => {
@@ -43,11 +43,14 @@ describe('SettingsScreen 的分類摘要', () => {
     expect(sub).toHaveTextContent('月額度 $');
   });
 
-  it('點摘要列進子頁', () => {
-    const onOpenCategories = vi.fn();
-    render(<SettingsScreen {...BASE} onOpenCategories={onOpenCategories} />);
+  it('點摘要列進子頁，按 ‹ 回來', () => {
+    render(<SettingsScreen {...BASE} />);
     fireEvent.click(screen.getByTestId('open-categories'));
-    expect(onOpenCategories).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('categories-page')).toBeInTheDocument();
+    expect(screen.queryByTestId('settings-screen')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('categories-back'));
+    expect(screen.getByTestId('settings-screen')).toBeInTheDocument();
   });
 });
 

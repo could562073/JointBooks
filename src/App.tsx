@@ -90,10 +90,7 @@ function Shell() {
         )}
         {ready && tab === 'stats' && <StatsScreen />}
         {ready && tab === 'settings' && (
-          <SettingsScreen
-            onOpenCategories={() => {}}
-            onInvite={() => {}}
-          />
+          <SettingsScreen onInvite={() => {}} />
         )}
       </div>
 

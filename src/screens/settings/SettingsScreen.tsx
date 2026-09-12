@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { Icon } from '../../components/Icon';
 import { Toggle } from '../../components/Toggle';
+import { DUR } from '../../lib/motion';
+import { CategoriesPage } from './CategoriesPage';
 import { colorSetOf } from '../../domain/palette';
 import { formatCad } from '../../domain/money';
 import { useLedger } from '../../store/useLedger';
@@ -7,8 +10,6 @@ import { categorySummary, stackedIcons } from './settingsSummary';
 import styles from './SettingsScreen.module.css';
 
 type Props = {
-  /** 點「編輯分類與月預算」進子頁 */
-  onOpenCategories(): void;
   /** 邀請成員 → 邀請面板（§8.2，Plan 09） */
   onInvite(): void;
 };
@@ -19,8 +20,12 @@ type Props = {
  * 增補檔 A 已移除「月結日」與「週起始」兩列（固定 1 號／週一，常數在
  * domain/constants），所以「其他」區只剩兩個開關。
  */
-export function SettingsScreen({ onOpenCategories, onInvite }: Props) {
+export function SettingsScreen({ onInvite }: Props) {
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
   const categories = useLedger((s) => s.categories);
+  const txns = useLedger((s) => s.txns);
+  const saveCategory = useLedger((s) => s.saveCategory);
+  const deleteCategory = useLedger((s) => s.deleteCategory);
   const showWhoTags = useLedger((s) => s.showWhoTags);
   const notifyOnPartnerEntry = useLedger((s) => s.notifyOnPartnerEntry);
   const toggleWhoTags = useLedger((s) => s.toggleWhoTags);
@@ -28,6 +33,24 @@ export function SettingsScreen({ onOpenCategories, onInvite }: Props) {
 
   const summary = categorySummary(categories);
   const icons = stackedIcons(categories);
+
+  if (categoriesOpen) {
+    return (
+      // MOTION #14：子頁自右側 38px 滑入 + opacity，420ms
+      <div
+        className={styles.subpage}
+        style={{ ['--slide' as string]: `${DUR.slide}ms` }}
+      >
+        <CategoriesPage
+          categories={categories}
+          txns={txns}
+          onSave={(c) => void saveCategory(c)}
+          onDelete={(id) => void deleteCategory(id)}
+          onBack={() => setCategoriesOpen(false)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.screen} data-testid="settings-screen">
@@ -67,7 +90,7 @@ export function SettingsScreen({ onOpenCategories, onInvite }: Props) {
           <h2 className={styles.title}>分類與預算</h2>
 
           <button
-            type="button" className={styles.card} onClick={onOpenCategories}
+            type="button" className={styles.card} onClick={() => setCategoriesOpen(true)}
             data-testid="open-categories"
           >
             <div className={styles.summaryRow}>

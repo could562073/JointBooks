@@ -21,13 +21,13 @@
 | 11 | 週／月／年切換 | `DUR.slide` `DUR.countUp` `DUR.trendDraw` | 06 | 已實作 |
 | 12 | 預算條填充 | `DUR.budgetFill` `DUR.budgetStagger` `DUR.budgetFlash` | 06 | 已實作 |
 | 13 | 月曆收起／展開 | `DUR.calSnap` `GESTURE.calendarHandle` | 04 | 已實作 |
-| 14 | 分類子頁進場 | `DUR.slide` `EASE.move` | 07 | 未開始 |
-| 15 | 分類卡左滑刪除 | `DUR.cardSnap` `EASE.move` `GESTURE.categoryCard` | 07 | 未開始 |
-| 16 | 刪除確認彈窗 | `DUR.dialogIn` `DUR.scrimIn` `DUR.rowCollapse` `EASE.enter` | 07 | 未開始 |
-| 17 | 新增分類 | `DUR.riseIn` `EASE.enter` | 07 | 未開始 |
-| 18 | 圖示選擇器展開 | `DUR.popIn` `DUR.outlineFade` `EASE.enter` | 07 | 未開始 |
-| 19 | 就地編輯預算／改名 | `DUR.morph` `DUR.morphPop` `EASE.exit` | 07 | 未開始 |
-| 21 | 開關切換 | `DUR.toggleKnob` `EASE.enter` | 07 | 未開始 |
+| 14 | 分類子頁進場 | `DUR.slide` `EASE.move` | 07 | 已實作 |
+| 15 | 分類卡左滑刪除 | `DUR.cardSnap` `EASE.move` `GESTURE.categoryCard` | 07 | 已實作 |
+| 16 | 刪除確認彈窗 | `DUR.dialogIn` `DUR.scrimIn` `DUR.rowCollapse` `EASE.enter` | 07 | 已實作 |
+| 17 | 新增分類 | `DUR.riseIn` `EASE.enter` | 07 | 已實作 |
+| 18 | 圖示選擇器展開 | `DUR.popIn` `DUR.outlineFade` `EASE.enter` | 07 | 已實作 |
+| 19 | 就地編輯預算／改名 | `DUR.morph` `DUR.morphPop` `EASE.exit` | 07 | 已實作 |
+| 21 | 開關切換 | `DUR.toggleKnob` `EASE.enter` | 07 | 已實作 |
 | 22 | 邀請面板進場／下滑關閉 | `DUR.sheetIn` `DUR.panelSnap` `GESTURE.panelDismiss` | 09 | 未開始 |
 | 23 | 複製成功回饋 | `DUR.copyFeedback` `DUR.copyRevert` | 09 | 未開始 |
 | 24 | QR 展開 | `DUR.popIn` `EASE.enter` | 09 | 未開始 |

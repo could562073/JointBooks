@@ -1,0 +1,75 @@
+.text, .pill {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--c-text);
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.pill {
+  border-radius: var(--r-pill);
+  background: rgba(74, 63, 54, .06);
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* MOTION #19：✓ 之後 scale 1→1.06→1 */
+.pop {
+  animation: pop var(--pop) var(--ease-enter);
+}
+
+@keyframes pop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+.editing {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.input, .inputPill {
+  border: 1px solid var(--c-primary);
+  border-radius: var(--r-sm);
+  background: var(--c-card);
+  padding: 3px 8px;
+  min-height: 30px;
+  font-size: 13px;
+  color: var(--c-text);
+  /* MOTION #19：pill 寬度 morph 成輸入欄 */
+  width: 132px;
+}
+
+.inputPill {
+  border-radius: var(--r-pill);
+  width: 96px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ok, .cancel {
+  flex: none;
+  /* §7.2：皆 44×44 圓形 */
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: var(--r-pill);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.ok {
+  background: #EDE9FA;
+  color: #6B57B8;
+}
+
+.cancel {
+  background: rgba(74, 63, 54, .06);
+  color: var(--c-text-3);
+}

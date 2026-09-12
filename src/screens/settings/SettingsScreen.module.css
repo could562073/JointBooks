@@ -112,3 +112,17 @@
   border-radius: 9px;
   box-shadow: 0 0 0 2px var(--c-card);
 }
+
+/* MOTION #14：分類子頁自右側 38px 滑入 */
+.subpage {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  animation: subpageIn var(--slide) var(--ease-move) both;
+}
+
+@keyframes subpageIn {
+  from { opacity: .35; transform: translate3d(38px, 0, 0); }
+  to   { opacity: 1; transform: none; }
+}
