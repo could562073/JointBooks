@@ -9,8 +9,11 @@ type Props = { phase: PullPhase; offset: number };
  * §10 #27 下拉重整的指示器。饅頭跟著手指下來，放手後轉一圈。
  * 高度就是位移本身，所以明細會被往下推開，而不是蓋在上面。
  */
+/** 轉圈時維持一個固定高度，讓饅頭有地方轉，不受放手當下的位移影響 */
+const SPIN_H = 40;
+
 export function PullIndicator({ phase, offset }: Props) {
-  const s = pullStyle(phase === 'spinning' ? offset || 40 : offset);
+  const s = pullStyle(phase === 'spinning' ? SPIN_H : offset);
 
   return (
     <div

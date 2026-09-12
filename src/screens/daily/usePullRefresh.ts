@@ -59,7 +59,7 @@ export function usePullRefresh(onRefresh: () => Promise<void> | void): PullRefre
         const el = e.currentTarget as HTMLElement;
         start.current = { y: e.clientY, atTop: el.scrollTop <= 0 };
         armed.current = false;
-        // 還沒決定要不要接管，先不轉給引擎——引擎一收到就會開始算位移
+        // pointerDown 轉過去是安全的：引擎只是記下起點，不會在這一步捕捉指標
         inner.handlers.onPointerDown(e);
       },
       onPointerMove(e: React.PointerEvent) {
