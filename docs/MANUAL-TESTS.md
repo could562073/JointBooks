@@ -7,6 +7,86 @@
 
 狀態：`待驗` / `通過` / `有問題`
 
+---
+
+## 怎麼開始跑
+
+### 1. 桌機瀏覽器（純本機模式，不用 Google 帳號）
+
+```bash
+npm run dev          # http://localhost:5173
+```
+
+沒設定 `VITE_GOOGLE_CLIENT_ID` 時 App 以純本機模式運作：資料存 IndexedDB、
+不跳登入、不同步。**D／E／S／C 四組（日常頁、記一筆、統計、分類）全部可以在
+這個模式下驗完**，不需要任何 Google 設定。
+
+用瀏覽器的裝置模擬（F12 → 切換裝置工具列）挑 iPhone 12 Pro 390×844、
+iPhone 14 Pro Max 430×932、iPhone SE 375×667 三個尺寸，V1–V9 的版面項就是在
+這裡量。量法：在 Console 裡跑
+
+```js
+// V1：所有可點元素 ≥44px
+[...document.querySelectorAll('button,[role=button]')]
+  .map(e => [e.dataset.testid || e.textContent.trim().slice(0,8), e.getBoundingClientRect()])
+  .filter(([, r]) => r.width && (r.width < 44 || r.height < 44))
+
+// V2／V3：有沒有容器被內容撐破
+[...document.querySelectorAll('*')]
+  .filter(e => e.scrollHeight > e.clientHeight + 1 || e.scrollWidth > e.clientWidth + 1)
+  .filter(e => getComputedStyle(e).overflow === 'visible' || getComputedStyle(e).overflow === 'hidden')
+```
+
+要清掉資料重跑：F12 → Application → Storage → Clear site data。
+
+### 2. 手機真機（R 組真機手感、V8 的 iPhone SE）
+
+```bash
+npm run dev -- --host    # 印出區網網址，例如 http://10.0.0.198:5173
+```
+
+手機要與這台電腦在同一個 Wi-Fi。**iOS 在非 HTTPS 下不給 `navigator.clipboard`
+也不給「加到主畫面」的完整 PWA 行為**，所以 I6／I7（複製）與 R5（standalone）
+要等有 HTTPS 才驗得準——最快的方式是部署一份到 Vercel／Netlify／Cloudflare
+Pages，或用 `npx localtunnel --port 5173` 之類的工具開一條 HTTPS 通道。
+
+### 3. Google 登入與同步（G 組、I 組）
+
+先到 Google Cloud Console → API 和服務 → 憑證 → 建立 OAuth 用戶端 ID（網頁應用
+程式），「已授權的重新導向 URI」填 `<你的網址>/auth/callback`，**必須與 App 的
+origin 完全一致**。然後：
+
+```bash
+cp .env.example .env.local
+# 把 VITE_GOOGLE_CLIENT_ID= 填上剛才拿到的 ID
+npm run dev
+```
+
+設定之後 App 會先停在登入頁。範圍只要 `drive.file`，授權畫面上應該只看到
+「建立與編輯這一份試算表」，不是整個雲端硬碟（G1 驗的就是這件事）。
+
+**I 組的邀請流程需要第二支手機或另一個 Google 帳號**：第一支登入後從配置頁開
+邀請面板拿連結，第二支開那條連結。QR 直接用第二支手機的相機掃。
+
+### 4. 已經自動化、不用手動再驗的
+
+```bash
+npx vitest run              # 948 條，含 src/acceptance 的 §15 驗收套件
+npx vitest run src/acceptance   # 只跑驗收套件，58 條
+npx playwright test         # 手勢引擎的真實瀏覽器測試
+```
+
+`src/acceptance/README.md` 有 §15.1 每一條對到哪個檔案的表，跑過的就不用再手動驗。
+
+### 5. 元件展示櫃（dev 限定）
+
+```
+http://localhost:5173/?debug=icons     # 15 個圖示
+http://localhost:5173/?debug=mantou    # 饅頭三種變體與呼吸動畫
+```
+
+---
+
 ## 真機手感（模擬器與桌機瀏覽器都不準）
 
 | # | 怎麼操作 | 該看到什麼 | 來源 | 狀態 |
