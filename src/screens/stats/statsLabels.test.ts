@@ -26,6 +26,10 @@ describe('periodLabel', () => {
       .toBe('9/7 – 9/13');
   });
 
+  it('接上 rangeOf 的月結日：15 號結算會顯示成 9/15 – 10/14', () => {
+    expect(periodLabel('month', rangeOf('month', '2026-09-20', 15))).toBe('9/15 – 10/14');
+  });
+
   it('跨年的區間也算得對', () => {
     expect(periodLabel('month', { start: '2026-12-15', end: '2027-01-15' }))
       .toBe('12/15 – 1/14');

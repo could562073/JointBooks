@@ -79,12 +79,28 @@ export function isoWeek(d: Date): { year: number; week: number } {
   return { year: isoYear, week };
 }
 
-export function rangeOf(dim: Dimension, anchor: string): Range {
+/**
+ * §7「月結日」設定：1／5／15／25。預設 1 號，也就是自然月。
+ */
+export type CycleDay = number;
+
+/**
+ * 月結週期的起點。`cycleDay` 超過該月天數時夾到月底（例如 31 號在 2 月是 28）。
+ * 這跟 §4 月曆的夾日是同一個道理：不能產生 2/31 這種日期。
+ */
+function cycleStart(y: number, m: number, cycleDay: CycleDay): Date {
+  return new Date(y, m, clampDay(y, m, cycleDay));
+}
+
+export function rangeOf(dim: Dimension, anchor: string, cycleDay: CycleDay = 1): Range {
   const d = parseDate(anchor);
 
   if (dim === 'month') {
-    const s = new Date(d.getFullYear(), d.getMonth(), 1);
-    const e = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+    // 月結日不是 1 號時，anchor 落在結算日之前算上一個週期
+    const thisCycle = cycleStart(d.getFullYear(), d.getMonth(), cycleDay);
+    const backOne = d < thisCycle ? -1 : 0;
+    const s = cycleStart(d.getFullYear(), d.getMonth() + backOne, cycleDay);
+    const e = cycleStart(s.getFullYear(), s.getMonth() + 1, cycleDay);
     return { start: toDateString(s), end: toDateString(e) };
   }
 
@@ -101,14 +117,13 @@ export function rangeOf(dim: Dimension, anchor: string): Range {
   return { start: toDateString(s), end: toDateString(e) };
 }
 
-export function previousRange(dim: Dimension, r: Range): Range {
+export function previousRange(dim: Dimension, r: Range, cycleDay: CycleDay = 1): Range {
   const s = parseDate(r.start);
 
   if (dim === 'month') {
-    return {
-      start: toDateString(new Date(s.getFullYear(), s.getMonth() - 1, 1)),
-      end: r.start,
-    };
+    // 往前一個結算週期，起點的日子跟著月結日走而不是寫死 1 號
+    const prev = cycleStart(s.getFullYear(), s.getMonth() - 1, cycleDay);
+    return { start: toDateString(prev), end: r.start };
   }
 
   if (dim === 'year') {

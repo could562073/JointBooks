@@ -163,3 +163,56 @@ describe('週起始（§15.1-3）', () => {
     expect(isoWeek(new Date(2026, 8, 7)).week).toBe(isoWeek(new Date(2026, 8, 6)).week + 1);
   });
 });
+
+describe('月結日（§6、§15.1-17）', () => {
+  it('預設 1 號時就是自然月，行為不變', () => {
+    expect(rangeOf('month', '2026-09-06')).toEqual({ start: '2026-09-01', end: '2026-10-01' });
+    expect(rangeOf('month', '2026-09-06', 1)).toEqual({ start: '2026-09-01', end: '2026-10-01' });
+  });
+
+  it('月結日 15：落在 15 號之後算本週期', () => {
+    expect(rangeOf('month', '2026-09-20', 15)).toEqual({ start: '2026-09-15', end: '2026-10-15' });
+  });
+
+  it('月結日 15：落在 15 號之前算上一個週期', () => {
+    expect(rangeOf('month', '2026-09-06', 15)).toEqual({ start: '2026-08-15', end: '2026-09-15' });
+  });
+
+  it('剛好就是結算日那天算本週期的第一天', () => {
+    expect(rangeOf('month', '2026-09-15', 15)).toEqual({ start: '2026-09-15', end: '2026-10-15' });
+  });
+
+  it('跨年正確', () => {
+    expect(rangeOf('month', '2026-01-05', 15)).toEqual({ start: '2025-12-15', end: '2026-01-15' });
+    expect(rangeOf('month', '2026-12-20', 15)).toEqual({ start: '2026-12-15', end: '2027-01-15' });
+  });
+
+  it('月結日超過該月天數時夾到月底，不會產生 2/31', () => {
+    // 月結日 31：2 月只有 28 天
+    expect(rangeOf('month', '2026-02-10', 31)).toEqual({ start: '2026-01-31', end: '2026-02-28' });
+  });
+
+  it('previousRange 往前一個結算週期，起點跟著月結日走', () => {
+    const r = rangeOf('month', '2026-09-20', 15);
+    expect(previousRange('month', r, 15)).toEqual({ start: '2026-08-15', end: '2026-09-15' });
+  });
+
+  it('previousRange 預設仍是自然月', () => {
+    const r = rangeOf('month', '2026-09-06');
+    expect(previousRange('month', r)).toEqual({ start: '2026-08-01', end: '2026-09-01' });
+  });
+
+  it('夾過月底之後週期仍然首尾相接，不會有空隙或重疊', () => {
+    // 月結日 31：1/31–2/28、2/28–3/31、3/31–4/30 必須接得上
+    const a = rangeOf('month', '2026-02-10', 31);
+    const b = rangeOf('month', '2026-03-10', 31);
+    const c = rangeOf('month', '2026-04-10', 31);
+    expect(a.end).toBe(b.start);
+    expect(b.end).toBe(c.start);
+  });
+
+  it('週與年維度不受月結日影響', () => {
+    expect(rangeOf('week', '2026-09-06', 15)).toEqual(rangeOf('week', '2026-09-06'));
+    expect(rangeOf('year', '2026-09-06', 15)).toEqual(rangeOf('year', '2026-09-06'));
+  });
+});
