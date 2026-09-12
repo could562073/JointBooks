@@ -15,3 +15,12 @@ export function txnTime(createdAt: string): string {
 export function avatarColor(by: Person): string {
   return by === '我' ? '#B7A6E5' : '#DDA6D0';
 }
+
+/**
+ * §10 #5 明細依序浮現的逐張延遲。
+ * 第 8 張之後不再遞增——不封頂的話，一天記三十筆時最後一張要等一秒才進場，
+ * 看起來像卡住而不是有節奏。
+ */
+export function riseDelay(index: number, stagger: number): number {
+  return Math.min(index, 7) * stagger;
+}

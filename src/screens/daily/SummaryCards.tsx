@@ -1,3 +1,4 @@
+import { Mantou } from '../../components/Mantou';
 import { DUR } from '../../lib/motion';
 import { useCountUp } from '../../lib/useCountUp';
 import { formatCad } from '../../domain/money';
@@ -35,6 +36,8 @@ export function SummaryCards({ incomeCents, expenseCents, netCents, periodLabel 
       </div>
 
       <div className={`${styles.card} ${styles.net}`} data-testid="card-net">
+        {/* MOTION #30：結餘卡的饅頭呆滯呼吸。寬度取 30px，對照原型再校準（D23） */}
+        <Mantou variant="full" width={30} breathing className={styles.mascot} data-testid="net-mantou" />
         <span className={styles.label}>結餘</span>
         <Amount cents={netCents} signed />
         <span className={styles.sub}>{periodLabel}</span>

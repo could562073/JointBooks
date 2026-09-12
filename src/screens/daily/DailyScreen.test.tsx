@@ -155,3 +155,35 @@ describe('DailyScreen 的明細', () => {
     expect(screen.getByTestId('txn-scroll')).toBe(before);
   });
 });
+
+describe('DailyScreen 的下拉重整（MOTION #27）', () => {
+  function pull(el: HTMLElement, from: number, to: number) {
+    fireEvent.pointerDown(el, { pointerId: 1, clientX: 0, clientY: from });
+    fireEvent.pointerMove(el, { pointerId: 1, clientX: 0, clientY: to });
+  }
+
+  it('捲到頂往下拉時指示器長出來', () => {
+    render(<DailyScreen {...BASE} />);
+    const scroll = screen.getByTestId('txn-scroll');
+    expect(screen.getByTestId('pull-indicator')).toHaveAttribute('data-phase', 'idle');
+
+    pull(scroll, 0, 40);
+    expect(screen.getByTestId('pull-indicator')).toHaveAttribute('data-phase', 'pulling');
+  });
+
+  it('往上滑不會被當成下拉，明細才捲得動', () => {
+    render(<DailyScreen {...BASE} />);
+    pull(screen.getByTestId('txn-scroll'), 40, 0);
+    expect(screen.getByTestId('pull-indicator')).toHaveAttribute('data-phase', 'idle');
+  });
+
+  it('沒捲到頂時不接管，否則使用者捲不動明細', () => {
+    render(<DailyScreen {...BASE} />);
+    const scroll = screen.getByTestId('txn-scroll');
+    // jsdom 不會真的捲動，直接假造 scrollTop
+    Object.defineProperty(scroll, 'scrollTop', { value: 120, configurable: true });
+
+    pull(scroll, 0, 40);
+    expect(screen.getByTestId('pull-indicator')).toHaveAttribute('data-phase', 'idle');
+  });
+});

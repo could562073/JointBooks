@@ -7,6 +7,8 @@
 }
 
 .card {
+  /* 結餘卡的饅頭要疊在角落，定位參考點就是卡片本身 */
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -37,3 +39,11 @@
 .income { background: var(--c-income-bg); color: var(--c-income); }
 .expense { background: var(--c-expense-bg); color: var(--c-expense); }
 .net { background: var(--c-face); color: #fff; }
+
+/* 結餘卡的饅頭疊在右上角，不佔文字的版位 */
+.mascot {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  opacity: .9;
+}

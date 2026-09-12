@@ -43,4 +43,18 @@ describe('App 的外殼', () => {
     fireEvent.click(screen.getByTestId('tab-settings'));
     expect(screen.queryByTestId('fab')).not.toBeInTheDocument();
   });
+
+  // MOTION #8：往後自右進、往前自左進
+  it('換頁會重掛內容並帶上方向類別', async () => {
+    render(<App />);
+    await waitFor(() => expect(screen.getByTestId('page-daily')).toBeInTheDocument());
+    const forward = screen.getByTestId('page-daily').className;
+
+    fireEvent.click(screen.getByTestId('tab-settings'));
+    const toSettings = screen.getByTestId('page-settings').className;
+    expect(toSettings).toBe(forward);        // 往後，跟初始方向同一個類別
+
+    fireEvent.click(screen.getByTestId('tab-daily'));
+    expect(screen.getByTestId('page-daily').className).not.toBe(toSettings);
+  });
 });

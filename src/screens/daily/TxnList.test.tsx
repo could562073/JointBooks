@@ -118,3 +118,24 @@ describe('TxnList 的排序', () => {
     expect(rows.map((n) => n.getAttribute('data-testid'))).toEqual(['txn-early', 'txn-late']);
   });
 });
+
+describe('TxnList 的依序浮現（MOTION #5）', () => {
+  function rows(n: number) {
+    return Array.from({ length: n }, (_, i) => txn({ id: `t${i}` }));
+  }
+
+  it('前八列逐張延遲 35ms', () => {
+    render(<TxnList {...BASE} txns={rows(3)} />);
+    const items = screen.getByTestId('txn-list').children;
+    expect(items[0]).toHaveAttribute('data-delay', '0');
+    expect(items[1]).toHaveAttribute('data-delay', '35');
+    expect(items[2]).toHaveAttribute('data-delay', '70');
+  });
+
+  it('第 8 張之後不再遞增', () => {
+    render(<TxnList {...BASE} txns={rows(12)} />);
+    const items = screen.getByTestId('txn-list').children;
+    expect(items[7]).toHaveAttribute('data-delay', '245');
+    expect(items[11]).toHaveAttribute('data-delay', '245');
+  });
+});

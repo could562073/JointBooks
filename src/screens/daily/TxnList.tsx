@@ -3,7 +3,9 @@ import { Mantou } from '../../components/Mantou';
 import { colorSetOf } from '../../domain/palette';
 import { formatCad, formatOriginal } from '../../domain/money';
 import type { Category, Txn } from '../../domain/types';
-import { avatarColor, txnTime } from './txnRow';
+import { DUR } from '../../lib/motion';
+import { useReducedMotion } from '../../lib/useReducedMotion';
+import { avatarColor, riseDelay, txnTime } from './txnRow';
 import styles from './TxnList.module.css';
 
 type Props = {
@@ -16,6 +18,8 @@ type Props = {
 };
 
 export function TxnList({ txns, categories, showWhoTags, onEdit }: Props) {
+  const reduced = useReducedMotion();
+
   if (txns.length === 0) {
     return (
       <div className={styles.empty} data-testid="txn-empty">
@@ -27,13 +31,15 @@ export function TxnList({ txns, categories, showWhoTags, onEdit }: Props) {
 
   return (
     <ul className={styles.list} data-testid="txn-list">
-      {txns.map((t) => (
+      {txns.map((t, i) => (
         <TxnRow
           key={t.id}
           txn={t}
           category={categories.find((c) => c.id === t.mainId)}
           showWhoTags={showWhoTags}
           onEdit={onEdit}
+          // MOTION #5：逐張浮現。reduced-motion 時不排延遲，整批直接就位
+          delayMs={reduced ? 0 : riseDelay(i, DUR.riseStagger)}
         />
       ))}
     </ul>
@@ -46,14 +52,20 @@ type RowProps = {
   category: Category | undefined;
   showWhoTags: boolean;
   onEdit(txn: Txn): void;
+  /** MOTION #5 的逐張延遲（ms） */
+  delayMs: number;
 };
 
-function TxnRow({ txn, category, showWhoTags, onEdit }: RowProps) {
+function TxnRow({ txn, category, showWhoTags, onEdit, delayMs }: RowProps) {
   const isIncome = category?.kind === 'income';
   const set = colorSetOf(category?.colorSet ?? 0);
 
   return (
-    <li className={styles.item}>
+    <li
+      className={styles.item}
+      style={{ ['--rise-delay' as string]: `${delayMs}ms`, ['--rise' as string]: `${DUR.riseIn}ms` }}
+      data-delay={delayMs}
+    >
       <button
         type="button"
         className={styles.row}

@@ -10,11 +10,13 @@ import { Fab } from './Fab';
 import { MonthCalendar } from './MonthCalendar';
 import { MonthNav } from './MonthNav';
 import { MonthPicker } from './MonthPicker';
+import { PullIndicator } from './PullIndicator';
 import { SummaryCards } from './SummaryCards';
 import { TxnList } from './TxnList';
 import { periodLabel } from './labels';
 import { useCalendarCollapse } from './useCalendarCollapse';
 import { useMonthSwipe } from './useMonthSwipe';
+import { usePullRefresh } from './usePullRefresh';
 import styles from './DailyScreen.module.css';
 
 type Props = {
@@ -55,6 +57,9 @@ export function DailyScreen({ onEdit, onAdd }: Props) {
   );
 
   const swipe = useMonthSwipe(shiftMonth);
+  // §10 #27：目前重讀的是本機 Dexie；接上 Sheets 同步是 Plan 08
+  const reload = useLedger((s) => s.load);
+  const pull = usePullRefresh(reload);
 
   const selectedDate = useLedger(selectedDateOf);
 
@@ -141,8 +146,13 @@ export function DailyScreen({ onEdit, onAdd }: Props) {
 
       <DayHeader year={year} month={month} day={selectedDay} expenseCents={dayExpense} />
 
-      {/* 整頁唯一的捲動容器。收合不卸載它，捲動位置才不會被重置 */}
-      <div className={styles.scroll} data-testid="txn-scroll">
+      {/*
+        整頁唯一的捲動容器。收合不卸載它，捲動位置才不會被重置。
+        下拉重整的事件掛在這裡，但不套 touch-action:none——那會把原生捲動關掉；
+        守門在 usePullRefresh 裡（捲到頂 + 往下拉才接管）。
+      */}
+      <div className={styles.scroll} data-testid="txn-scroll" {...pull.handlers}>
+        <PullIndicator phase={pull.phase} offset={pull.offset} />
         <TxnList
           txns={dayRows}
           categories={categories}

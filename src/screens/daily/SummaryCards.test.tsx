@@ -70,3 +70,18 @@ describe('SummaryCards 的 count-up（MOTION #31）', () => {
     );
   });
 });
+
+describe('SummaryCards 的結餘卡饅頭（MOTION #30）', () => {
+  beforeEach(stubReducedMotion);
+
+  it('結餘卡有一隻會呼吸的饅頭', () => {
+    render(<SummaryCards {...PROPS} />);
+    expect(screen.getByTestId('net-mantou')).toBeInTheDocument();
+  });
+
+  it('收入卡與支出卡沒有饅頭', () => {
+    render(<SummaryCards {...PROPS} />);
+    expect(screen.getByTestId('card-income').querySelector('[data-part="hi"]')).toBeNull();
+    expect(screen.getByTestId('card-expense').querySelector('[data-part="hi"]')).toBeNull();
+  });
+});

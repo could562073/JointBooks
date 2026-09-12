@@ -7,6 +7,31 @@
   overflow: hidden;
 }
 
+/*
+ * 分頁內容的容器。它必須是 flex 子項且能縮，日常頁的 overflow:hidden
+ * 才量得到高度——少了 min-height:0，內容會把外殼撐高、分頁列被推出畫面。
+ */
+.page {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* MOTION #8：往後自右進，往前自左進 */
+.fromRight { animation: pageFromRight var(--slide) var(--ease-move) both; }
+.fromLeft  { animation: pageFromLeft  var(--slide) var(--ease-move) both; }
+
+@keyframes pageFromRight {
+  from { opacity: .35; transform: translate3d(38px, 0, 0); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes pageFromLeft {
+  from { opacity: .35; transform: translate3d(-38px, 0, 0); }
+  to   { opacity: 1; transform: none; }
+}
+
 .stub {
   flex: 1 1 auto;
   display: grid;

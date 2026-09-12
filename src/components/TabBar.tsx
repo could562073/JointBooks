@@ -16,6 +16,19 @@ export function tabSliderLeft(index: number): string {
   return `${((index * 100) / TABS.length).toFixed(4)}%`;
 }
 
+/** 分頁在列上的位置；找不到就當第一個，不讓未知的 tab 把版面算歪 */
+export function tabIndex(tab: Tab): number {
+  return Math.max(0, TABS.findIndex((t) => t.key === tab));
+}
+
+/**
+ * §10 #8：往後（日常→統計→配置）自右側進，往前自左側進。
+ * 跟月份切換同一個方向約定：1 是新內容從右邊來。
+ */
+export function tabDirection(from: Tab, to: Tab): -1 | 1 {
+  return tabIndex(to) < tabIndex(from) ? -1 : 1;
+}
+
 type Props = {
   tab: Tab;
   onChange(t: Tab): void;
@@ -27,7 +40,7 @@ type Props = {
  */
 export function TabBar({ tab, onChange }: Props) {
   const reduced = useReducedMotion();
-  const index = Math.max(0, TABS.findIndex((t) => t.key === tab));
+  const index = tabIndex(tab);
 
   return (
     <nav className={styles.bar} data-testid="tab-bar">
@@ -54,8 +67,19 @@ export function TabBar({ tab, onChange }: Props) {
             data-active={active ? '' : undefined}
             data-testid={`tab-${t.key}`}
           >
-            {/* §2：頁籤饅頭 22×18，沒有嘴也沒有腳——tab variant 就是這個用途 */}
-            <Mantou variant="tab" width={22} />
+            {/*
+              §2：頁籤饅頭 22×18，沒有嘴也沒有腳——tab variant 就是這個用途。
+              MOTION #10：選中的那一隻壓扁再彈回。key 帶著 tab，每次換頁都重掛
+              一次讓動畫重播；沒選中的不掛動畫類別，免得整排一起跳。
+            */}
+            <span
+              key={active ? `on-${tab}` : 'off'}
+              className={active && !reduced ? styles.squash : undefined}
+              style={{ ['--squash' as string]: `${DUR.slide}ms` }}
+              data-testid={active ? 'tab-mantou-active' : undefined}
+            >
+              <Mantou variant="tab" width={22} />
+            </span>
             <span className={styles.label}>{t.label}</span>
           </button>
         );
