@@ -45,6 +45,8 @@ function Shell() {
   const updateTxn = useLedger((s) => s.updateTxn);
   const deleteTxn = useLedger((s) => s.deleteTxn);
   const saveCategory = useLedger((s) => s.saveCategory);
+  const syncState = useLedger((s) => s.syncState);
+  const lastSyncAt = useLedger((s) => s.lastSyncAt);
 
   // null = 面板關著；'new' = 新增；Txn = 編輯那一筆
   const [entry, setEntry] = useState<'new' | Txn | null>(null);
@@ -98,7 +100,12 @@ function Shell() {
         )}
         {ready && tab === 'stats' && <StatsScreen />}
         {ready && tab === 'settings' && (
-          <SettingsScreen onInvite={() => {}} />
+          <SettingsScreen
+            onInvite={() => {}}
+            syncState={syncState}
+            lastSyncAt={lastSyncAt}
+            onRetrySync={() => {}}
+          />
         )}
       </div>
 

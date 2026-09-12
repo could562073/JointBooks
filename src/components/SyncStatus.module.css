@@ -1,0 +1,40 @@
+.row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+}
+
+.dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--r-pill);
+  background: var(--c-income);
+}
+
+.dot[data-state="offline"] { background: var(--c-text-4); }
+.dot[data-state="error"]   { background: var(--c-expense); }
+
+/* MOTION #26：同步中換成 1.5px 圓環 spin 900ms linear 無限 */
+.spinning {
+  background: none;
+  border: 1.5px solid var(--c-income);
+  /* 缺一角才看得出來在轉 */
+  border-top-color: transparent;
+  animation: syncSpin var(--spin) linear infinite;
+  will-change: transform;
+}
+
+@keyframes syncSpin {
+  to { transform: rotate(360deg); }
+}
+
+.text {
+  font-size: 11px;
+  color: var(--c-text-3);
+}

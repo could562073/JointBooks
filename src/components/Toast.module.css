@@ -1,0 +1,52 @@
+.toast {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 12px);
+  left: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--r-md);
+  background: var(--c-card);
+  box-shadow: 0 4px 0 rgba(74, 63, 54, .07);
+  z-index: 70;
+  will-change: transform, opacity;
+}
+
+/* MOTION #25：translateY -14px→0 + scale .96→1，280ms ease-out */
+.in  { animation: toastIn  var(--in)  var(--ease-out) both; }
+.out { animation: toastOut var(--out) var(--ease-out) both; }
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(-14px) scale(.96); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: translateY(-14px) scale(.96); }
+}
+
+.dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--r-pill);
+  background: var(--c-income);
+}
+
+/* MOTION #25：期間同步圓點 pulse 2.4s 循環 */
+.pulsing {
+  animation: pulse var(--pulse) ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: .35; }
+}
+
+.text {
+  font-size: 12px;
+  color: var(--c-text);
+}
