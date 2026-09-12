@@ -14,14 +14,14 @@ Repo：`git@github.com:could562073/JointBooks.git`（private）
 | 01 | 地基與設計系統 | ✅ 已合併 main |
 | 02 | 領域邏輯與本地資料層 | ✅ 已合併 main |
 | 03 | 手勢引擎與動畫基礎層 | ✅ 已合併 main |
-| **04** | **日常頁** | **🔨 實作中，§4 全數完成（分支 `feat/04-daily-screen`）** |
-| 05 | 記一筆／編輯面板 | 未寫計畫 |
+| 04 | 日常頁 | ✅ 已合併 main |
+| **05** | **記一筆／編輯面板** | **🔨 §5 全數完成（分支 `feat/05-entry-sheet`）** |
 | 06 | 統計頁 | 未寫計畫 |
 | 07 | 配置頁＋分類子頁 | 未寫計畫 |
 | 08 | Google OAuth ＋ Sheets 同步 | 未寫計畫 |
 | 09 | 邀請流程＋驗收套件 | 未寫計畫 |
 
-目前測試：**Vitest 350、Playwright 56（ip13）**，typecheck 兩個 project 都乾淨，`npm run build` 通過。
+目前測試：**Vitest 514、Playwright 56（ip13）**，typecheck 兩個 project 都乾淨，`npm run build` 通過。
 
 ### Plan 03 已完成
 
@@ -64,6 +64,29 @@ MOTION：`docs/MOTION.md` 上屬於 Plan 04 的 14 條全部轉為**已實作**
 - 下拉重整目前只重讀本機 Dexie；真的同步是 Plan 08。
 - 週起始的**設定值**還在 Plan 07（store 無此欄位），domain 與元件都已支援，
   Plan 07 補上 store 欄位傳進 `MonthCalendar` 的 `weekStart` 即可。
+
+### Plan 05 已完成（2026-09-11）
+
+分支 `feat/05-entry-sheet`，5 個 commit。`src/screens/entry/` 共 19 個檔案。
+
+| | 區塊 | 狀態 |
+| --- | --- | --- |
+| 金額輸入規則 | `amountInput` | ✅ 照原型 reducer，小數兩位／總長 9 字 |
+| 面板狀態模型 | `entryDraft` | ✅ 新增／編輯、kind 切換、幣別、canSave |
+| 數字鍵盤 | `Keypad` | ✅ 3×4 + 跨四列儲存鍵，按壓回饋 |
+| 支出／收入分段 | `KindSegment` | ✅ 獨立滑塊，紫↔粉 |
+| 小月曆 | `MiniCalendar` + `datePick` | ✅ 跨年、夾到月底、今天／收起 |
+| 收合列 | `FieldRow` | ✅ 日期欄與分類區共用（B-3） |
+| 分類選擇 | `CategoryPicker` + `entryCategories` | ✅ 就地新增後立即選中 |
+| 刪除確認 | `components/ConfirmDialog` | ✅ 刪紀錄與刪分類（Plan 07）共用 |
+| 面板容器 | `EntrySheet` + `useSheetDismiss` | ✅ 進場／離場／把手下滑關閉 |
+
+MOTION：`docs/MOTION.md` 上屬於 Plan 05 的 8 條全部轉為**已實作**
+（1、2、3、4、35、36、37、38）。手動驗證見 MANUAL-TESTS 的 E1–E16。
+
+**要擁有者裁示的一點：** §5 寫「新紀錄出現在明細**最前**」，§4 寫明細
+「依時間升冪排序」。兩條互斥。目前照 §4 實作（新紀錄 createdAt 最新，
+所以落在最後），因為 §4 的規則明確且已有測試。若要改成置頂請告知。
 
 ---
 
