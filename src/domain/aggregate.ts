@@ -202,9 +202,15 @@ export function comparePrevious(
   };
 }
 
-/** §4 明細列表：該日、未刪、依「新增時間」升冪（不可用 updatedAt，否則編輯會讓紀錄跳位置） */
+/**
+ * §4 明細列表：該日、未刪、依「新增時間」**降冪**——最新記的那筆在最上面。
+ *
+ * §4 原文寫升冪、§5 寫「新紀錄出現在最前」，兩者互斥；使用者裁決取後者。
+ * 排序鍵用 createdAt 而不是 updatedAt：用後者的話，改一筆舊帳會讓它跳到
+ * 最上面，使用者剛編輯完就找不到自己原本在看的位置。
+ */
 export function txnsOn(txns: Txn[], date: string): Txn[] {
   return txns
     .filter((t) => live(t) && t.date === date)
-    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }

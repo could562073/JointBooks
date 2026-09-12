@@ -28,9 +28,9 @@
 | 18 | 圖示選擇器展開 | `DUR.popIn` `DUR.outlineFade` `EASE.enter` | 07 | 已實作 |
 | 19 | 就地編輯預算／改名 | `DUR.morph` `DUR.morphPop` `EASE.exit` | 07 | 已實作 |
 | 21 | 開關切換 | `DUR.toggleKnob` `EASE.enter` | 07 | 已實作 |
-| 22 | 邀請面板進場／下滑關閉 | `DUR.sheetIn` `DUR.panelSnap` `GESTURE.panelDismiss` | 09 | 未開始 |
-| 23 | 複製成功回饋 | `DUR.copyFeedback` `DUR.copyRevert` | 09 | 未開始 |
-| 24 | QR 展開 | `DUR.popIn` `EASE.enter` | 09 | 未開始 |
+| 22 | 邀請面板進場／下滑關閉 | `DUR.sheetIn` `DUR.panelSnap` `GESTURE.panelDismiss` | 09 | 已實作 |
+| 23 | 複製成功回饋 | `DUR.copyFeedback` `DUR.copyRevert` | 09 | 已實作 |
+| 24 | QR 展開 | `DUR.popIn` `EASE.enter` | 09 | 已實作 |
 | 25 | 對方新增的通知 | `DUR.toastIn` `DUR.toastHold` `DUR.toastOut` `DUR.syncPulse` `EASE.exit` | 08 | 已實作 |
 | 26 | 同步中狀態 | `DUR.syncSpin` `DUR.syncSettle` | 08 | 已實作 |
 | 27 | 下拉重新整理 | `DUR.pullSpin` `DUR.pullSettle` `GESTURE.pullRefresh` | 04 | 已實作 |

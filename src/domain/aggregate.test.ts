@@ -251,7 +251,7 @@ describe('comparePrevious（§6 增減 pill）', () => {
 });
 
 describe('txnsOn（§4 明細列表）', () => {
-  it('依新增時間（createdAt）升冪排序，軟刪不列', () => {
+  it('依新增時間（createdAt）降冪排序，最新的在最上面，軟刪不列', () => {
     const txns = [
       txn({ date: '2026-09-05', actualCadCents: 2_900, createdAt: '2026-09-05T20:30:00.000Z' }),
       txn({ date: '2026-09-05', actualCadCents: 520,  createdAt: '2026-09-05T08:40:00.000Z' }),
@@ -259,8 +259,8 @@ describe('txnsOn（§4 明細列表）', () => {
     ];
     const list = txnsOn(txns, '2026-09-05');
     expect(list).toHaveLength(2);
-    expect(list[0]!.actualCadCents).toBe(520);
-    expect(list[1]!.actualCadCents).toBe(2_900);
+    expect(list[0]!.actualCadCents).toBe(2_900);
+    expect(list[1]!.actualCadCents).toBe(520);
   });
 
   it('編輯備註（更新 updatedAt）不會改變排序位置（I8）', () => {
@@ -275,8 +275,18 @@ describe('txnsOn（§4 明細列表）', () => {
       }),
     ];
     const list = txnsOn(txns, '2026-09-05');
-    // 若誤用 updatedAt 排序，520 那筆會被排到後面
-    expect(list[0]!.actualCadCents).toBe(520);
-    expect(list[1]!.actualCadCents).toBe(2_900);
+    // 若誤用 updatedAt 排序，剛編輯過的 520 那筆會被拉到最上面
+    expect(list[0]!.actualCadCents).toBe(2_900);
+    expect(list[1]!.actualCadCents).toBe(520);
+  });
+
+  it('同一秒記兩筆時順序是穩定的，不會每次渲染跳動', () => {
+    const same = '2026-09-05T08:00:00.000Z';
+    const txns = [
+      txn({ id: 'a', date: '2026-09-05', actualCadCents: 100, createdAt: same }),
+      txn({ id: 'b', date: '2026-09-05', actualCadCents: 200, createdAt: same }),
+    ];
+    const first = txnsOn(txns, '2026-09-05').map((t) => t.id);
+    expect(txnsOn([...txns], '2026-09-05').map((t) => t.id)).toEqual(first);
   });
 });

@@ -97,6 +97,14 @@
   cursor: pointer;
 }
 
+/* 還沒有帳本時的說明段 */
+.body {
+  margin: 0 0 4px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--c-text-3);
+}
+
 .note {
   margin: 0;
   font-size: 11px;

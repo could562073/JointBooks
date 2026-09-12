@@ -13,6 +13,7 @@ import { buildInviteUrl, checkInvite } from './invite/inviteLink';
 import { joinStateOf, type JoinState } from './invite/joinFlow';
 import { routeOf } from './invite/route';
 import { isConfigured, readConfig } from './sync/config';
+import { joinedSid, setJoinedSid } from './sync/ledgerId';
 import { completeSignIn, hasSession, startSignIn } from './auth/session';
 import { createMain, createSub } from './screens/entry/entryCategories';
 import { selectedDate as selectedDateOf } from './store/useLedger';
@@ -100,15 +101,14 @@ function Callback({ search }: { search: string }) {
   );
 }
 
-/** §8.1 接受邀請頁。連結檢查是 async（要算簽章），所以先給 null 再補上 */
+/** §8.1 接受邀請頁。連結檢查與本機帳本 id 都是 async，所以先給 null 再補上 */
 function Join({ search }: { search: string }) {
   const [state, setState] = useState<JoinState | null>(null);
 
   useEffect(() => {
     let alive = true;
-    void checkInvite(search).then((check) => {
-      // 本機已加入哪一本帳要等 Plan 08 的 session 接上；目前一律當作還沒加入
-      if (alive) setState(joinStateOf({ check, joinedSid: null }));
+    void Promise.all([checkInvite(search), joinedSid()]).then(([check, sid]) => {
+      if (alive) setState(joinStateOf({ check, joinedSid: sid }));
     });
     return () => { alive = false; };
   }, [search]);
@@ -118,7 +118,14 @@ function Join({ search }: { search: string }) {
   return (
     <JoinPage
       state={state}
-      onJoin={() => { location.href = '/'; }}
+      // 加入＝把帳本 id 記在這台裝置上。權限本身是 Google 那邊給的，這裡
+      // 只是記下「我加入的是哪一本」，下次再點同一條連結才認得出已是成員
+      onJoin={() => {
+        const go = () => { location.href = '/'; };
+        if (state.kind === 'invite' || state.kind === 'already') {
+          void setJoinedSid(state.sid).then(go);
+        } else go();
+      }}
       onBrowse={() => setState({ kind: 'browsing' })}
       onHome={() => { location.href = '/'; }}
     />
@@ -141,7 +148,8 @@ function Shell() {
 
   // null = 面板關著；'new' = 新增；Txn = 編輯那一筆
   const [entry, setEntry] = useState<'new' | Txn | null>(null);
-  const [inviteUrl, setInviteUrl] = useState<string | null>(null);
+  // null = 面板關著。開著時 url 可能仍是 null——那代表這台裝置還沒有雲端帳本
+  const [invite, setInvite] = useState<{ url: string | null } | null>(null);
   // MOTION #37：刪除後那一列先收合再消失
   const removeTxn = useCallback((id: string) => { void deleteTxn(id); }, [deleteTxn]);
   const txnRemoval = useRowRemoval(removeTxn);
@@ -194,9 +202,9 @@ function Shell() {
         {ready && tab === 'settings' && (
           <SettingsScreen
             onInvite={() => {
-              // 還沒建帳本時用一個佔位 sid：面板本身要能開，真實 sid 等 Plan 08 的
-              // session 接上。連結內容錯不會寫壞任何東西，接受頁會判為 invalid。
-              void buildInviteUrl(location.origin, 'pending').then(setInviteUrl);
+              void joinedSid().then(async (sid) => {
+                setInvite({ url: sid ? await buildInviteUrl(location.origin, sid) : null });
+              });
             }}
             syncState={syncState}
             lastSyncAt={lastSyncAt}
@@ -212,11 +220,15 @@ function Shell() {
         key 讓每次開啟都重新初始化 draft——同一個面板連開兩筆不同的紀錄時，
         少了它第二筆會沿用第一筆的 useState 初值。
       */}
-      {inviteUrl && (
+      {invite && (
         <InvitePanel
-          url={inviteUrl}
-          onClose={() => setInviteUrl(null)}
-          onPreview={() => { location.href = new global.URL(inviteUrl).pathname + new global.URL(inviteUrl).search; }}
+          url={invite.url}
+          onClose={() => setInvite(null)}
+          onPreview={() => {
+            if (!invite.url) return;
+            const u = new global.URL(invite.url);
+            location.href = u.pathname + u.search;
+          }}
         />
       )}
 
