@@ -1,4 +1,4 @@
-import { daysInMonth, firstCellOffset, isWeekend, weekdayLabels } from '../../domain/date';
+import { daysInMonth, firstCellOffset, isWeekend, weekdayLabels, type WeekStart } from '../../domain/date';
 import type { DayCell } from '../../domain/aggregate';
 import { formatCompact } from '../../domain/money';
 import { DUR, EASE } from '../../lib/motion';
@@ -13,23 +13,27 @@ type Props = {
   selectedDay: number;
   /** 今天的 YYYY-MM-DD；不在本月時就沒有格子會被標成今天 */
   todayDate: string;
+  /** §7 的「週起始」設定。星期列與首格空白數都跟著它走（§15.1-3） */
+  weekStart?: WeekStart;
   onSelectDay(day: number): void;
 };
 
-export function MonthCalendar({ year, month, cells, selectedDay, todayDate, onSelectDay }: Props) {
+export function MonthCalendar({
+  year, month, cells, selectedDay, todayDate, weekStart = 'mon', onSelectDay,
+}: Props) {
   const reduced = useReducedMotion();
-  const offset = firstCellOffset(year, month);
+  const offset = firstCellOffset(year, month, weekStart);
   const rows = rowCount(offset, daysInMonth(year, month));
   const sel = sliderOffset(cellPosition(offset, selectedDay));
 
   return (
     <div className={styles.wrap} data-testid="month-calendar">
       <div className={styles.week}>
-        {weekdayLabels().map((label, col) => (
+        {weekdayLabels(weekStart).map((label, col) => (
           <span
             key={label}
-            className={`${styles.weekday} ${isWeekend(col) ? styles.weekend : ''}`}
-            data-weekend={isWeekend(col) ? '' : undefined}
+            className={`${styles.weekday} ${isWeekend(col, weekStart) ? styles.weekend : ''}`}
+            data-weekend={isWeekend(col, weekStart) ? '' : undefined}
           >
             {label}
           </span>

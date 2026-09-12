@@ -145,3 +145,21 @@ describe('MonthCalendar 的選取', () => {
     expect(screen.getByTestId('calendar-slider').style.transition).toBe('none');
   });
 });
+
+describe('MonthCalendar 的週起始（§15.1-3）', () => {
+  it('週日起始時星期列從日開始，週末字換到頭尾兩欄', () => {
+    render(<MonthCalendar {...BASE} weekStart="sun" />);
+    const labels = screen.getAllByText(/^[一二三四五六日]$/);
+    expect(labels.map((n) => n.textContent)).toEqual(['日', '一', '二', '三', '四', '五', '六']);
+    expect(labels.filter((n) => n.hasAttribute('data-weekend')).map((n) => n.textContent))
+      .toEqual(['日', '六']);
+  });
+
+  it('首格空白數跟著位移，不只是星期列換字', () => {
+    // 2026-09-01 是週二
+    const { container, rerender } = render(<MonthCalendar {...BASE} weekStart="mon" />);
+    expect(container.querySelectorAll('[aria-hidden="true"]')).toHaveLength(1);
+    rerender(<MonthCalendar {...BASE} weekStart="sun" />);
+    expect(container.querySelectorAll('[aria-hidden="true"]')).toHaveLength(2);
+  });
+});
