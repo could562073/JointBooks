@@ -266,3 +266,11 @@
   from { opacity: .35; transform: translate3d(38px, 0, 0); }
   to   { opacity: 1; transform: none; }
 }
+
+/* 從分類子頁返回：配置頁自左側 38px 滑回（使用者要求；方向跟進子頁相反） */
+.backIn { animation: subpageBack var(--slide) var(--ease-move) both; }
+
+@keyframes subpageBack {
+  from { opacity: .35; transform: translate3d(-38px, 0, 0); }
+  to   { opacity: 1; transform: none; }
+}

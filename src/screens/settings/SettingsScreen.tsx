@@ -28,6 +28,8 @@ type Props = {
  */
 export function SettingsScreen({ onInvite, syncState, lastSyncAt, onRetrySync }: Props) {
   const [categoriesOpen, setCategoriesOpen] = useState(false);
+  // 從分類子頁返回時，配置頁自左側滑回來（使用者要求）。切走再切回配置分頁會重掛、歸零
+  const [returned, setReturned] = useState(false);
   // 只在捲動時出現的捲動條要跟著這個捲動區（hook 要在下面的提早 return 之前）
   const scrollRef = useRef<HTMLDivElement>(null);
   const categories = useLedger((s) => s.categories);
@@ -54,14 +56,19 @@ export function SettingsScreen({ onInvite, syncState, lastSyncAt, onRetrySync }:
           txns={txns}
           onSave={(c) => void saveCategory(c)}
           onDelete={(id) => void deleteCategory(id)}
-          onBack={() => setCategoriesOpen(false)}
+          onBack={() => { setCategoriesOpen(false); setReturned(true); }}
         />
       </div>
     );
   }
 
   return (
-    <div className={styles.screen} data-testid="settings-screen">
+    <div
+      className={returned ? `${styles.screen} ${styles.backIn}` : styles.screen}
+      style={returned ? { ['--slide' as string]: `${DUR.slide}ms` } : undefined}
+      data-returning={returned ? '' : undefined}
+      data-testid="settings-screen"
+    >
       <ScrollThumb target={scrollRef} bottomInset={TAB_BAR_INSET} />
       <div ref={scrollRef} className={styles.scroll} data-testid="settings-scroll">
         <div className={styles.pageTitle}>

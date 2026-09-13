@@ -4,7 +4,7 @@
   height: 100%;
   min-height: 0;
   overflow: hidden;
-  background: var(--c-bg);
+  /* 不給底色：原型的標題列是透明的，外殼的裝飾圓要透出來。清單在下面自己的捲動區裡，不會捲到標題底下 */
 }
 
 .head {

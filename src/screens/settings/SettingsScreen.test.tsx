@@ -56,6 +56,13 @@ describe('SettingsScreen 的分類摘要', () => {
 
     fireEvent.click(screen.getByTestId('categories-back'));
     expect(screen.getByTestId('settings-screen')).toBeInTheDocument();
+    // 使用者要求：回來時配置頁自左側滑回
+    expect(screen.getByTestId('settings-screen')).toHaveAttribute('data-returning');
+  });
+
+  it('一開始進配置頁不播返回的滑入', () => {
+    render(<SettingsScreen {...BASE} />);
+    expect(screen.getByTestId('settings-screen')).not.toHaveAttribute('data-returning');
   });
 });
 
