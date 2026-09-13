@@ -1,6 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { ShellHeader } from './components/ShellHeader';
-import { TabBar, tabDirection } from './components/TabBar';
+import { TabBar } from './components/TabBar';
+import { useTabDirection } from './components/useTabDirection';
 import type { Txn } from './domain/types';
 import { InvitePanel } from './invite/InvitePanel';
 import { buildInviteUrl, checkInvite } from './invite/inviteLink';
@@ -226,10 +227,8 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
     return r.id;
   }, [categories, saveCategory]);
 
-  // MOTION #8 的進場方向。用 ref 記上一個分頁，render 期間不需要它觸發重繪
-  const prev = useRef(tab);
-  const dir = tabDirection(prev.current, tab);
-  prev.current = tab;
+  // MOTION #8 的進場方向：只在換頁那次決定，之後的重繪沿用（見 useTabDirection）
+  const dir = useTabDirection(tab);
 
   useEffect(() => {
     void load();
