@@ -144,6 +144,7 @@
 .emptyText {
   margin: 0;
   font-size: 13px;
+  font-weight: 700;
   color: var(--c-text-3);
 }
 
