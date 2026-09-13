@@ -162,65 +162,55 @@ describe('budgetRows（§6）', () => {
   });
 });
 
-describe('trendSeries（§6）', () => {
-  it('週維度給 7 個點，標籤是星期', () => {
+describe('trendSeries（§6，照原型看最近幾期）', () => {
+  it('週維度給最近 8 週，標籤是 ISO 週次，最後一點是 anchor 那一週', () => {
     const s = trendSeries([], 'week', '2026-09-06', CATS);
-    expect(s).toHaveLength(7);
-    expect(s[0]!.label).toBe('一');
-    expect(s[6]!.label).toBe('日');
+    expect(s).toHaveLength(8);
+    expect(s[0]!.label).toBe('W29');
+    expect(s[7]!.label).toBe('W36');   // 2026-09-06 是週日，屬於 8/31 開始的那一週
   });
 
-  it('月維度給當月的 ISO 週，標籤是 W##', () => {
+  it('月維度給最近 6 個月，標籤是 N月', () => {
     const s = trendSeries([], 'month', '2026-09-06', CATS);
-    expect(s.every((p) => /^W\d+$/.test(p.label))).toBe(true);
-    expect(s.length).toBeGreaterThanOrEqual(4);
-    expect(s.length).toBeLessThanOrEqual(6);
+    expect(s.map((p) => p.label)).toEqual(['4月', '5月', '6月', '7月', '8月', '9月']);
   });
 
-  it('年維度給 12 個月，標籤是 N月', () => {
+  it('年維度給最近 4 年', () => {
     const s = trendSeries([], 'year', '2026-09-06', CATS);
-    expect(s).toHaveLength(12);
-    expect(s[0]!.label).toBe('1月');
-    expect(s[11]!.label).toBe('12月');
+    expect(s.map((p) => p.label)).toEqual(['2023', '2024', '2025', '2026']);
   });
 
-  it('金額被分進正確的點', () => {
+  it('月維度跨年也照順序：2026 年 2 月往前 6 個月從前一年 9 月開始', () => {
+    const s = trendSeries([], 'month', '2026-02-10', CATS);
+    expect(s.map((p) => p.label)).toEqual(['9月', '10月', '11月', '12月', '1月', '2月']);
+  });
+
+  it('金額被分進正確的那一期；範圍外的不算', () => {
     const txns = [
-      txn({ date: '2026-03-10', actualCadCents: 5_000 }),
-      txn({ date: '2026-03-20', actualCadCents: 3_000 }),
+      txn({ date: '2026-04-10', actualCadCents: 5_000 }),
+      txn({ date: '2026-09-02', actualCadCents: 3_000 }),
       txn({ date: '2026-07-01', actualCadCents: 100_000, mainId: cat('收入').id }),
-    ];
-    const s = trendSeries(txns, 'year', '2026-09-06', CATS);
-    expect(s[2]!.expenseCents).toBe(8_000);   // 3 月
-    expect(s[6]!.incomeCents).toBe(100_000);  // 7 月
-  });
-
-  it('I10：月維度依 ISO 週分桶，金額落在正確的桶（含只有 6 天的首週與 3 天的末週）', () => {
-    const txns = [
-      txn({ date: '2026-09-02', actualCadCents: 1_000 }),                        // W36（9/1–9/6）
-      txn({ date: '2026-09-05', actualCadCents:   500 }),                        // W36
-      txn({ date: '2026-09-10', actualCadCents: 2_000 }),                        // W37（9/7–9/13）
-      txn({ date: '2026-09-15', actualCadCents: 5_000, mainId: cat('收入').id }), // W38（9/14–9/20），收入
-      txn({ date: '2026-09-22', actualCadCents: 3_000 }),                        // W39（9/21–9/27）
-      txn({ date: '2026-09-29', actualCadCents:   700 }),                        // W40（9/28–9/30，只有 3 天）
+      txn({ date: '2026-03-31', actualCadCents: 9_999 }),   // 4 月之前，不在最近 6 個月
     ];
     const s = trendSeries(txns, 'month', '2026-09-06', CATS);
-    const by = Object.fromEntries(s.map((p) => [p.label, p]));
+    expect(s[0]!.expenseCents).toBe(5_000);    // 4 月
+    expect(s[3]!.incomeCents).toBe(100_000);   // 7 月
+    expect(s[5]!.expenseCents).toBe(3_000);    // 9 月
+    expect(s.reduce((a, p) => a + p.expenseCents, 0)).toBe(8_000);
+  });
 
-    expect(by['W36']!.expenseCents).toBe(1_500);
-    expect(by['W37']!.expenseCents).toBe(2_000);
-    expect(by['W38']!.incomeCents).toBe(5_000);
-    expect(by['W38']!.expenseCents).toBe(0);
-    expect(by['W39']!.expenseCents).toBe(3_000);
-    expect(by['W40']!.expenseCents).toBe(700);
-
-    // 這是正確行為、不是 bug：9 月的 W36 桶只涵蓋 9/1–9/6（該 ISO 週的週一其實是
-    // 8/31，不屬於 9 月），所以每一桶加總起來剛好等於整月合計，不多不少、不重疊。
-    const sumExpense = s.reduce((a, p) => a + p.expenseCents, 0);
-    const sumIncome = s.reduce((a, p) => a + p.incomeCents, 0);
-    const monthTotal = totalsIn(txns, rangeOf('month', '2026-09-06'), CATS);
-    expect(sumExpense).toBe(monthTotal.expenseCents);
-    expect(sumIncome).toBe(monthTotal.incomeCents);
+  it('週的每一期是完整的週一到週日；最後一期等於總覽卡的本週合計', () => {
+    const txns = [
+      txn({ date: '2026-08-31', actualCadCents: 1_000 }),   // W36 週一
+      txn({ date: '2026-09-06', actualCadCents:   500 }),   // W36 週日
+      txn({ date: '2026-08-30', actualCadCents: 2_000 }),   // W35 週日
+      txn({ date: '2026-07-12', actualCadCents: 7_000 }),   // W28，不在最近 8 週
+    ];
+    const s = trendSeries(txns, 'week', '2026-09-06', CATS);
+    expect(s[7]!.expenseCents).toBe(1_500);
+    expect(s[6]!.expenseCents).toBe(2_000);
+    expect(s[7]!.expenseCents).toBe(totalsIn(txns, rangeOf('week', '2026-09-06'), CATS).expenseCents);
+    expect(s.reduce((a, p) => a + p.expenseCents, 0)).toBe(3_500);
   });
 });
 

@@ -19,6 +19,21 @@ function pts(...rows: [string, number, number][]): TrendPoint[] {
 const THREE = pts(['W36', 1_000, 0], ['W37', 3_000, 5_000], ['W38', 2_000, 0]);
 
 describe('TrendChart', () => {
+  it('標出目前這一期：最後一個軸標籤加重並多一行「本週」，還有一條縱向導引線', () => {
+    render(<TrendChart points={THREE} drawKey="week" currentLabel="本週" />);
+    const axis = screen.getByTestId('trend-axis');
+    expect(axis.lastElementChild).toHaveTextContent('W38本週');
+    expect(axis.lastElementChild).toHaveAttribute('data-current');
+    expect(axis.firstElementChild).not.toHaveAttribute('data-current');
+    expect(screen.getByTestId('trend-current-guide')).toBeInTheDocument();
+  });
+
+  it('沒給目前這一期的標籤就不標', () => {
+    render(<TrendChart points={THREE} drawKey="week" />);
+    expect(screen.queryByTestId('trend-current-guide')).not.toBeInTheDocument();
+    expect(screen.getByTestId('trend-axis').lastElementChild).not.toHaveAttribute('data-current');
+  });
+
   it('畫出支出實線、收入虛線與支出面積', () => {
     render(<TrendChart points={THREE} drawKey="month" />);
     expect(screen.getByTestId('trend-expense')).toBeInTheDocument();

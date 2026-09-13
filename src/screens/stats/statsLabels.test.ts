@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { rangeOf } from '../../domain/date';
 import type { BudgetRow } from '../../domain/aggregate';
 import {
-  balanceTitle, budgetTotal, deltaLabel, expenseOfIncomeRatio, expenseShare, periodSpan, trendAxisNote,
+  balanceTitle, budgetTotal, deltaLabel, expenseOfIncomeRatio, expenseShare, periodSpan, periodWord,
 } from './statsLabels';
 
 describe('balanceTitle', () => {
@@ -115,14 +115,9 @@ describe('budgetTotal', () => {
   });
 });
 
-describe('trendAxisNote', () => {
-  it('依維度變', () => {
-    expect(trendAxisNote('month')).toBe('本月各週');
-    expect(trendAxisNote('year')).toBe('1–12月');
-  });
-
-  it('週維度跟著週起始設定', () => {
-    expect(trendAxisNote('week', 'mon')).toBe('一–日');
-    expect(trendAxisNote('week', 'sun')).toBe('日–六');
+describe('periodWord（趨勢圖上標示目前這一期）', () => {
+  it('看的是目前這一期寫本週，別的期間寫當月', () => {
+    expect(periodWord('week', rangeOf('week', '2026-09-06'), '2026-09-06')).toBe('本週');
+    expect(periodWord('month', rangeOf('month', '2026-08-06'), '2026-09-06')).toBe('當月');
   });
 });

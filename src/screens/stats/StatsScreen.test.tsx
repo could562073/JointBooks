@@ -87,11 +87,17 @@ describe('StatsScreen 的維度切換（MOTION #32）', () => {
 
   it('折線的資料點數跟著維度變', () => {
     render(<StatsScreen />);
+    // 照原型：週看最近 8 週、月看最近 6 個月、年看最近 4 年
     fireEvent.click(screen.getByTestId('dimension-week'));
-    expect(screen.getByTestId('trend-axis').children).toHaveLength(7);
+    expect(screen.getByTestId('trend-axis').children).toHaveLength(8);
+
+    fireEvent.click(screen.getByTestId('dimension-month'));
+    expect(screen.getByTestId('trend-axis').children).toHaveLength(6);
 
     fireEvent.click(screen.getByTestId('dimension-year'));
-    expect(screen.getByTestId('trend-axis').children).toHaveLength(12);
+    expect(screen.getByTestId('trend-axis').children).toHaveLength(4);
+    // 最後一點標成正在看的那一期
+    expect(screen.getByTestId('trend-axis').lastElementChild).toHaveTextContent(/(今年|當年)/);
   });
 
   // 原型的「趨勢」標題右邊是支出／收入圖例，不是文字說明（trendAxisNote），

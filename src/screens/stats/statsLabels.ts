@@ -1,4 +1,4 @@
-import { inRange, parseDate, type WeekStart } from '../../domain/date';
+import { inRange, parseDate } from '../../domain/date';
 import type { BudgetRow } from '../../domain/aggregate';
 import type { Dimension, Range } from '../../domain/types';
 
@@ -6,12 +6,16 @@ const CURRENT = { week: '本週', month: '本月', year: '今年' } as const;
 const OTHER = { week: '當週', month: '當月', year: '當年' } as const;
 
 /**
- * §6 總覽卡標題（使用者要求）：「本週結餘」「本月結餘」「今年結餘」。
- * 看的不是目前這一期（在日常頁選了別的日子）時寫「當週／當月／當年」，
- * 免得標題寫本月、數字卻是上個月的。
+ * 「本週／本月／今年」。看的不是目前這一期（在日常頁選了別的日子）時寫「當週／當月／當年」，
+ * 免得寫著本月、數字卻是上個月的。總覽卡標題與趨勢圖上標示這一期都用它。
  */
+export function periodWord(dim: Dimension, r: Range, today: string): string {
+  return (inRange(today, r) ? CURRENT : OTHER)[dim];
+}
+
+/** §6 總覽卡標題（使用者要求）：「本週結餘」「本月結餘」「今年結餘」 */
 export function balanceTitle(dim: Dimension, r: Range, today: string): string {
-  return `${(inRange(today, r) ? CURRENT : OTHER)[dim]}結餘`;
+  return `${periodWord(dim, r, today)}結餘`;
 }
 
 /**
@@ -42,13 +46,6 @@ export function expenseShare(incomeCents: number, expenseCents: number): number 
   const total = incomeCents + expenseCents;
   if (total <= 0) return 0;
   return expenseCents / total;
-}
-
-/** §6 折線 X 軸的說明：週維度的星期跟著「週起始」設定走 */
-export function trendAxisNote(dim: Dimension, weekStart: WeekStart = 'mon'): string {
-  if (dim === 'week') return weekStart === 'sun' ? '日–六' : '一–日';
-  if (dim === 'month') return '本月各週';
-  return '1–12月';
 }
 
 /**

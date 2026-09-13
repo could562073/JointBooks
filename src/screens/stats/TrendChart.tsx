@@ -10,6 +10,8 @@ type Props = {
   points: TrendPoint[];
   /** 換維度時重播描線動畫（MOTION #11）用的 key */
   drawKey: string;
+  /** 最後一點是哪一期：「本週」「本月」「今年」（使用者要求在圖上標出來） */
+  currentLabel?: string;
 };
 
 /**
@@ -17,7 +19,7 @@ type Props = {
  *
  * 座標全部在 trendGeometry 算好（專案分層規則 R1），這支只負責畫。
  */
-export function TrendChart({ points, drawKey }: Props) {
+export function TrendChart({ points, drawKey, currentLabel }: Props) {
   const reduced = useReducedMotion();
 
   const expense = points.map((p) => p.expenseCents);
@@ -47,6 +49,16 @@ export function TrendChart({ points, drawKey }: Props) {
             className={styles.grid}
           />
         ))}
+
+        {/* 目前這一期（最後一點）：一條淡色縱向虛線，搭配軸上加重的標籤 */}
+        {currentLabel && ePts.length > 0 && (
+          <line
+            x1={ePts[ePts.length - 1]!.x} x2={ePts[ePts.length - 1]!.x}
+            y1={lines[0]} y2={VIEW.areaBase}
+            className={styles.currentGuide}
+            data-testid="trend-current-guide"
+          />
+        )}
 
         {/* key 帶著維度，換維度就重掛一次讓描線動畫重播 */}
         <g key={drawKey}>
@@ -92,9 +104,19 @@ export function TrendChart({ points, drawKey }: Props) {
       </svg>
 
       <div className={styles.axis} data-testid="trend-axis">
-        {points.map((p, i) => (
-          <span key={`${p.label}-${i}`} className={styles.tick}>{p.label}</span>
-        ))}
+        {points.map((p, i) => {
+          const current = Boolean(currentLabel) && i === points.length - 1;
+          return (
+            <span
+              key={`${p.label}-${i}`}
+              className={current ? `${styles.tick} ${styles.tickCurrent}` : styles.tick}
+              data-current={current ? '' : undefined}
+            >
+              {p.label}
+              {current && <span className={styles.tickNow}>{currentLabel}</span>}
+            </span>
+          );
+        })}
       </div>
     </div>
   );

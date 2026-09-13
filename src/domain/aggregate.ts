@@ -1,8 +1,7 @@
 import type { IconKey } from '../components/Icon';
 import type { Category, Dimension, Range, Txn } from './types';
 import {
-  addMonths, daysInMonth, eachDay, inRange, isoWeek, parseDate, rangeOf,
-  previousRange, toDateString, weekdayLabels,
+  daysInMonth, inRange, isoWeek, parseDate, rangeOf, previousRange, toDateString,
 } from './date';
 
 export type Totals = { incomeCents: number; expenseCents: number; netCents: number };
@@ -131,46 +130,30 @@ export function budgetRows(
     });
 }
 
-/** §6 趨勢折線的資料點。X 軸標籤依維度變 */
+/** 趨勢圖看最近幾期（原型：週看 8 週、月看 6 個月、年看 4 年） */
+export const TREND_PERIODS: Readonly<Record<Dimension, number>> = { week: 8, month: 6, year: 4 };
+
+/**
+ * §6 趨勢折線的資料點：一期一個點，由舊到新，最後一點就是 anchor 所在、總覽卡正在看的那一期。
+ *
+ * 照原型的邏輯：週維度比的是「這幾週各花多少」，不是一週裡的七天；月、年同理。
+ * 標籤也照原型：週寫 ISO 週次（W36）、月寫「9月」、年寫「2026」。
+ */
 export function trendSeries(
   txns: Txn[], dim: Dimension, anchor: string, cats: Category[], cycleDay = 1
 ): TrendPoint[] {
-  const r = rangeOf(dim, anchor, cycleDay);
-
-  if (dim === 'week') {
-    const labels = weekdayLabels();
-    return eachDay(r).map((date, i) => ({
-      label: labels[i] ?? '',
-      ...bucketOf(txns, { start: date, end: nextDay(date) }, cats),
-    }));
+  const ranges: Range[] = [rangeOf(dim, anchor, cycleDay)];
+  while (ranges.length < TREND_PERIODS[dim]) {
+    ranges.unshift(previousRange(dim, ranges[0]!, cycleDay));
   }
+  return ranges.map((r) => ({ label: trendLabel(dim, r), ...bucketOf(txns, r, cats) }));
+}
 
-  if (dim === 'year') {
-    const y = parseDate(r.start).getFullYear();
-    return Array.from({ length: 12 }, (_, m) => {
-      const next = addMonths(y, m, 1);
-      return {
-        label: `${m + 1}月`,
-        ...bucketOf(txns, {
-          start: `${y}-${String(m + 1).padStart(2, '0')}-01`,
-          end: `${next.y}-${String(next.m + 1).padStart(2, '0')}-01`,
-        }, cats),
-      };
-    });
-  }
-
-  // month：切成該月涵蓋的 ISO 週
-  const byWeek = new Map<number, { start: string; end: string }>();
-  for (const date of eachDay(r)) {
-    const { week } = isoWeek(parseDate(date));
-    const cur = byWeek.get(week);
-    if (!cur) byWeek.set(week, { start: date, end: nextDay(date) });
-    else cur.end = nextDay(date);
-  }
-  return [...byWeek.entries()].map(([week, span]) => ({
-    label: `W${week}`,
-    ...bucketOf(txns, span, cats),
-  }));
+function trendLabel(dim: Dimension, r: Range): string {
+  const s = parseDate(r.start);
+  if (dim === 'week') return `W${isoWeek(s).week}`;
+  if (dim === 'month') return `${s.getMonth() + 1}月`;
+  return String(s.getFullYear());
 }
 
 function bucketOf(txns: Txn[], r: Range, cats: Category[]) {

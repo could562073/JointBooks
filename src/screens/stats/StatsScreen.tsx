@@ -8,7 +8,7 @@ import type { Dimension } from '../../domain/types';
 import { selectedDate as selectedDateOf, useLedger } from '../../store/useLedger';
 import { BudgetList } from './BudgetList';
 import { OverviewCard } from './OverviewCard';
-import { balanceTitle, budgetTotal, periodSpan } from './statsLabels';
+import { balanceTitle, budgetTotal, periodSpan, periodWord } from './statsLabels';
 import { TrendChart } from './TrendChart';
 import styles from './StatsScreen.module.css';
 
@@ -98,7 +98,8 @@ export function StatsScreen() {
             </div>
           </div>
           {/* 換維度要重播描線與填充，key 帶著維度 */}
-          <TrendChart points={trend} drawKey={dimension} />
+          {/* 最後一點就是總覽卡正在看的那一期，圖上標成本週／本月／今年 */}
+          <TrendChart points={trend} drawKey={dimension} currentLabel={periodWord(dimension, range, todayLocal())} />
         </section>
 
         <section className={styles.section}>
