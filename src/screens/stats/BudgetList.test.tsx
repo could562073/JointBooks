@@ -50,13 +50,13 @@ describe('BudgetList 的三種狀態（§6）', () => {
     const bar = screen.getByTestId('budget-c1-bar');
     expect(bar).toHaveAttribute('data-state', 'normal');
     // 不是那兩個警示色
-    expect(bar).not.toHaveStyle({ background: '#F2C97A' });
-    expect(bar).not.toHaveStyle({ background: '#E08A72' });
+    expect(bar).not.toHaveStyle({ background: '#F6D89A' });
+    expect(bar).not.toHaveStyle({ background: '#F2B3A0' });
   });
 
   it('>85% 轉黃', () => {
     render(<BudgetList rows={[row({ state: 'warn', ratio: 0.9 })]} fillKey="month" />);
-    expect(screen.getByTestId('budget-c1-bar')).toHaveStyle({ background: '#F2C97A' });
+    expect(screen.getByTestId('budget-c1-bar')).toHaveStyle({ background: '#F6D89A' });
   });
 
   it('超支轉橘並顯示超支金額', () => {
@@ -66,7 +66,7 @@ describe('BudgetList 的三種狀態（§6）', () => {
         fillKey="month"
       />
     );
-    expect(screen.getByTestId('budget-c1-bar')).toHaveStyle({ background: '#E08A72' });
+    expect(screen.getByTestId('budget-c1-bar')).toHaveStyle({ background: '#F2B3A0' });
     expect(screen.getByTestId('budget-c1-over')).toHaveTextContent('超支 $135');
   });
 

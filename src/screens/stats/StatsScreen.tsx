@@ -2,13 +2,13 @@ import { useMemo, useRef } from 'react';
 import { ScrollThumb, TAB_BAR_INSET } from '../../components/ScrollThumb';
 import { SegmentedControl, type Segment } from '../../components/SegmentedControl';
 import { budgetRows, comparePrevious, totalsIn, trendSeries } from '../../domain/aggregate';
-import { rangeOf } from '../../domain/date';
+import { rangeOf, todayLocal } from '../../domain/date';
 import { formatCadWhole } from '../../domain/money';
 import type { Dimension } from '../../domain/types';
 import { selectedDate as selectedDateOf, useLedger } from '../../store/useLedger';
 import { BudgetList } from './BudgetList';
 import { OverviewCard } from './OverviewCard';
-import { budgetTotal, periodLabel } from './statsLabels';
+import { balanceTitle, budgetTotal, periodSpan } from './statsLabels';
 import { TrendChart } from './TrendChart';
 import styles from './StatsScreen.module.css';
 
@@ -76,7 +76,8 @@ export function StatsScreen() {
 
         <OverviewCard
           totals={totals}
-          periodLabel={periodLabel(dimension, range)}
+          title={balanceTitle(dimension, range, todayLocal())}
+          periodLabel={periodSpan(range)}
           delta={delta}
         />
 
@@ -85,13 +86,14 @@ export function StatsScreen() {
             <h2 className={styles.title}>趨勢</h2>
             <span className={styles.rule} aria-hidden="true" />
             <div className={styles.legend}>
+              {/* 原型：色條在前、文字在後 */}
               <span className={styles.legendItem}>
-                支出
                 <span className={`${styles.swatch} ${styles.swatchExpense}`} aria-hidden="true" />
+                支出
               </span>
               <span className={styles.legendItem}>
-                收入
                 <span className={`${styles.swatch} ${styles.swatchIncome}`} aria-hidden="true" />
+                收入
               </span>
             </div>
           </div>

@@ -38,13 +38,12 @@ export function TrendChart({ points, drawKey }: Props) {
         className={styles.svg}
         role="img"
         aria-label="收支趨勢"
-        preserveAspectRatio="none"
       >
-        {/* 背後的水平淡色格線，純裝飾，跟資料無關所以不用帶 drawKey */}
+        {/* 背後的水平淡色虛線，純裝飾，跟資料無關所以不用帶 drawKey。原型是整條橫過去 */}
         {lines.map((y) => (
           <line
             key={y}
-            x1={VIEW.padX} x2={VIEW.w - VIEW.padX} y1={y} y2={y}
+            x1={0} x2={VIEW.w} y1={y} y2={y}
             className={styles.grid}
           />
         ))}
@@ -77,13 +76,13 @@ export function TrendChart({ points, drawKey }: Props) {
             />
           )}
 
-          {/* §6：每個資料點一個圓點標記，最後一點加大 */}
+          {/* §6：每個資料點一個白底圓點，最後一點加大（原型半徑 3.2／5） */}
           {ePts.map((p, i) => {
             const isLast = i === ePts.length - 1;
             return (
               <circle
                 key={i}
-                cx={p.x} cy={p.y} r={isLast ? 4 : 3}
+                cx={p.x} cy={p.y} r={isLast ? 5 : 3.2}
                 className={isLast ? styles.lastDot : styles.dot}
                 {...(isLast ? { 'data-testid': 'trend-last' } : {})}
               />

@@ -8,6 +8,9 @@ import styles from './OverviewCard.module.css';
 
 type Props = {
   totals: Totals;
+  /** 「本週結餘」這類標題（statsLabels.balanceTitle） */
+  title: string;
+  /** 標題旁的期間「9/8 ~ 9/14」（statsLabels.periodSpan） */
   periodLabel: string;
   delta: { deltaRatio: number; direction: 'up' | 'down' | 'flat' };
 };
@@ -24,7 +27,7 @@ function Amount({ cents, sign, className, testId }: {
 /**
  * §6 結餘總覽卡。結餘、收入、支出三個數字都要 count-up（MOTION #11）。
  */
-export function OverviewCard({ totals, periodLabel, delta }: Props) {
+export function OverviewCard({ totals, title, periodLabel, delta }: Props) {
   // 支出欄下方那條進度條：花掉了收入的幾成（不是支出佔收支合計的比例）
   const ratio = expenseOfIncomeRatio(totals.incomeCents, totals.expenseCents);
 
@@ -32,7 +35,7 @@ export function OverviewCard({ totals, periodLabel, delta }: Props) {
     <div className={styles.card} data-testid="overview-card">
       <div className={styles.top}>
         <div className={styles.label}>
-          結餘
+          {title}
           <span className={styles.period} data-testid="overview-period">{periodLabel}</span>
         </div>
 

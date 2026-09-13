@@ -6,10 +6,14 @@ import { DUR, EASE } from '../../lib/motion';
 import { useReducedMotion } from '../../lib/useReducedMotion';
 import styles from './BudgetList.module.css';
 
-/** §6：超支轉橘、>85% 轉黃、否則用分類色 */
+/**
+ * §6：超支轉橘、>85% 轉黃、否則用分類色。
+ * 全部用淡色系（使用者要求：深色的條太壓迫）——分類色取調色盤的 blob（饅頭身體那一階），
+ * 不是給文字用的深色 color。
+ */
 const STATE_FILL: Record<BudgetRow['state'], string | null> = {
-  over: '#E08A72',
-  warn: '#F2C97A',
+  over: '#F2B3A0',
+  warn: '#F6D89A',
   normal: null,
 };
 
@@ -35,7 +39,7 @@ export function BudgetList({ rows, fillKey }: Props) {
   return (
     <ul className={styles.list} data-testid="budget-list">
       {rows.map((r, i) => {
-        const fill = STATE_FILL[r.state] ?? colorSetOf(r.colorSet).color;
+        const fill = STATE_FILL[r.state] ?? colorSetOf(r.colorSet).blob;
         return (
           <li key={r.categoryId} className={styles.row} data-testid={`budget-${r.categoryId}`}>
             <div className={styles.head}>

@@ -1,9 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
-  areaPath, chartPoints, gridLines, pathLength, polyline, seriesMax, VIEW,
+  areaPath, chartPoints, gridLines, HEADROOM, pathLength, polyline, seriesMax, VIEW,
 } from './trendGeometry';
-
-const BASELINE = VIEW.h - VIEW.padBottom;
 
 describe('seriesMax', () => {
   it('取所有數列的最大值', () => {
@@ -19,26 +17,27 @@ describe('seriesMax', () => {
   });
 });
 
-describe('chartPoints', () => {
+describe('chartPoints（原型 X = 8 + i·304/(n−1)、Y = 112 − v/(max·1.1)·98）', () => {
   it('沒有資料點時回空陣列', () => {
     expect(chartPoints([], 100)).toEqual([]);
   });
 
-  it('第一點貼左緣、最後一點貼右緣', () => {
+  it('第一點在 x=8、最後一點在 x=312', () => {
     const pts = chartPoints([0, 0, 0], 100);
-    expect(pts[0]!.x).toBe(VIEW.padX);
-    expect(pts[2]!.x).toBe(VIEW.w - VIEW.padX);
+    expect(pts[0]!.x).toBe(8);
+    expect(pts[2]!.x).toBe(312);
   });
 
   it('只有一個點時擺在水平中央', () => {
     // 擺在左邊會看起來像圖表畫壞了
-    expect(chartPoints([50], 100)[0]!.x).toBe(VIEW.w / 2);
+    expect(chartPoints([50], 100)[0]!.x).toBe(160);
   });
 
-  it('0 貼底線，最大值貼頂', () => {
+  it('0 落在 y=112；最大值上方留一成空間，不頂到最上面的格線', () => {
     const pts = chartPoints([0, 100], 100);
-    expect(pts[0]!.y).toBe(BASELINE);
-    expect(pts[1]!.y).toBe(VIEW.padTop);
+    expect(pts[0]!.y).toBe(112);
+    expect(pts[1]!.y).toBeCloseTo(112 - 98 / HEADROOM, 5);
+    expect(pts[1]!.y).toBeGreaterThan(gridLines()[0]!);
   });
 
   it('兩條線共用同一個刻度：同樣的值在兩次呼叫裡高度一致', () => {
@@ -46,9 +45,8 @@ describe('chartPoints', () => {
     expect(chartPoints([60], max)[0]!.y).toBe(chartPoints([0, 60], max)[1]!.y);
   });
 
-  it('max 是 0 時所有點貼底線，不會除以零算出 NaN', () => {
-    const pts = chartPoints([0, 0, 0], 0);
-    for (const p of pts) expect(p.y).toBe(BASELINE);
+  it('max 是 0 時所有點貼在 0 的位置，不會除以零算出 NaN', () => {
+    for (const p of chartPoints([0, 0, 0], 0)) expect(p.y).toBe(VIEW.zeroY);
   });
 
   it('資料點多寡都撐滿寬度', () => {
@@ -61,12 +59,8 @@ describe('chartPoints', () => {
 });
 
 describe('gridLines', () => {
-  it('均分繪圖區的可用高度，含頂線與底線', () => {
-    expect(gridLines(3)).toEqual([VIEW.padTop, VIEW.padTop + (BASELINE - VIEW.padTop) / 2, BASELINE]);
-  });
-
-  it('數量可調整', () => {
-    expect(gridLines(2)).toEqual([VIEW.padTop, BASELINE]);
+  it('原型的三條：y = 14、56、98', () => {
+    expect(gridLines()).toEqual([14, 56, 98]);
   });
 });
 
@@ -81,9 +75,9 @@ describe('polyline', () => {
 });
 
 describe('areaPath', () => {
-  it('從底線出發、沿折線走、回到底線收尾', () => {
+  it('從底部（y=120）出發、沿折線走、回到底部收尾', () => {
     const d = areaPath([{ x: 10, y: 20 }, { x: 30, y: 40 }]);
-    expect(d).toBe(`M10,${BASELINE}L10,20L30,40L30,${BASELINE}Z`);
+    expect(d).toBe('M10,120L10,20L30,40L30,120Z');
   });
 
   it('少於兩個點時沒有面積可畫', () => {

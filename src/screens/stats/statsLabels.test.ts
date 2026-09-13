@@ -2,40 +2,48 @@ import { describe, it, expect } from 'vitest';
 import { rangeOf } from '../../domain/date';
 import type { BudgetRow } from '../../domain/aggregate';
 import {
-  budgetTotal, deltaLabel, expenseOfIncomeRatio, expenseShare, periodLabel, trendAxisNote,
+  balanceTitle, budgetTotal, deltaLabel, expenseOfIncomeRatio, expenseShare, periodSpan, trendAxisNote,
 } from './statsLabels';
 
-describe('periodLabel', () => {
-  it('年維度只寫年份', () => {
-    expect(periodLabel('year', rangeOf('year', '2026-09-06'))).toBe('2026年');
+describe('balanceTitle', () => {
+  it('看的是目前這一期：本週／本月／今年結餘', () => {
+    const today = '2026-09-06';
+    expect(balanceTitle('week', rangeOf('week', today), today)).toBe('本週結餘');
+    expect(balanceTitle('month', rangeOf('month', today), today)).toBe('本月結餘');
+    expect(balanceTitle('year', rangeOf('year', today), today)).toBe('今年結餘');
   });
 
-  it('月結日是 1 號時只寫月份', () => {
-    expect(periodLabel('month', rangeOf('month', '2026-09-06'))).toBe('2026年9月');
+  it('看的是別的期間：寫當週／當月／當年，不會標成本月', () => {
+    const today = '2026-10-02';
+    expect(balanceTitle('week', rangeOf('week', '2026-09-06'), today)).toBe('當週結餘');
+    expect(balanceTitle('month', rangeOf('month', '2026-09-06'), today)).toBe('當月結餘');
+    expect(balanceTitle('year', rangeOf('year', '2025-09-06'), today)).toBe('當年結餘');
+  });
+});
+
+describe('periodSpan', () => {
+  it('週：2026-09-06 是週日，週一起始的那一週是 8/31 ~ 9/6', () => {
+    expect(periodSpan(rangeOf('week', '2026-09-06'))).toBe('8/31 ~ 9/6');
   });
 
-  it('月結日不是 1 號時寫成區間（§6）', () => {
-    expect(periodLabel('month', { start: '2026-09-15', end: '2026-10-15' }))
-      .toBe('9/15 – 10/14');
+  it('月：9/1 ~ 9/30', () => {
+    expect(periodSpan(rangeOf('month', '2026-09-06'))).toBe('9/1 ~ 9/30');
   });
 
-  it('週維度一律寫區間', () => {
-    // 2026-09-06 是週日，週一起始的那一週是 8/31 – 9/6
-    expect(periodLabel('week', rangeOf('week', '2026-09-06'))).toBe('8/31 – 9/6');
+  it('年：1/1 ~ 12/31', () => {
+    expect(periodSpan(rangeOf('year', '2026-09-06'))).toBe('1/1 ~ 12/31');
   });
 
   it('區間結束是 end 的前一天（Range 是半開區間）', () => {
-    expect(periodLabel('week', { start: '2026-09-07', end: '2026-09-14' }))
-      .toBe('9/7 – 9/13');
+    expect(periodSpan({ start: '2026-09-07', end: '2026-09-14' })).toBe('9/7 ~ 9/13');
   });
 
-  it('接上 rangeOf 的月結日：15 號結算會顯示成 9/15 – 10/14', () => {
-    expect(periodLabel('month', rangeOf('month', '2026-09-20', 15))).toBe('9/15 – 10/14');
+  it('月結日不是 1 號：15 號結算顯示成 9/15 ~ 10/14', () => {
+    expect(periodSpan(rangeOf('month', '2026-09-20', 15))).toBe('9/15 ~ 10/14');
   });
 
   it('跨年的區間也算得對', () => {
-    expect(periodLabel('month', { start: '2026-12-15', end: '2027-01-15' }))
-      .toBe('12/15 – 1/14');
+    expect(periodSpan({ start: '2026-12-15', end: '2027-01-15' })).toBe('12/15 ~ 1/14');
   });
 });
 

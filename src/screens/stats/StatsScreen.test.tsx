@@ -72,14 +72,17 @@ describe('StatsScreen 的維度切換（MOTION #32）', () => {
 
   it('期間標籤跟著維度變', () => {
     render(<StatsScreen />);
-    expect(screen.getByTestId('overview-period')).toHaveTextContent('2026年9月');
+    expect(screen.getByTestId('overview-period')).toHaveTextContent('9/1 ~ 9/30');
+    expect(screen.getByTestId('overview-card')).toHaveTextContent(/[本當]月結餘/);
 
     fireEvent.click(screen.getByTestId('dimension-year'));
-    expect(screen.getByTestId('overview-period')).toHaveTextContent('2026年');
+    expect(screen.getByTestId('overview-period')).toHaveTextContent('1/1 ~ 12/31');
+    expect(screen.getByTestId('overview-card')).toHaveTextContent(/(今年|當年)結餘/);
 
     fireEvent.click(screen.getByTestId('dimension-week'));
-    // 2026-09-06 是週日，週一起始那週是 8/31 – 9/6
-    expect(screen.getByTestId('overview-period')).toHaveTextContent('8/31 – 9/6');
+    // 2026-09-06 是週日，週一起始那週是 8/31 ~ 9/6
+    expect(screen.getByTestId('overview-period')).toHaveTextContent('8/31 ~ 9/6');
+    expect(screen.getByTestId('overview-card')).toHaveTextContent(/[本當]週結餘/);
   });
 
   it('折線的資料點數跟著維度變', () => {

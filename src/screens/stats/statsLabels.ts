@@ -1,28 +1,28 @@
-import { parseDate, type WeekStart } from '../../domain/date';
+import { inRange, parseDate, type WeekStart } from '../../domain/date';
 import type { BudgetRow } from '../../domain/aggregate';
 import type { Dimension, Range } from '../../domain/types';
 
+const CURRENT = { week: '本週', month: '本月', year: '今年' } as const;
+const OTHER = { week: '當週', month: '當月', year: '當年' } as const;
+
 /**
- * §6 總覽卡的期間標籤。
- *
- * 月維度在月結日是 1 號時只寫「9月」，不是 1 號才寫成 `9/15 – 10/14`（§6）——
+ * §6 總覽卡標題（使用者要求）：「本週結餘」「本月結餘」「今年結餘」。
+ * 看的不是目前這一期（在日常頁選了別的日子）時寫「當週／當月／當年」，
+ * 免得標題寫本月、數字卻是上個月的。
+ */
+export function balanceTitle(dim: Dimension, r: Range, today: string): string {
+  return `${(inRange(today, r) ? CURRENT : OTHER)[dim]}結餘`;
+}
+
+/**
+ * 標題旁的期間，一律寫成「9/8 ~ 9/14」（使用者要求）。
  * 區間結束是 range.end 的前一天，因為 Range 是半開區間 [start, end)。
  */
-export function periodLabel(dim: Dimension, r: Range): string {
+export function periodSpan(r: Range): string {
   const s = parseDate(r.start);
   const end = parseDate(r.end);
-  // 半開區間的最後一天
   const last = new Date(end.getFullYear(), end.getMonth(), end.getDate() - 1);
-
-  if (dim === 'year') return `${s.getFullYear()}年`;
-
-  if (dim === 'month') {
-    // 1 號開始、且結束日落在同一個月 → 就是一個完整月份
-    const wholeMonth = s.getDate() === 1 && last.getMonth() === s.getMonth();
-    if (wholeMonth) return `${s.getFullYear()}年${s.getMonth() + 1}月`;
-  }
-
-  return `${s.getMonth() + 1}/${s.getDate()} – ${last.getMonth() + 1}/${last.getDate()}`;
+  return `${s.getMonth() + 1}/${s.getDate()} ~ ${last.getMonth() + 1}/${last.getDate()}`;
 }
 
 /** §6 與上期增減 pill 的文字。方向由 comparePrevious 決定，這裡只管排版 */

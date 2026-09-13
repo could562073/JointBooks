@@ -4,9 +4,24 @@ import styles from './SegmentedControl.module.css';
 
 export type Segment<T extends string> = { key: T; label: string };
 
-/** 滑塊落點。跟月曆與分頁列同一套：算好百分比，不寫 CSS calc */
+/** 容器內距與按鈕間距（統計頁與記一筆兩份原型都是 padding 4px、gap 4px） */
+const PAD = 4;
+const GAP = 4;
+
+/**
+ * 滑塊寬度：扣掉兩側內距與按鈕間距後均分（原型 calc((100% - 16px)/3)、calc(50% - 6px)）。
+ * 絕對定位的 left／width 是相對容器的 padding box 算的，不扣內距滑塊就會貼到容器邊緣。
+ */
+export function segmentWidth(count: number): string {
+  const px = Number(((2 * PAD + (count - 1) * GAP) / count).toFixed(5));
+  return `calc(${Number((100 / count).toFixed(4))}% - ${px}px)`;
+}
+
+/** 滑塊落點：從左內距開始，每格往右一個滑塊寬＋一個間距（跟分頁列同一套算法） */
 export function segmentLeft(index: number, count: number): string {
-  return `${((index * 100) / count).toFixed(4)}%`;
+  const pct = Number(((index * 100) / count).toFixed(4));
+  const px = Number((PAD + index * (GAP - (2 * PAD + (count - 1) * GAP) / count)).toFixed(5));
+  return `calc(${pct}% + ${px}px)`;
 }
 
 type Props<T extends string> = {
@@ -43,7 +58,7 @@ export function SegmentedControl<T extends string>({
         className={styles.slider}
         style={{
           left: segmentLeft(index, segments.length),
-          width: `${(100 / segments.length).toFixed(4)}%`,
+          width: segmentWidth(segments.length),
           background: fill,
           transition: reduced
             ? 'none'

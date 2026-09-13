@@ -1,6 +1,8 @@
 .wrap {
   position: relative;
   display: flex;
+  /* 原型：padding 4px、按鈕間距 4px。滑塊的 left／width 也照這兩個數算（segmentLeft） */
+  gap: 4px;
   padding: 4px;
   border-radius: var(--r-pill);
   /* 兩份原型（記一筆、統計）都是 .07 */
@@ -21,8 +23,11 @@
   position: relative;
   flex: 1 1 0;
   border: 0;
+  border-radius: var(--r-pill);
   background: none;
-  min-height: 36px;
+  /* 原型統計頁：padding 9px 0、Noto Sans TC 13px 700 */
+  padding: 9px 0;
+  font-family: var(--f-body);
   font-size: 13px;
   font-weight: 700;
   color: var(--c-text-2);
@@ -38,6 +43,5 @@
 
 .compact .seg {
   padding: 7px 16px;
-  min-height: 0;
   font-size: 12.5px;
 }

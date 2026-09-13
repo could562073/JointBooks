@@ -13,14 +13,20 @@ afterEach(() => vi.unstubAllGlobals());
 
 const BASE = {
   totals: { incomeCents: 520_000, expenseCents: 318_450, netCents: 201_550 },
-  periodLabel: '2026年9月',
+  title: '本月結餘',
+  periodLabel: '9/1 ~ 9/30',
   delta: { deltaRatio: 0.12, direction: 'up' as const },
 };
 
 describe('OverviewCard', () => {
+  it('標題照傳入的寫（本週結餘／本月結餘…），期間跟在後面', () => {
+    render(<OverviewCard {...BASE} />);
+    expect(screen.getByTestId('overview-card')).toHaveTextContent('本月結餘9/1 ~ 9/30');
+  });
+
   it('顯示期間標籤與三個數字（原型的合計數字只到元，不顯示角分）', () => {
     render(<OverviewCard {...BASE} />);
-    expect(screen.getByTestId('overview-period')).toHaveTextContent('2026年9月');
+    expect(screen.getByTestId('overview-period')).toHaveTextContent('9/1 ~ 9/30');
     expect(screen.getByTestId('overview-net')).toHaveTextContent('$2,016');
     expect(screen.getByTestId('overview-income')).toHaveTextContent('$5,200');
     expect(screen.getByTestId('overview-expense')).toHaveTextContent('$3,185');

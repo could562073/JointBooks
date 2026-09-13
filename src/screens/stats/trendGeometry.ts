@@ -1,7 +1,16 @@
 export type Pt = { x: number; y: number };
 
-/** SVG 的內部座標系。用固定的 viewBox 讓版面可以隨容器縮放而不必重算 */
-export const VIEW = { w: 320, h: 120, padX: 8, padTop: 10, padBottom: 18 } as const;
+/**
+ * SVG 的內部座標系，照原型：viewBox 320×130，左右各留 8。
+ * 0 落在 y=112，刻度上限落在 y=112-98；支出面積往下收到 y=120。
+ */
+export const VIEW = { w: 320, h: 130, padX: 8, zeroY: 112, span: 98, areaBase: 120 } as const;
+
+/** 最大值上方留一成空間，最高點不會頂到最上面那條格線（原型 hi = max × 1.1） */
+export const HEADROOM = 1.1;
+
+/** 背後三條虛線格線的高度（原型） */
+export const GRID_Y = [14, 56, 98] as const;
 
 /**
  * §6 折線的資料點座標。
@@ -16,14 +25,12 @@ export function chartPoints(values: readonly number[], max: number): Pt[] {
   if (n === 0) return [];
 
   const usableW = VIEW.w - VIEW.padX * 2;
-  const usableH = VIEW.h - VIEW.padTop - VIEW.padBottom;
-  const baseline = VIEW.h - VIEW.padBottom;
-  // max 為 0（整個期間沒有任何紀錄）時所有點都貼底線，不要除以零
-  const scale = max > 0 ? usableH / max : 0;
+  // max 為 0（整個期間沒有任何紀錄）時所有點都貼在 0 的位置，不要除以零
+  const scale = max > 0 ? VIEW.span / (max * HEADROOM) : 0;
 
   return values.map((v, i) => ({
     x: n === 1 ? VIEW.w / 2 : VIEW.padX + (usableW * i) / (n - 1),
-    y: baseline - v * scale,
+    y: VIEW.zeroY - v * scale,
   }));
 }
 
@@ -32,14 +39,9 @@ export function seriesMax(...series: readonly (readonly number[])[]): number {
   return Math.max(0, ...series.flatMap((s) => [...s]));
 }
 
-/**
- * §6 趨勢卡背後的水平淡色格線。純裝飾、與資料無關，均分繪圖區的可用高度。
- * 預設 3 條：頂、中、底線（底線與折線的基線疊在一起）。
- */
-export function gridLines(count = 3): number[] {
-  if (count <= 1) return [VIEW.padTop];
-  const usableH = VIEW.h - VIEW.padTop - VIEW.padBottom;
-  return Array.from({ length: count }, (_, i) => round(VIEW.padTop + (usableH * i) / (count - 1)));
+/** §6 趨勢卡背後的水平淡色格線。純裝飾、與資料無關 */
+export function gridLines(): number[] {
+  return [...GRID_Y];
 }
 
 /** polyline 的 points 屬性 */
@@ -48,16 +50,16 @@ export function polyline(pts: readonly Pt[]): string {
 }
 
 /**
- * §6 支出線下方的淡色面積。沿著折線走一圈再回到底線收尾。
+ * §6 支出線下方的淡色面積。沿著折線走一圈再回到底部收尾（原型收在 y=120）。
  * 點數少於 2 時沒有面積可畫（一個點連不成形狀），回空字串。
  */
 export function areaPath(pts: readonly Pt[]): string {
   if (pts.length < 2) return '';
-  const baseline = VIEW.h - VIEW.padBottom;
+  const base = VIEW.areaBase;
   const first = pts[0]!;
   const last = pts[pts.length - 1]!;
   const line = pts.map((p) => `L${round(p.x)},${round(p.y)}`).join('');
-  return `M${round(first.x)},${baseline}${line}L${round(last.x)},${baseline}Z`;
+  return `M${round(first.x)},${base}${line}L${round(last.x)},${base}Z`;
 }
 
 /** 描線動畫要用的長度。用折線各段的直線距離相加，夠精準也不必碰 DOM */
