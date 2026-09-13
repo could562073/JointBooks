@@ -31,7 +31,12 @@ export function Keypad({ onKey, onSave, canSave }: Props) {
     onPointerCancel: () => setDown(null),
     onPointerLeave: () => setDown(null),
     'data-pressed': down === id ? '' : undefined,
-    style: { ['--press' as string]: `${DUR.keyPress}ms`, ['--ease' as string]: EASE.move },
+    style: {
+      ['--press' as string]: `${DUR.keyPress}ms`,
+      ['--release' as string]: `${DUR.keyRelease}ms`,
+      ['--ease' as string]: EASE.move,
+      ['--spring' as string]: EASE.spring,
+    },
   });
 
   return (

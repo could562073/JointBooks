@@ -20,6 +20,9 @@
   gap: 6px;
 }
 
+/* 選中外圈用 chip 的 offsetLeft／offsetTop 定位，所以這一排要是定位基準 */
+.mainGrid { position: relative; }
+
 /* 主分類 chip：白底 + 淺實體陰影，裡面是裸圖示 + 名稱 */
 .main {
   display: inline-flex;
@@ -36,13 +39,32 @@
   font-weight: 700;
   color: rgba(74, 63, 54, .6);
   cursor: pointer;
+  /* 換分類時舊的淡出、新的淡入 */
+  transition:
+    background-color var(--fade) var(--ease-exit),
+    color var(--fade) var(--ease-exit),
+    box-shadow var(--fade) var(--ease-exit);
 }
 
-/* 選中：淡紫底 + 2.5px 的紫色外圈。外圈是 box-shadow，不佔版面，chip 不會把後面擠換行 */
+/* 選中：淡紫底。2.5px 的紫色外圈不畫在 chip 上，由下面那一塊會滑動的 .ring 負責 */
 .main[data-selected] {
   background: #EFE9FA;
   color: #6B4FA0;
+  box-shadow: none;
+}
+
+/*
+ * 選中外圈：獨立的一塊，換分類時從舊 chip 滑到新 chip（使用者要求）。
+ * 只有外圈、疊在 chip 上面、點擊穿透；外圈是 box-shadow，不佔版面。
+ */
+.ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: var(--r-pill);
   box-shadow: 0 0 0 2.5px #BFA3E5;
+  pointer-events: none;
+  will-change: transform;
 }
 
 /* 子分類 chip：沒有圖示；選中是深咖啡底，跟主分類的淡紫選中態刻意分開 */
@@ -58,6 +80,11 @@
   font-weight: 600;
   color: rgba(74, 63, 54, .6);
   cursor: pointer;
+  /* 原本的選中色淡出、新的選中色淡入（使用者要求） */
+  transition:
+    background-color var(--fade) var(--ease-exit),
+    color var(--fade) var(--ease-exit),
+    box-shadow var(--fade) var(--ease-exit);
 }
 
 .sub[data-selected] {

@@ -12,6 +12,8 @@ export const EASE = {
   sheet: 'cubic-bezier(.32,.72,0,1)',
   /** 離場 */
   exit: 'ease-out',
+  /** 數字鍵放開的回彈：略微衝過頭再回來 */
+  spring: 'cubic-bezier(.34,1.56,.64,1)',
 } as const;
 
 export const DUR = {
@@ -19,7 +21,8 @@ export const DUR = {
   sheetOut: 260,       // #2  記一筆面板離場
   scrimSheetIn: 200,   // #1  遮罩淡入
   scrimSheetOut: 220,  // #2  遮罩淡出
-  keyPress: 140,       // #3  數字鍵按壓
+  keyPress: 80,        // #3  數字鍵按下（使用者要求：比 §10 的 140 快，像實體鍵盤）
+  keyRelease: 120,     // #3  數字鍵放開彈回（配 EASE.spring 略衝過頭）
   riseIn: 320,         // #4 #5 #17 卡片浮現
   riseStagger: 35,     // #5  逐張延遲（第 8 張後不再遞增）
   calCellPop: 300,     // #4  月曆格金額 scale 1→1.12→1

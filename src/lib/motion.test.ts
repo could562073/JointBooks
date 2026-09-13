@@ -12,7 +12,9 @@ describe('motion 常數', () => {
   it('關鍵時長符合 §10 表格', () => {
     expect(DUR.sheetIn).toBe(340);       // #1
     expect(DUR.sheetOut).toBe(260);      // #2
-    expect(DUR.keyPress).toBe(140);      // #3
+    // #3：使用者要求按下與彈回都比 §10 的 140 快，放開時帶回彈
+    expect(DUR.keyPress).toBe(80);
+    expect(DUR.keyRelease).toBe(120);
     expect(DUR.riseIn).toBe(320);        // #4 #5 #17
     expect(DUR.riseStagger).toBe(35);    // #5
     expect(DUR.slide).toBe(420);         // #7 #8 #9 #10 #14 #32 #34

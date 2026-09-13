@@ -10,7 +10,7 @@
 | --- | --- | --- | --- | --- |
 | 1 | 記一筆面板進場 | `DUR.sheetIn` `DUR.scrimSheetIn` `EASE.sheet` | 05 | 已實作 |
 | 2 | 記一筆面板離場 | `DUR.sheetOut` `DUR.scrimSheetOut` `EASE.exit` | 05 | 已實作 |
-| 3 | 數字鍵按壓回饋 | `DUR.keyPress` `EASE.move` | 05 | 已實作 |
+| 3 | 數字鍵按壓回饋（按下 80ms；放開 120ms 帶回彈，使用者要求） | `DUR.keyPress` `DUR.keyRelease` `EASE.move` `EASE.spring` | 05 | 已實作 |
 | 4 | 儲存後新紀錄落定 | `DUR.sheetOut` `DUR.riseIn` `DUR.calCellPop` `EASE.enter` | 05 | 已實作 |
 | 5 | 明細依序浮現 | `DUR.riseIn` `DUR.riseStagger` `EASE.enter` | 04 | 已實作 |
 | 6 | 月曆選中框滑動 | `DUR.calSnap` `EASE.move` | 04 | 已實作 |

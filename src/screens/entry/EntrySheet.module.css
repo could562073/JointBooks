@@ -175,6 +175,10 @@
   font-weight: 700;
   color: rgba(74, 63, 54, .55);
   cursor: pointer;
+  /* 換幣別時原本的選中色淡出、新的淡入（使用者要求） */
+  transition:
+    background-color var(--fade) var(--ease-exit),
+    color var(--fade) var(--ease-exit);
 }
 
 .currency[data-selected] {
@@ -329,6 +333,37 @@
   overflow: hidden;
   /* 下緣多留 3px，小月曆卡片的實體陰影才不會被 overflow 切掉 */
   padding: 8px 0 3px;
+}
+
+/*
+ * 實扣 CAD 卡：外層用 grid-rows 0fr↔1fr 做高度，內層切掉溢出。
+ * 出現時從上方往下滑開，收起時往上收（使用者要求）。
+ */
+.cadPanel {
+  display: grid;
+  grid-template-rows: 1fr;
+}
+
+.cadClip {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.cadEnter { animation: cadExpand var(--pop) var(--ease-enter) both; }
+
+.cadExit {
+  animation: cadCollapse var(--pop) var(--ease-exit) both;
+  pointer-events: none;
+}
+
+@keyframes cadExpand {
+  from { grid-template-rows: 0fr; opacity: 0; transform: translateY(-10px); }
+  to   { grid-template-rows: 1fr; opacity: 1; transform: none; }
+}
+
+@keyframes cadCollapse {
+  from { grid-template-rows: 1fr; opacity: 1; transform: none; }
+  to   { grid-template-rows: 0fr; opacity: 0; transform: translateY(-10px); }
 }
 
 .calendarEnter { animation: calendarExpand var(--pop) var(--ease-enter) both; }

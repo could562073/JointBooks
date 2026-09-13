@@ -22,17 +22,20 @@
   font-weight: 700;
   line-height: 1.2;
   cursor: pointer;
+  /* 放開：略衝過頭再回來，像實體鍵盤彈回（MOTION #3，使用者要求） */
   transition:
-    transform var(--press) var(--ease),
-    box-shadow var(--press) var(--ease),
-    background var(--press) var(--ease);
+    transform var(--release) var(--spring),
+    box-shadow var(--release) var(--spring),
+    background var(--release) var(--ease);
 }
 
-/* MOTION #3：下壓 3px、縮 .96、陰影壓平、底色轉淡紫 */
+/* MOTION #3：下壓 3px、縮 .96、陰影壓平、底色轉淡紫。按下走較短的時長 */
 .key[data-pressed] {
   transform: translateY(3px) scale(.96);
   box-shadow: 0 0 0 rgba(74, 63, 54, 0);
   background: var(--c-tint);
+  transition-duration: var(--press);
+  transition-timing-function: var(--ease);
 }
 
 /* §5：⌫ 是淡紫底 + 深紫圖示，不可用灰色 */
@@ -54,14 +57,16 @@
   box-shadow: 0 4px 0 var(--c-primary-deep-shadow);
   cursor: pointer;
   transition:
-    transform var(--press) var(--ease),
-    box-shadow var(--press) var(--ease);
+    transform var(--release) var(--spring),
+    box-shadow var(--release) var(--spring);
 }
 
 /* MOTION #3：儲存鍵下壓 4px 且陰影壓平，但不縮放 */
 .save[data-pressed] {
   transform: translateY(4px);
   box-shadow: 0 0 0 var(--c-primary-deep-shadow);
+  transition-duration: var(--press);
+  transition-timing-function: var(--ease);
 }
 
 .save:disabled {

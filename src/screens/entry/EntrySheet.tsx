@@ -89,6 +89,8 @@ export function EntrySheet({
   const main = categories.find((c) => c.id === draft.mainId);
   const sub = main?.subs.find((s) => s.id === draft.subId);
   const showCad = needsCadField(draft);
+  // 實扣 CAD 卡：出現時向下滑開、收起時往上收，播完才卸載（跟日期面板同一套）
+  const cadPanel = usePresence(showCad, DUR.popIn, reduced);
   const saveable = canSave(draft);
 
   const key = useCallback((k: KeypadKey) => {
@@ -198,7 +200,11 @@ export function EntrySheet({
             </span>
           </button>
 
-          <div className={styles.currencies} data-testid="currencies">
+          <div
+            className={styles.currencies}
+            style={{ ['--fade' as string]: reduced ? '0ms' : `${DUR.popIn}ms` }}
+            data-testid="currencies"
+          >
             {CURRENCIES.map((c) => (
               <button
                 key={c}
@@ -219,23 +225,35 @@ export function EntrySheet({
             : '主幣別 CAD · 直接記錄'}
         </p>
 
-        {/* §5：非 CAD 時才出現實扣 CAD 欄位 */}
-        {showCad && (
-          <button
-            type="button"
-            className={styles.cad}
-            data-focused={draft.field === 'cad' ? '' : undefined}
-            onClick={() => focus('cad')}
-            data-testid="field-cad"
+        {/* §5：非 CAD 時才出現實扣 CAD 欄位；出現時向下滑開（使用者要求） */}
+        {cadPanel.mounted && (
+          <div
+            className={[
+              styles.cadPanel,
+              reduced ? '' : cadPanel.exiting ? styles.cadExit : styles.cadEnter,
+            ].filter(Boolean).join(' ')}
+            style={{ ['--pop' as string]: `${DUR.popIn}ms` }}
+            data-exiting={cadPanel.exiting ? '' : undefined}
+            data-testid="cad-panel"
           >
-            <span className={styles.cardLabel}>實際扣款 CAD</span>
-            <span className={styles.cadLine}>
-              <span className={styles.dollarSm} aria-hidden="true">$</span>
-              <span className={styles.cadDigits} data-empty={isBlank(draft.cad) ? '' : undefined}>
-                {draft.cad || '0'}
-              </span>
-            </span>
-          </button>
+            <div className={styles.cadClip}>
+              <button
+                type="button"
+                className={styles.cad}
+                data-focused={draft.field === 'cad' ? '' : undefined}
+                onClick={() => focus('cad')}
+                data-testid="field-cad"
+              >
+                <span className={styles.cardLabel}>實際扣款 CAD</span>
+                <span className={styles.cadLine}>
+                  <span className={styles.dollarSm} aria-hidden="true">$</span>
+                  <span className={styles.cadDigits} data-empty={isBlank(draft.cad) ? '' : undefined}>
+                    {draft.cad || '0'}
+                  </span>
+                </span>
+              </button>
+            </div>
+          </div>
         )}
 
         <CategoryPicker
