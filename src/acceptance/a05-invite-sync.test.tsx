@@ -31,7 +31,8 @@ describe('§15.1-20 邀請面板：複製內容與 QR 內容都等於連結', ()
     fireEvent.click(screen.getByTestId('invite-member'));
     await waitFor(() => expect(screen.getByTestId('invite-link')).toBeInTheDocument());
 
-    const shown = screen.getByTestId('invite-link').textContent!;
+    // 畫面顯示縮短版；複製、分享、QR 對的是 data-url 裡的完整連結
+    const shown = screen.getByTestId('invite-link').getAttribute('data-url')!;
     expect(shown).toContain(`sid=${SID}`);
 
     await act(async () => { fireEvent.click(screen.getByTestId('invite-copy')); });
@@ -46,7 +47,8 @@ describe('§15.1-20 邀請面板：複製內容與 QR 內容都等於連結', ()
     fireEvent.click(screen.getByTestId('invite-member'));
     await waitFor(() => expect(screen.getByTestId('invite-link')).toBeInTheDocument());
 
-    const shown = screen.getByTestId('invite-link').textContent!;
+    // 畫面顯示縮短版；複製、分享、QR 對的是 data-url 裡的完整連結
+    const shown = screen.getByTestId('invite-link').getAttribute('data-url')!;
     fireEvent.click(screen.getByTestId('invite-qr-toggle'));
 
     await waitFor(() =>

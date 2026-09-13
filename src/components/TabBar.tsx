@@ -11,10 +11,30 @@ export const TABS: { key: Tab; label: string }[] = [
   { key: 'settings', label: '配置' },
 ];
 
-/** 選中滑塊的落點。跟月曆滑塊同一套做法：算好百分比，不寫 CSS calc */
+/** 分頁列的內距與頁籤之間的間距（px），與 TabBar.module.css 同一組數字 */
+const BAR_PAD = 5;
+const TAB_GAP = 6;
+
+/**
+ * 選中滑塊的落點。
+ *
+ * 不能只用 index × 33.33%：列有 5px 內距、頁籤之間有 6px 間距，一格實際寬度是
+ * (100% − 2×內距 − 2×間距) / 3。第 i 格的左緣＝內距 + i ×（格寬 + 間距），
+ * 展開後百分比部分是 i × 33.33%，px 部分是 內距 − i × (2×內距 + 2×間距)/3 + i × 間距。
+ * 少了 px 那一項，滑塊在第二、三格會偏掉幾個 px——跟月曆滑塊同一個坑。
+ */
 export function tabSliderLeft(index: number): string {
-  return `${((index * 100) / TABS.length).toFixed(4)}%`;
+  const n = TABS.length;
+  // Number() 去掉尾數零：瀏覽器與 jsdom 設進 style 時都會把 0.0000% 正規化成 0%，
+  // 字串先寫成正規化後的樣子，讀回 style.left 才會跟這裡算的一致
+  const pct = Number(((index * 100) / n).toFixed(4));
+  const px = Number((BAR_PAD + index * (TAB_GAP - (2 * BAR_PAD + (n - 1) * TAB_GAP) / n)).toFixed(5));
+  return `calc(${pct}% + ${px}px)`;
 }
+
+/** 滑塊寬度＝一格的寬度：扣掉兩側內距與所有間距後平分 */
+export const TAB_SLIDER_WIDTH =
+  `calc(${Number((100 / TABS.length).toFixed(4))}% - ${Number(((2 * BAR_PAD + (TABS.length - 1) * TAB_GAP) / TABS.length).toFixed(5))}px)`;
 
 /** 分頁在列上的位置；找不到就當第一個，不讓未知的 tab 把版面算歪 */
 export function tabIndex(tab: Tab): number {
@@ -43,12 +63,14 @@ export function TabBar({ tab, onChange }: Props) {
   const index = tabIndex(tab);
 
   return (
+    // 原型：列浮在一條透明→奶油色的底帶上，捲到底的內容會淡出在列後面
+    <div className={styles.dock}>
     <nav className={styles.bar} data-testid="tab-bar">
       <span
         className={styles.slider}
         style={{
           left: tabSliderLeft(index),
-          width: `${(100 / TABS.length).toFixed(4)}%`,
+          width: TAB_SLIDER_WIDTH,
           transition: reduced ? 'none' : `left ${DUR.slide}ms ${EASE.move}`,
         }}
         aria-hidden="true"
@@ -78,12 +100,14 @@ export function TabBar({ tab, onChange }: Props) {
               style={{ ['--squash' as string]: `${DUR.slide}ms` }}
               data-testid={active ? 'tab-mantou-active' : undefined}
             >
-              <Mantou variant="tab" width={22} />
+              {/* 原型：沒選中的饅頭是灰的，選中才轉紫；兩者都只有高光與眼睛 */}
+              <Mantou variant={active ? 'tab' : 'muted'} width={22} minimal />
             </span>
             <span className={styles.label}>{t.label}</span>
           </button>
         );
       })}
     </nav>
+    </div>
   );
 }

@@ -59,3 +59,20 @@ export async function checkInvite(
   if (now > expiresAt) return { kind: 'expired' };
   return { kind: 'ok', sid, expiresAt };
 }
+
+/**
+ * 面板上顯示用的短版連結：host + 路徑 + ?sid=前三…後三。
+ *
+ * 原型就是這樣縮的。只影響顯示——複製、分享、QR 一律用完整連結。拿掉 t 是因為
+ * 那串簽章對人沒有意義，只會把真正需要辨認的 sid 擠出畫面。
+ */
+export function displayInviteUrl(url: string): string {
+  try {
+    const u = new URL(url);
+    const sid = u.searchParams.get('sid') ?? '';
+    const short = sid.length > 8 ? `${sid.slice(0, 3)}…${sid.slice(-3)}` : sid;
+    return `${u.host}${u.pathname}?sid=${short}`;
+  } catch {
+    return url;
+  }
+}

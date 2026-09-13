@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { displayInviteUrl } from './inviteLink';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { InvitePanel } from './InvitePanel';
 
@@ -24,8 +25,23 @@ describe('InvitePanel 的內容', () => {
   it('顯示邀請連結與三條說明', () => {
     withClipboard();
     render(<InvitePanel {...BASE} />);
-    expect(screen.getByTestId('invite-link')).toHaveTextContent(URL_);
-    expect(screen.getByTestId('invite-panel')).toHaveTextContent('連結七天後失效');
+    // 顯示縮短版（原型如此），完整連結保留在 data-url 給複製、分享、QR 用
+    expect(screen.getByTestId('invite-link')).toHaveAttribute('data-url', URL_);
+    expect(screen.getByTestId('invite-link')).toHaveTextContent(displayInviteUrl(URL_));
+    // 原型的三步說明卡
+    expect(screen.getByTestId('invite-panel')).toHaveTextContent('連結 7 天內有效');
+    expect(screen.getByTestId('invite-panel').querySelectorAll('ol > li')).toHaveLength(3);
+  });
+
+  /*
+   * 原型寫「舊連結立即失效」，但沒有後端就做不到——產生新連結不會讓已傳出的舊連結
+   * 失效。照原型抄會變成錯誤的安全說明，這條擋住之後的「對齊原型」把它改回去。
+   */
+  it('不宣稱產生新連結會讓舊連結立即失效', () => {
+    withClipboard();
+    render(<InvitePanel {...BASE} />);
+    expect(screen.getByTestId('invite-panel')).not.toHaveTextContent('舊連結立即失效');
+    expect(screen.getByTestId('invite-panel')).toHaveTextContent('舊連結會一直有效到它自己的期限');
   });
 
   it('明說任何拿到連結的人都能加入——沒有後端就沒有真正的簽章驗證', () => {

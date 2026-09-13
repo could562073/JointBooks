@@ -4,7 +4,21 @@ import { DUR, EASE } from '../lib/motion';
 import { useReducedMotion } from '../lib/useReducedMotion';
 import { useSheetDismiss } from '../screens/entry/useSheetDismiss';
 import { copyText, shareUrl } from './clipboard';
+import { displayInviteUrl } from './inviteLink';
 import styles from './InvitePanel.module.css';
+
+/**
+ * 原型的三步說明。其中兩句照原型寫會跟實際行為不符，改成事實（待使用者裁決）：
+ *   - 原型「過期後可重新產生，舊連結立即失效」：沒有後端，產生新連結不會讓舊連結
+ *     失效，舊連結會一直有效到它自己的期限。
+ *   - 原型「只有你能移除成員」：App 沒有移除成員的功能。原型也拿掉了「連結本身
+ *     就是憑證」的提醒（見 inviteLink.ts），這裡補回第三步。
+ */
+const STEPS = [
+  { title: '連結 7 天內有效', body: '過期後重新產生一條即可；已經傳出去的舊連結會一直有效到它自己的期限。' },
+  { title: '對方需用 Google 登入', body: '登入的帳號會成為帳本成員，並被加為這份 Sheet 的編輯者。' },
+  { title: '加入後權限相同', body: '雙方都能新增、修改、刪除所有紀錄。任何拿到這條連結的人都能加入，請只傳給她本人。' },
+] as const;
 
 type Props = {
   /** 還沒有雲端帳本時是 null：面板照開，但不能給出一條指向不存在帳本的連結 */
@@ -65,7 +79,7 @@ export function InvitePanel({ url, onClose, onPreview }: Props) {
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
-        aria-label="邀請成員"
+        aria-label="邀請老婆加入"
         data-testid="invite-panel"
       >
         <div
@@ -77,17 +91,44 @@ export function InvitePanel({ url, onClose, onPreview }: Props) {
           <span className={styles.bar} aria-hidden="true" />
         </div>
 
-        <h2 className={styles.title}>邀請成員</h2>
+        <div className={styles.header}>
+          <h2 className={styles.title}>邀請老婆加入</h2>
+          <button type="button" className={styles.close} onClick={onClose} data-testid="invite-close">
+            關閉
+          </button>
+        </div>
 
         {url === null ? (
           // 還沒建帳本就不該給出連結：一條指向不存在帳本的邀請，對方點下去
           // 會「成功加入」一本不存在的帳，比什麼都不給更糟
-          <p className={styles.body} data-testid="invite-noledger">
+          <p className={styles.lead} data-testid="invite-noledger">
             這台裝置還沒有雲端帳本。先用 Google 登入建立帳本，才有連結可以邀請她。
           </p>
         ) : (
           <>
-            <p className={styles.link} data-testid="invite-link">{url}</p>
+            <p className={styles.lead}>把連結傳給她，她點開登入就會加入這本帳，之後兩人看到同一份資料。</p>
+
+            <div className={styles.linkCard}>
+              <span className={styles.linkIcon} aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 20 20">
+                  <path
+                    d="M8.6 11.4a3.1 3.1 0 0 0 4.4 0l2.5-2.5a3.1 3.1 0 0 0-4.4-4.4l-.9.9"
+                    fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"
+                  />
+                  <path
+                    d="M11.4 8.6a3.1 3.1 0 0 0-4.4 0l-2.5 2.5a3.1 3.1 0 0 0 4.4 4.4l.9-.9"
+                    fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"
+                  />
+                </svg>
+              </span>
+              <div className={styles.linkText}>
+                <div className={styles.linkLabel}>邀請連結</div>
+                {/* 顯示縮短版（原型如此）；完整連結放在 data-url，複製、分享、QR 都用它 */}
+                <div className={styles.linkUrl} title={url} data-url={url} data-testid="invite-link">
+                  {displayInviteUrl(url)}
+                </div>
+              </div>
+            </div>
 
             <button
               type="button"
@@ -126,23 +167,24 @@ export function InvitePanel({ url, onClose, onPreview }: Props) {
               </div>
             )}
 
-            <ul className={styles.facts}>
-              <li>她會拿到這本帳的編輯權限，可以新增與修改紀錄。</li>
-              <li>連結七天後失效，過期後重新產生一條即可。</li>
-              {/* 沒有後端就沒有真正的簽章驗證，連結本身就是憑證——要講清楚 */}
-              <li>任何拿到這條連結的人都能加入，請只傳給她本人。</li>
-            </ul>
-
             <button
               type="button" className={styles.preview}
               onClick={onPreview} data-testid="invite-preview"
             >預覽她點開後看到的畫面 ›</button>
+
+            <ol className={styles.steps}>
+              {STEPS.map((step, i) => (
+                <li key={step.title} className={styles.step}>
+                  <span className={styles.stepNo}>{i + 1}</span>
+                  <div className={styles.stepText}>
+                    <div className={styles.stepTitle}>{step.title}</div>
+                    <div className={styles.stepBody}>{step.body}</div>
+                  </div>
+                </li>
+              ))}
+            </ol>
           </>
         )}
-
-        <button type="button" className={styles.close} onClick={onClose} data-testid="invite-close">
-          關閉
-        </button>
       </div>
     </div>
   );

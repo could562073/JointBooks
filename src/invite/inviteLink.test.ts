@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildInviteUrl, checkInvite, INVITE_TTL_MS, signInvite } from './inviteLink';
+import { buildInviteUrl, checkInvite, INVITE_TTL_MS, signInvite, displayInviteUrl } from './inviteLink';
 
 const SID = '1AbCdEfGhIjKlMnOpQrStUvWxYz';
 const NOW = 1_800_000_000_000;
@@ -87,5 +87,20 @@ describe('checkInvite', () => {
   it('t 的格式壞掉是 invalid', async () => {
     await expect(checkInvite(`?sid=${SID}&t=garbage`, NOW)).resolves.toEqual({ kind: 'invalid' });
     await expect(checkInvite(`?sid=${SID}&t=abc.def`, NOW)).resolves.toEqual({ kind: 'invalid' });
+  });
+});
+
+describe('displayInviteUrl（面板上顯示的短版連結）', () => {
+  it('縮成 host + 路徑 + ?sid=前三…後三，簽章拿掉', () => {
+    expect(displayInviteUrl('https://could562073.github.io/JointBooks/join?sid=1aBcdefghij9kQ&t=123.abc'))
+      .toBe('could562073.github.io/JointBooks/join?sid=1aB…9kQ');
+  });
+
+  it('sid 很短時不縮', () => {
+    expect(displayInviteUrl('https://a.b/join?sid=abc&t=1.x')).toBe('a.b/join?sid=abc');
+  });
+
+  it('不是合法網址時原樣回傳，不丟例外', () => {
+    expect(displayInviteUrl('not a url')).toBe('not a url');
   });
 });

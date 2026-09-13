@@ -1,11 +1,32 @@
-.bar {
+/*
+ * 原型：分頁列浮在一條由透明漸變到奶油色的底帶上，捲到最底的內容會淡出在列的
+ * 後面，而不是被一條硬邊切掉。底帶本身不吃點擊，只有列吃，免得擋住上方內容。
+ */
+.dock {
   position: fixed;
-  left: 12px;
-  right: 12px;
-  bottom: 14px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 8px 22px calc(28px + env(safe-area-inset-bottom));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 246, 236, 0) 0%,
+    rgba(255, 246, 236, .45) 45%,
+    rgba(255, 246, 236, .8) 100%
+  );
+  pointer-events: none;
+  z-index: 20;
+}
+
+.bar {
+  position: relative;
   display: flex;
+  align-items: center;
+  /* 與 TabBar.tsx 的 BAR_PAD／TAB_GAP 同一組數字，滑塊的落點靠它們算 */
+  gap: 6px;
   padding: 5px;
   border-radius: 22px;
+  pointer-events: auto;
   /*
    * MOTION #29：內容要真的透在玻璃後面，所以底是半透明漸層 + backdrop-filter，
    * 不是一塊不透明的淺色。-webkit- 前置給 iOS Safari。
@@ -18,46 +39,49 @@
     rgba(255, 255, 255, .38) 100%
   );
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, .7),
-    0 0 0 .5px rgba(74, 63, 54, .1);
-  z-index: 20;
+    inset 0 1px 0 rgba(255, 255, 255, .85),
+    0 0 0 .5px rgba(74, 63, 54, .1),
+    0 8px 24px rgba(74, 63, 54, .14),
+    0 2px 6px rgba(74, 63, 54, .06);
 }
 
-/* 選中框是一塊獨立滑塊，位移而不是各頁籤自己變底色 */
+/* 選中框是一塊獨立滑塊，位移而不是各頁籤自己變底色；原型是淡紫色的藥丸 */
 .slider {
   position: absolute;
   top: 5px;
   bottom: 5px;
-  /* left／width 由 JS 給，跟月曆滑塊同一套 */
+  /* left／width 由 JS 給，算進了內距與間距 */
   border-radius: 17px;
-  background: rgba(255, 255, 255, .92);
-  box-shadow: 0 2px 0 rgba(74, 63, 54, .06);
+  background: rgba(237, 233, 250, .92);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7);
   will-change: left;
 }
 
 .tab {
   position: relative;
   flex: 1 1 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
   border: 0;
-  background: none;
-  /* §0：可點元素 ≥44px */
-  min-height: 44px;
-  padding: 4px 0;
+  border-radius: 17px;
+  background: transparent;
+  padding: 6px 0 5px;
   cursor: pointer;
-  color: var(--c-text-3);
-}
-
-.tab[data-active] {
-  color: var(--c-text);
 }
 
 .label {
+  font-family: var(--f-body);
   font-size: 10px;
+  font-weight: 700;
   line-height: 1.2;
+  color: rgba(74, 63, 54, .45);
+}
+
+.tab[data-active] .label {
+  color: var(--c-tint-ink);
 }
 
 /* MOTION #10：選中頁籤的饅頭壓扁再彈回 */
