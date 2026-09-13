@@ -1,7 +1,6 @@
-import { Mantou } from '../../components/Mantou';
 import { DUR } from '../../lib/motion';
 import { useCountUp } from '../../lib/useCountUp';
-import { formatCad } from '../../domain/money';
+import { formatCadWhole } from '../../domain/money';
 import styles from './SummaryCards.module.css';
 
 type Props = {
@@ -19,7 +18,8 @@ const PERIOD_LABEL = '本月';
 function Amount({ cents, signed }: { cents: number; signed: boolean }) {
   // MOTION #31：三個數字都要 count-up
   const shown = useCountUp(cents, DUR.countUp);
-  return <span className={styles.value}>{formatCad(shown, signed ? 'auto' : 'none')}</span>;
+  // 原型的三卡只到元，不顯示角分
+  return <span className={styles.value}>{formatCadWhole(shown, signed ? 'auto' : 'none')}</span>;
 }
 
 /**
@@ -40,11 +40,14 @@ export function SummaryCards({ incomeCents, expenseCents, netCents }: Props) {
       </div>
 
       <div className={`${styles.card} ${styles.net}`} data-testid="card-net">
-        {/* MOTION #30：結餘卡的饅頭呆滯呼吸。寬度取 30px，對照原型再校準（D23） */}
-        <Mantou variant="full" width={30} breathing className={styles.mascot} data-testid="net-mantou" />
-        <span className={styles.label}>結餘</span>
+        {/*
+          原型的結餘卡上**沒有**饅頭，「結餘 本月」也是同一行。
+          MOTION #30 的呼吸饅頭在原型裡是統計頁總覽卡那一顆，不在這裡。
+        */}
+        <span className={styles.label}>
+          結餘<span className={styles.period}>{PERIOD_LABEL}</span>
+        </span>
         <Amount cents={netCents} signed />
-        <span className={styles.sub}>{PERIOD_LABEL}</span>
       </div>
     </div>
   );

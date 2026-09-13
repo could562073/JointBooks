@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, it, expect, afterEach, vi } from 'vitest';
 import type { DayCell } from '../../domain/aggregate';
 import { daysInMonth } from '../../domain/date';
-import { CELL_H } from './calendarLayout';
+import { CELL_H, sliderOffset } from './calendarLayout';
 import { MonthCalendar } from './MonthCalendar';
 
 afterEach(() => vi.unstubAllGlobals());
@@ -48,8 +48,8 @@ describe('MonthCalendar 的格線', () => {
   });
 
   it('1 號前的空格用不可聚焦的佔位，不是空按鈕', () => {
-    const { container } = render(<MonthCalendar {...BASE} />);
-    const grid = container.querySelector('[style*="--cell-h"]')!;
+    render(<MonthCalendar {...BASE} />);
+    const grid = screen.getByTestId('month-grid');
     // 2026-09-01 是週二 → 前面補 1 格
     const pads = grid.querySelectorAll('[aria-hidden="true"]');
     expect(pads).toHaveLength(1);
@@ -127,11 +127,13 @@ describe('MonthCalendar 的選取', () => {
     // offset=1：6 號的 index 是 6 → col 6、row 0
     const { rerender } = render(<MonthCalendar {...BASE} selectedDay={6} />);
     const slider = screen.getByTestId('calendar-slider');
-    expect(slider).toHaveStyle({ left: `${((6 * 100) / 7).toFixed(4)}%`, top: '0px' });
+    expect(slider.style.left).toBe(sliderOffset({ col: 6, row: 0 }).left);
+    expect(slider).toHaveStyle({ top: '0px' });
 
     // 8 號的 index 是 8 → col 1、row 1
     rerender(<MonthCalendar {...BASE} selectedDay={8} />);
-    expect(slider).toHaveStyle({ left: `${((1 * 100) / 7).toFixed(4)}%`, top: `${CELL_H}px` });
+    expect(slider.style.left).toBe(sliderOffset({ col: 1, row: 1 }).left);
+    expect(slider).toHaveStyle({ top: `${CELL_H}px` });
   });
 
   it('reduced motion 下滑塊不做位移過場', () => {

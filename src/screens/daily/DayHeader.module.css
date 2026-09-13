@@ -1,22 +1,34 @@
-/* §4：日期標題列是固定的，明細在它下面自己捲動，所以這裡不能有 margin 塌陷 */
+/*
+ * 原型：標題、金額、一條填滿剩餘寬度的細線，三者並排。
+ * 金額緊跟在標題後面，不是被推到最右邊——推到最右時視線要橫跨整個畫面。
+ */
 .row {
+  flex: none;
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  padding: 14px 4px 10px;
-  border-bottom: 1px solid rgba(74, 63, 54, .1);
+  align-items: center;
+  gap: 9px;
+  margin: 2px 0 10px;
 }
 
 .title {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--c-text);
 }
 
 .total {
-  font-size: 15px;
+  font-family: var(--f-num);
   font-weight: 700;
-  color: var(--c-text);
+  font-size: 13px;
+  color: var(--c-expense);
   /* 數字跳動時寬度不要抖 */
   font-variant-numeric: tabular-nums;
+}
+
+/* 尾巴那條細線：把剩下的寬度吃掉，讓標題列有一個收邊 */
+.rule {
+  height: 2px;
+  flex: 1 1 0;
+  border-radius: 2px;
+  background: rgba(74, 63, 54, .1);
 }

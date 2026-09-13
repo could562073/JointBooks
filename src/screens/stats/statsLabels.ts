@@ -1,4 +1,5 @@
 import { parseDate, type WeekStart } from '../../domain/date';
+import type { BudgetRow } from '../../domain/aggregate';
 import type { Dimension, Range } from '../../domain/types';
 
 /**

@@ -30,16 +30,22 @@ describe('SummaryCards', () => {
     expect(screen.getByTestId('card-net')).toBeInTheDocument();
   });
 
-  it('收入與支出顯示不帶正負號的金額', () => {
+  // 原型的三卡只到元（$5,786 而不是 $5,786.00）——合計看量級，單筆才要對得上收據
+  it('收入與支出顯示不帶正負號、只到元的金額', () => {
     render(<SummaryCards {...PROPS} />);
-    expect(screen.getByTestId('card-income')).toHaveTextContent('$5,200.00');
-    expect(screen.getByTestId('card-expense')).toHaveTextContent('$3,184.50');
-    expect(screen.getByTestId('card-expense')).not.toHaveTextContent('-$3,184.50');
+    expect(screen.getByTestId('card-income')).toHaveTextContent('$5,200');
+    expect(screen.getByTestId('card-expense')).toHaveTextContent('$3,185');
+    expect(screen.getByTestId('card-expense')).not.toHaveTextContent('-$3,185');
+  });
+
+  it('角分被四捨五入掉，不顯示小數點', () => {
+    render(<SummaryCards {...PROPS} />);
+    expect(screen.getByTestId('card-expense').textContent).not.toMatch(/\d\.\d/);
   });
 
   it('結餘為負時帶負號', () => {
     render(<SummaryCards {...PROPS} netCents={-45_000} />);
-    expect(screen.getByTestId('card-net')).toHaveTextContent('-$450.00');
+    expect(screen.getByTestId('card-net')).toHaveTextContent('-$450');
   });
 
   // 增補檔 D-4：月結日固定 1 日，副標固定「本月」、不顯示區間
@@ -48,9 +54,9 @@ describe('SummaryCards', () => {
     expect(screen.getByTestId('card-net')).toHaveTextContent('本月');
   });
 
-  it('金額為 0 時顯示 $0.00 而不是空白', () => {
+  it('金額為 0 時顯示 $0 而不是空白', () => {
     render(<SummaryCards {...PROPS} incomeCents={0} />);
-    expect(screen.getByTestId('card-income')).toHaveTextContent('$0.00');
+    expect(screen.getByTestId('card-income')).toHaveTextContent('$0');
   });
 });
 
@@ -63,25 +69,26 @@ describe('SummaryCards 的 count-up（MOTION #31）', () => {
 
   it('先從 0 起跑，最後停在整月合計上', async () => {
     render(<SummaryCards {...PROPS} />);
-    expect(screen.getByTestId('card-income')).toHaveTextContent('$0.00');
+    expect(screen.getByTestId('card-income')).toHaveTextContent('$0');
     await waitFor(
-      () => expect(screen.getByTestId('card-income')).toHaveTextContent('$5,200.00'),
+      () => expect(screen.getByTestId('card-income')).toHaveTextContent('$5,200'),
       { timeout: 3000 }
     );
   });
 });
 
-describe('SummaryCards 的結餘卡饅頭（MOTION #30）', () => {
+describe('SummaryCards 沒有饅頭', () => {
   beforeEach(stubReducedMotion);
 
-  it('結餘卡有一隻會呼吸的饅頭', () => {
+  /*
+   * 原型的結餘卡上沒有饅頭——Plan 04 自己加了一顆。MOTION #30 的呼吸饅頭在
+   * 原型裡是統計頁總覽卡那一顆，不在這裡。
+   */
+  it('三張卡都沒有饅頭', () => {
     render(<SummaryCards {...PROPS} />);
-    expect(screen.getByTestId('net-mantou')).toBeInTheDocument();
-  });
-
-  it('收入卡與支出卡沒有饅頭', () => {
-    render(<SummaryCards {...PROPS} />);
-    expect(screen.getByTestId('card-income').querySelector('[data-part="hi"]')).toBeNull();
-    expect(screen.getByTestId('card-expense').querySelector('[data-part="hi"]')).toBeNull();
+    expect(screen.queryByTestId('net-mantou')).not.toBeInTheDocument();
+    for (const id of ['card-income', 'card-expense', 'card-net']) {
+      expect(screen.getByTestId(id).querySelector('[data-part="hi"]')).toBeNull();
+    }
   });
 });

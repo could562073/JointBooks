@@ -1,7 +1,7 @@
 import { Icon } from '../../components/Icon';
 import { Mantou } from '../../components/Mantou';
 import { colorSetOf } from '../../domain/palette';
-import { formatCad, formatOriginal } from '../../domain/money';
+import { formatCents, formatOriginal } from '../../domain/money';
 import type { Category, Txn } from '../../domain/types';
 import { DUR } from '../../lib/motion';
 import { useReducedMotion } from '../../lib/useReducedMotion';
@@ -86,26 +86,40 @@ function TxnRow({ txn, category, showWhoTags, onEdit, delayMs, collapsing }: Row
               {category?.name ?? txn.mainName}
             </span>
             <span className={styles.sub}>{txn.subName}</span>
-            <span className={styles.time}>{txnTime(txn.createdAt)}</span>
           </span>
-          {txn.note && <span className={styles.note}>{txn.note}</span>}
+          {/* 原型的第二行是「時間 備註」，時間在前——不是把時間擠進第一行 */}
+          <span className={styles.line2}>
+            <span className={styles.time}>{txnTime(txn.createdAt)}</span>
+            {txn.note && <span className={styles.note}>{txn.note}</span>}
+          </span>
         </span>
 
         <span className={styles.right}>
-          <span className={isIncome ? styles.income : styles.expense}>
-            {formatCad(txn.actualCadCents, isIncome ? 'plus' : 'minus')}
+          <span className={styles.amountBox}>
+            {/* 原型的金額不帶 $：右下角已經標了幣別，錢字號是多餘的 */}
+            <span className={isIncome ? styles.income : styles.expense}>
+              {isIncome ? '+' : '-'}{formatCents(txn.actualCadCents)}
+            </span>
+            {/*
+              CAD 只顯示幣別（原型如此）；外幣要連原幣金額一起顯示，
+              否則「實際扣款 CAD」那個欄位記下來的資訊在列表上就看不到了。
+            */}
+            <span className={styles.currency}>{formatOriginal(txn.amountCents, txn.currency)}</span>
           </span>
-          <span className={styles.orig}>{formatOriginal(txn.amountCents, txn.currency)}</span>
-        </span>
 
-        {/* 關掉設定時用 opacity 藏起來而不是不渲染，讓每列的右緣對齊不變 */}
-        <span
-          className={styles.avatar}
-          style={{ background: avatarColor(txn.by), opacity: showWhoTags ? 1 : 0 }}
-          data-testid={`by-${txn.id}`}
-          aria-hidden={!showWhoTags}
-        >
-          {txn.by}
+          {/* 關掉設定時用 opacity 藏起來而不是不渲染，讓每列的右緣對齊不變 */}
+          <span
+            className={styles.avatar}
+            style={{ opacity: showWhoTags ? 1 : 0 }}
+            data-testid={`by-${txn.id}`}
+            aria-hidden={!showWhoTags}
+          >
+            {/* 原型的頭像是一顆 22px 的小饅頭臉，不是「我／妻」兩個字 */}
+            <span className={styles.face} style={{ background: avatarColor(txn.by) }}>
+              <span className={styles.eye} style={{ left: '5.5px' }} />
+              <span className={styles.eye} style={{ right: '5.5px' }} />
+            </span>
+          </span>
         </span>
       </button>
     </li>

@@ -51,8 +51,7 @@
 
 .second {
   margin-left: -11px;
-  /* 用底色描邊把兩顆分開，而不是加邊框——邊框會讓饅頭的圓角走樣 */
-  box-shadow: 0 0 0 2.5px var(--c-bg);
+  /* 描邊由 Mantou 的 ring 掛在本體上；掛在這個矩形外框會切出一條直線 */
 }
 
 .pill {

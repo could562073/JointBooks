@@ -1,49 +1,53 @@
 .row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
-  padding: 0 16px 12px;
+  display: flex;
+  gap: 7px;
+  margin: 13px 0 12px;
   flex: none;
 }
 
 .card {
-  /* 結餘卡的饅頭要疊在角落，定位參考點就是卡片本身 */
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 10px 10px 11px;
-  border-radius: var(--r-md);
-  box-shadow: var(--sh-card);
+  flex: 1 1 0;
   min-width: 0;
+  border-radius: var(--r-sm);
+  padding: 9px 11px;
 }
 
-.label { font-size: 11px; opacity: .75; }
+.label {
+  /* span 是 inline，不給 block 的話標籤與數字會擠在同一行 */
+  display: block;
+  font-family: var(--f-body);
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
 
 .value {
-  font-size: 16px;
+  display: block;
+  font-family: var(--f-num);
   font-weight: 700;
+  font-size: 16px;
+  margin-top: 1px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
 }
 
-.sub {
-  font-size: 9px;
-  opacity: .6;
+.income { background: var(--c-income-bg); }
+.income .label,
+.income .value { color: var(--c-income); }
+
+.expense { background: var(--c-expense-bg); }
+.expense .label,
+.expense .value { color: var(--c-expense); }
+
+.net { background: var(--c-text); }
+.net .label { color: rgba(255, 246, 236, .62); }
+.net .value { color: var(--c-bg); }
+
+/* 期間字跟在「結餘」後面同一行，中間留一個字距 */
+/* 期間字跟在「結餘」後面同一行，中間留一個字距；不可換行 */
+.period {
+  margin-left: 4px;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.income { background: var(--c-income-bg); color: var(--c-income); }
-.expense { background: var(--c-expense-bg); color: var(--c-expense); }
-.net { background: var(--c-face); color: #fff; }
-
-/* 結餘卡的饅頭疊在右上角，不佔文字的版位 */
-.mascot {
-  position: absolute;
-  top: 6px;
-  right: 8px;
-  opacity: .9;
 }

@@ -1,53 +1,78 @@
+/*
+ * 原型：‹ [標題] › 三者靠左擠在一起，不是撐滿一整列。
+ * 左右 16px 留白由外殼（App.module.css 的 .page）給，這裡不再加。
+ */
 .nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 8px 16px 12px;
+  gap: 8px;
+  margin: 6px 0 2px;
   flex: none;
 }
 
+.group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
 .arrow {
-  width: 36px;
-  height: 36px;
+  width: 26px;
+  height: 26px;
   flex: none;
   border: 0;
   border-radius: var(--r-pill);
   background: var(--c-card);
-  box-shadow: var(--sh-card);
-  color: var(--c-text);
-  font-size: 18px;
+  /* 比卡片淺一階的實體感陰影，blur 一律 0 */
+  box-shadow: 0 2px 0 rgba(74, 63, 54, .08);
+  color: var(--c-text-2);
+  font-size: 14px;
   line-height: 1;
   cursor: pointer;
 }
 
 .title {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-  flex: 1 1 auto;
   border: 0;
   background: none;
-  padding: 2px 8px;
+  text-align: left;
+  padding: 0 6px;
+  min-width: 0;
   cursor: pointer;
   color: inherit;
 }
 
-.chevron {
-  display: inline-block;
-  margin-left: 4px;
-  font-size: 13px;
-  will-change: transform;
+.line {
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .zh {
-  font-size: 19px;
+  font-family: var(--f-title);
   font-weight: 700;
+  font-size: 23px;
+  line-height: 1.15;
   color: var(--c-text);
 }
 
+.chevron {
+  display: inline-block;
+  font-family: var(--f-num);
+  font-size: 13px;
+  color: rgba(74, 63, 54, .35);
+  will-change: transform;
+}
+
 .en {
-  font-size: 11px;
-  color: var(--c-text-3);
+  /* inline 元素吃不到垂直 margin，副標要自己成一行 */
+  display: block;
+  font-family: var(--f-num);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--c-tint-ink);
+  /* 貼緊上一行，原型是負的 */
+  margin-top: -2px;
+  text-align: left;
 }

@@ -3,7 +3,7 @@ import type { DayCell } from '../../domain/aggregate';
 import { formatCompact } from '../../domain/money';
 import { DUR, EASE } from '../../lib/motion';
 import { useReducedMotion } from '../../lib/useReducedMotion';
-import { CELL_H, cellPosition, heatColor, rowCount, sliderOffset } from './calendarLayout';
+import { CELL_CONTENT_H, cellPosition, heatColor, rowCount, SLIDER_WIDTH, sliderOffset } from './calendarLayout';
 import { useCellPop } from './useCellPop';
 import styles from './MonthCalendar.module.css';
 
@@ -44,7 +44,8 @@ export function MonthCalendar({
 
       <div
         className={styles.grid}
-        style={{ ['--cell-h' as string]: `${CELL_H}px`, gridTemplateRows: `repeat(${rows}, ${CELL_H}px)` }}
+        style={{ gridTemplateRows: `repeat(${rows}, ${CELL_CONTENT_H}px)` }}
+        data-testid="month-grid"
       >
         {/* 1 號之前的空格：用 aria-hidden 的佔位，不要用空 button 免得被 tab 到 */}
         {Array.from({ length: offset }, (_, i) => (
@@ -86,6 +87,7 @@ export function MonthCalendar({
           style={{
             left: sel.left,
             top: sel.top,
+            width: SLIDER_WIDTH,
             transition: reduced ? 'none' : `left ${DUR.calSnap}ms ${EASE.move}, top ${DUR.calSnap}ms ${EASE.move}`,
           }}
         />

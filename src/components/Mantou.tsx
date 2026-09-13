@@ -20,13 +20,25 @@ type Props = {
   variant: MantouVariant;
   width: number;
   breathing?: boolean;
+  /**
+   * 沿著饅頭輪廓描一圈底色，用在頭像疊在一起的時候把兩顆分開。
+   * 一定要掛在本體（有 blob 圓角）而不是外框——外框是矩形，box-shadow 會
+   * 在饅頭身上切出一條直線。
+   */
+  ring?: boolean;
+  /**
+   * 只畫本體、高光與兩隻眼睛——原型外殼左上的頭像對就是這個簡化版，
+   * 沒有嘴、腮紅與腳。30px 大小下那三樣只會糊成雜點。
+   */
+  minimal?: boolean;
   className?: string;
   /** 轉發給根元素，供 e2e 定位 */
   'data-testid'?: string;
 };
 
 export function Mantou({
-  variant, width, breathing = false, className, 'data-testid': testId,
+  variant, width, breathing = false, ring = false, minimal = false,
+  className, 'data-testid': testId,
 }: Props) {
   const c = PALETTE[variant];
   const h = Math.round(width * ASPECT);
@@ -48,6 +60,7 @@ export function Mantou({
           height: `${h}px`,
           background: c.body,
           borderRadius: '50% 50% 34% 34% / 64% 64% 36% 36%',
+          ...(ring ? { boxShadow: '0 0 0 2.5px var(--c-bg)' } : {}),
         }}
       >
         <span
@@ -60,7 +73,7 @@ export function Mantou({
         <span data-part="eye" className={styles.eye}
               style={{ width: eye, height: eye * 1.25, background: c.eye, right: '32%' }} />
 
-        {variant !== 'tab' && (
+        {variant !== 'tab' && !minimal && (
           <span
             data-part="mouth"
             data-dir={variant === 'empty' ? 'up' : 'down'}
@@ -78,7 +91,7 @@ export function Mantou({
           />
         )}
 
-        {variant === 'full' && (
+        {variant === 'full' && !minimal && (
           <>
             <span data-part="blush" className={styles.blush} style={{ left: '8%' }} />
             <span data-part="blush" className={styles.blush} style={{ right: '8%' }} />
@@ -86,7 +99,7 @@ export function Mantou({
         )}
       </span>
 
-      {variant === 'full' && (
+      {variant === 'full' && !minimal && (
         <>
           <span data-part="foot" className={styles.foot}
                 style={{ background: c.foot, left: '20%' }} />

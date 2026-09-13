@@ -1,6 +1,16 @@
+import { readFileSync } from 'node:fs';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+
+function isWsl(): boolean {
+  if (process.platform !== 'linux') return false;
+  try {
+    return /microsoft/i.test(readFileSync('/proc/version', 'utf8'));
+  } catch {
+    return false;
+  }
+}
 
 export default defineConfig({
   base: '/',
@@ -70,6 +80,13 @@ export default defineConfig({
   ],
   server: {
     port: 5173,
+    /*
+     * WSL2 把專案放在 /mnt/c 時，Windows 檔案系統不會送 inotify 事件，Vite 的
+     * 檔案監看整個失效——改了程式碼但 dev server 一直服舊的模組，HMR 也不會動。
+     * 症狀很難認：畫面看起來就只是「沒生效」，讓人以為是自己改錯地方。
+     * 只有在偵測到 WSL 時才開輪詢，原生 Linux 與 macOS 不需要付這個 CPU。
+     */
+    watch: isWsl() ? { usePolling: true, interval: 300 } : undefined,
     // App.tsx 只在 import.meta.env.DEV 時 lazy-import 這個 debug 展示櫃，
     // 所以它現在是一顆獨立 chunk，dev server 預設不會轉譯它，要等第一次真的
     // 打 ?debug= 才會現轉。平常單一使用者感覺不到；但 e2e 對 3 個 breakpoint

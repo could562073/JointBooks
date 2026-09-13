@@ -23,33 +23,36 @@ export function MonthNav({ year, month, pickerOpen, onPrev, onNext, onTogglePick
 
   return (
     <nav className={styles.nav} data-testid="month-nav">
-      <button className={styles.arrow} onClick={onPrev} aria-label="上個月">‹</button>
+      {/* 原型把 ‹ 標題 › 綁成靠左的一組，右邊留白——不是三者平均散開 */}
+      <div className={styles.group}>
+        <button className={styles.arrow} onClick={onPrev} aria-label="上個月">‹</button>
 
-      <button
-        className={styles.title}
-        onClick={onTogglePicker}
-        aria-expanded={pickerOpen}
-        data-testid="month-title"
-      >
-        <span className={styles.zh}>
-          {zh}
-          {/* MOTION #33：▾ 轉 180° 而不是換成 ▴——同一個字元轉過去，動得起來 */}
-          <span
-            className={styles.chevron}
-            style={{
-              transform: pickerOpen ? 'rotate(180deg)' : 'none',
-              transition: `transform ${DUR.chevron}ms ${EASE.exit}`,
-            }}
-            data-testid="month-chevron"
-            aria-hidden="true"
-          >
-            ▾
+        <button
+          className={styles.title}
+          onClick={onTogglePicker}
+          aria-expanded={pickerOpen}
+          data-testid="month-title"
+        >
+          <span className={styles.line}>
+            <span className={styles.zh}>{zh}</span>
+            {/* MOTION #33：▾ 轉 180° 而不是換成 ▴——同一個字元轉過去，動得起來 */}
+            <span
+              className={styles.chevron}
+              style={{
+                transform: pickerOpen ? 'rotate(180deg)' : 'none',
+                transition: `transform ${DUR.chevron}ms ${EASE.exit}`,
+              }}
+              data-testid="month-chevron"
+              aria-hidden="true"
+            >
+              ▾
+            </span>
           </span>
-        </span>
-        <span className={styles.en}>{en}</span>
-      </button>
+          <span className={styles.en}>{en}</span>
+        </button>
 
-      <button className={styles.arrow} onClick={onNext} aria-label="下個月">›</button>
+        <button className={styles.arrow} onClick={onNext} aria-label="下個月">›</button>
+      </div>
     </nav>
   );
 }

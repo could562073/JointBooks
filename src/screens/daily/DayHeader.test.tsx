@@ -33,10 +33,12 @@ describe('dayTitle', () => {
 describe('DayHeader', () => {
   const BASE = { year: 2026, month: 8, day: 6, expenseCents: 12_345 };
 
-  it('顯示日期標題與當日支出，金額帶負號', () => {
+  it('顯示日期標題與當日支出，金額帶負號且不帶錢字號', () => {
     render(<DayHeader {...BASE} />);
     expect(screen.getByTestId('day-header')).toHaveTextContent('9月6日 · 週日');
-    expect(screen.getByTestId('day-total')).toHaveTextContent('-$123.45');
+    // 原型這一行不帶 $：同一行已經有日期在說明語境
+    expect(screen.getByTestId('day-total')).toHaveTextContent('-123.45');
+    expect(screen.getByTestId('day-total').textContent).not.toContain('$');
   });
 
   it('這天沒有支出時顯示破折號而不是 $0.00', () => {

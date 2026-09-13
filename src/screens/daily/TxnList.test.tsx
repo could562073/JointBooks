@@ -58,8 +58,10 @@ describe('TxnList 的每一列', () => {
         ]}
       />
     );
-    expect(screen.getByTestId('txn-t1')).toHaveTextContent('-$12.50');
-    expect(screen.getByTestId('txn-t2')).toHaveTextContent('+$3,000.00');
+    // 原型的明細金額不帶 $：右下角已經標了幣別
+    expect(screen.getByTestId('txn-t1')).toHaveTextContent('-12.50');
+    expect(screen.getByTestId('txn-t1').textContent).not.toContain('$');
+    expect(screen.getByTestId('txn-t2')).toHaveTextContent('+3,000.00');
   });
 
   it('CAD 只顯示 CAD，外幣顯示原幣金額', () => {
@@ -90,8 +92,17 @@ describe('TxnList 的每一列', () => {
 describe('TxnList 的記帳人頭像', () => {
   it('兩個人各自的底色', () => {
     render(<TxnList {...BASE} txns={[txn(), txn({ id: 't2', by: '妻' })]} />);
-    expect(screen.getByTestId('by-t1')).toHaveStyle({ background: '#B7A6E5' });
-    expect(screen.getByTestId('by-t2')).toHaveStyle({ background: '#DDA6D0' });
+    // 底色掛在圓臉上（頭像是小饅頭臉，不是「我／妻」兩個字），外層只管顯隱
+    const face = (id: string) => screen.getByTestId(id).firstElementChild!;
+    expect(face('by-t1')).toHaveStyle({ background: '#B7A6E5' });
+    expect(face('by-t2')).toHaveStyle({ background: '#DDA6D0' });
+  });
+
+  it('頭像是兩顆眼睛的小圓臉，不寫「我」「妻」兩個字', () => {
+    render(<TxnList {...BASE} txns={[txn()]} />);
+    const avatar = screen.getByTestId('by-t1');
+    expect(avatar.textContent).toBe('');
+    expect(avatar.firstElementChild!.children).toHaveLength(2);
   });
 
   it('關掉「每筆顯示記帳人」時隱形但保留版位', () => {

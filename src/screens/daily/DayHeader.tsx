@@ -1,4 +1,4 @@
-import { formatCad } from '../../domain/money';
+import { formatCents } from '../../domain/money';
 import { DUR } from '../../lib/motion';
 import { useCountUp } from '../../lib/useCountUp';
 import { dayTitle } from './labels';
@@ -21,8 +21,10 @@ export function DayHeader({ year, month, day, expenseCents }: Props) {
       <span className={styles.title}>{dayTitle(year, month, day)}</span>
       {/* 這天沒有支出時原型顯示破折號而不是 $0.00，留白比零更像「沒有紀錄」 */}
       <span className={styles.total} data-testid="day-total">
-        {expenseCents > 0 ? formatCad(shown, 'minus') : '—'}
+        {/* 原型這裡不帶 $：同一行已經有日期在說明語境，錢字號只是雜訊 */}
+        {expenseCents > 0 ? `-${formatCents(shown)}` : '—'}
       </span>
+      <span className={styles.rule} aria-hidden="true" />
     </div>
   );
 }

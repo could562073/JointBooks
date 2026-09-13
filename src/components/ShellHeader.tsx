@@ -25,9 +25,9 @@ export function ShellHeader({ syncState, lastSyncAt, onRetrySync }: Props) {
       <header className={styles.bar} data-testid="shell-header">
         <div className={styles.left}>
           <span className={styles.avatars}>
-            <Mantou variant="full" width={30} />
-            {/* 第二顆往左疊，靠底色描邊把兩顆分開 */}
-            <Mantou variant="partner" width={30} className={styles.second} />
+            <Mantou variant="full" width={30} minimal />
+            {/* 第二顆往左疊，靠底色沿輪廓描一圈把兩顆分開 */}
+            <Mantou variant="partner" width={30} ring minimal className={styles.second} />
           </span>
 
           <span className={styles.pill}>

@@ -34,6 +34,9 @@ const GROUP = new Intl.NumberFormat('en-CA', {
   maximumFractionDigits: 2,
 });
 
+/** 合計用：只到元，仍要千分位 */
+const WHOLE = new Intl.NumberFormat('en-CA', { maximumFractionDigits: 0 });
+
 export function formatCents(cents: number): string {
   return GROUP.format(Math.abs(cents) / 100);
 }
@@ -47,6 +50,19 @@ export function formatCents(cents: number): string {
  */
 export function formatCad(cents: number, sign: 'auto' | 'none' | 'plus' | 'minus' = 'auto'): string {
   const body = `$${formatCents(cents)}`;
+  if (sign === 'plus') return `+${body}`;
+  if (sign === 'minus') return `-${body}`;
+  if (sign === 'none') return body;
+  return cents < 0 ? `-${body}` : body;
+}
+
+/**
+ * 原型的合計數字（收支三卡、統計總覽、預算額度）一律**只到元**，不顯示角分；
+ * 只有單筆金額與當日總額才帶兩位小數。同一個畫面上兩種精度是刻意的：合計看
+ * 的是量級，單筆看的是對不對得上收據。
+ */
+export function formatCadWhole(cents: number, sign: 'auto' | 'none' | 'plus' | 'minus' = 'auto'): string {
+  const body = `$${WHOLE.format(Math.abs(cents) / 100)}`;
   if (sign === 'plus') return `+${body}`;
   if (sign === 'minus') return `-${body}`;
   if (sign === 'none') return body;

@@ -158,7 +158,7 @@ describe('§15.1-14 刪除分類後歷史紀錄與統計金額完全不變', () 
     await addEntry('20');
 
     // 先等 count-up 落定再取基準值，否則取到的是動畫中途的數字
-    await waitFor(() => expect(screen.getByTestId('card-expense')).toHaveTextContent('30.00'));
+    await waitFor(() => expect(screen.getByTestId('card-expense')).toHaveTextContent('$30'));
     const expenseBefore = screen.getByTestId('card-expense').textContent;
     const netBefore = screen.getByTestId('card-net').textContent;
     const rowsBefore = screen.getByTestId('txn-list').textContent;

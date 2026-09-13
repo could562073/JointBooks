@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { CELL_H, cellPosition, changedDays, heatColor, rowCount, sliderOffset } from './calendarLayout';
+import {
+  CELL_CONTENT_H, CELL_GAP, CELL_H, cellPosition, changedDays, heatColor, rowCount,
+  SLIDER_WIDTH, sliderOffset,
+} from './calendarLayout';
 
 describe('cellPosition', () => {
   it('offset 0 時 1 號落在第一列第一格', () => {
@@ -65,9 +68,28 @@ describe('heatColor', () => {
 });
 
 describe('sliderOffset', () => {
-  it('欄轉成七分之一寬的百分比，列轉成格高的倍數', () => {
-    expect(sliderOffset({ col: 0, row: 0 })).toEqual({ left: '0.0000%', top: '0px' });
-    expect(sliderOffset({ col: 6, row: 2 })).toEqual({ left: '85.7143%', top: `${CELL_H * 2}px` });
+  it('第一欄不用補正，直接是 0%', () => {
+    expect(sliderOffset({ col: 0, row: 0 })).toEqual({ left: '0%', top: '0px' });
+  });
+
+  /*
+   * 欄寬其實是 (100% - 6×gap)/7，所以每往右一欄，左緣比純百分比多 gap×col/7 px。
+   * 少了這一項，滑塊在最右邊那兩欄會偏掉約 2.5px——一眼看得出來。
+   */
+  it('後面的欄要把 gap 攤到每欄的量補回去', () => {
+    expect(sliderOffset({ col: 6, row: 2 })).toEqual({
+      left: `calc(85.7143% + ${((6 * CELL_GAP) / 7).toFixed(5)}px)`,
+      top: `${CELL_H * 2}px`,
+    });
+  });
+
+  it('列高是格高加間距，不是格高本身', () => {
+    expect(CELL_H).toBe(CELL_CONTENT_H + CELL_GAP);
+    expect(sliderOffset({ col: 0, row: 3 }).top).toBe(`${3 * CELL_H}px`);
+  });
+
+  it('滑塊寬度與一格等寬', () => {
+    expect(SLIDER_WIDTH).toBe(`calc(14.2857% - ${((CELL_GAP * 6) / 7).toFixed(5)}px)`);
   });
 });
 

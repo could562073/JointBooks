@@ -1,5 +1,5 @@
 .panel {
-  padding: 4px 16px 8px;
+  padding: 4px 0 8px;
   flex: none;
   animation: panelIn var(--panel-in) var(--ease-enter) both;
 }
