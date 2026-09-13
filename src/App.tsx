@@ -41,7 +41,7 @@ let cloudOnce: Cloud | null | undefined;
 function getCloud(): Cloud | null {
   if (cloudOnce === undefined) {
     const config = readConfig(import.meta.env as unknown as Record<string, string | undefined>);
-    cloudOnce = isConfigured(config) ? createCloud(config.clientId!) : null;
+    cloudOnce = isConfigured(config) ? createCloud(config.clientId!, config.ledgerEnv) : null;
   }
   return cloudOnce;
 }
@@ -104,6 +104,7 @@ function Gate({ cloud }: { cloud: Cloud | null }) {
             setJoinedSid,
             categories: async () => { await ledgerRepo.bootstrap(); return ledgerRepo.listCategories(); },
             year: new Date().getFullYear(),
+            env: cloud.env,
           }))
           .then((id) => setSid(id))
           .catch((e) => setError(connectErrorText(e)))
@@ -162,7 +163,7 @@ function Join({ search, cloud }: { search: string; cloud: Cloud | null }) {
         // 已連線就不再叫視窗；沒連線時 connect 要在這個點擊事件裡同步呼叫
         const ready = cloud.tokens.isConnected() ? Promise.resolve() : cloud.tokens.connect();
         ready
-          .then(() => joinLedger(cloud.client, sid, {
+          .then(() => joinLedger(cloud.client, sid, cloud.env, {
             replaceCategories: (cs) => ledgerRepo.replaceCategories(cs),
             setJoinedSid,
           }))

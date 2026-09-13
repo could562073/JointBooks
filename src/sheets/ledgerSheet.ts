@@ -14,6 +14,17 @@ export const SHEET_TITLES = [SHEET.txns, SHEET.config, SHEET.yearly, SHEET.chart
 
 export const LEDGER_TITLE = '加拿大共用記帳';
 
+/**
+ * 帳本屬於哪個環境。開發版（npm run dev）建的是測試帳本，部署出去的正式版建的
+ * 才是真正在記的帳；兩邊不能混用，否則測試資料會寫進真帳。
+ */
+export type LedgerEnv = 'dev' | 'prod';
+
+/** 雲端硬碟裡一眼分得出來：開發版的檔名多一個「（開發）」 */
+export function ledgerTitle(env: LedgerEnv): string {
+  return env === 'prod' ? LEDGER_TITLE : `${LEDGER_TITLE}（開發）`;
+}
+
 /** §9 圖表頁：月份 | 支出 | 收入 | 結餘 */
 export const CHART_HEADER = ['月份', '支出', '收入', '結餘'] as const;
 
@@ -50,9 +61,9 @@ export async function createLedger(
   client: SheetsClient,
   categories: readonly Category[],
   year: number,
-  title = LEDGER_TITLE
+  env: LedgerEnv
 ): Promise<string> {
-  const id = await client.createSpreadsheet(title, SHEET_TITLES);
+  const id = await client.createSpreadsheet(ledgerTitle(env), SHEET_TITLES);
 
   await client.update(id, `${SHEET.txns}!A1:N1`, [[...TXN_HEADER]]);
   await client.update(id, `${SHEET.config}!A1:J1`, [[...CATEGORY_HEADER]]);
@@ -69,8 +80,9 @@ export async function createLedger(
     ...expense.map((c) => yearlyFormulaRow(c.name, year)),
   ]);
 
-  // 版本戳記（REV_RANGE＝配置!L2）：先放標籤與空值，同步控制器之後每次推送就改寫它
-  await client.update(id, `${SHEET.config}!L1:L2`, [['版本'], ['']]);
+  // 版本戳記（REV_RANGE＝配置!L2）先放空值，同步控制器之後每次推送就改寫它；
+  // 環境標記（ENV_RANGE＝配置!M2）寫了就不再動
+  await client.update(id, `${SHEET.config}!L1:M2`, [['版本', '環境'], ['', env]]);
 
   return id;
 }
@@ -82,3 +94,14 @@ export async function createLedger(
  * 沒變就不必把整張紀錄表拉下來。紀錄表會越記越長，這一格永遠只有一個值。
  */
 export const REV_RANGE = `${SHEET.config}!L2`;
+
+/** 環境標記所在的儲存格，就在版本戳記旁邊 */
+export const ENV_RANGE = `${SHEET.config}!M2`;
+
+/**
+ * 只有明確寫著 prod 才算正式帳本。空白一律當成開發：加上這個標記之前建的帳本
+ * 全是開發時建的；而且判錯的方向是安全的——正式版會拒絕它，不會把測試帳當真帳。
+ */
+export function ledgerEnvOf(cell: string | undefined): LedgerEnv {
+  return cell?.trim() === 'prod' ? 'prod' : 'dev';
+}

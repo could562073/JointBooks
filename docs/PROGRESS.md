@@ -24,7 +24,7 @@ Repo：`git@github.com:could562073/JointBooks.git`（private）
 **九份計畫全部完成。** 接下來是 `docs/MANUAL-TESTS.md` 的人工驗證，以及下方
 「延後給後續計畫的事」列的技術債。
 
-目前測試：**Vitest 983（85 檔）、Playwright 56（ip13）**，typecheck 兩個 project 都乾淨，
+目前測試：**Vitest 1005（92 檔）、Playwright 56（ip13）**，typecheck 兩個 project 都乾淨，
 `npm run build` 通過。
 
 `docs/MOTION.md` 的 **37 條全部標為「已實作」**；「已驗收」要等擁有者跑完
@@ -236,6 +236,7 @@ inotify 事件，dev server 會一直服舊模組；`vite.config.ts` 已在偵�
 - **邀請**：配置頁 → 邀請成員 → 輸入她的 Google 帳號 →「分享帳本」→ 再傳連結。
 - **加入**（她）：連線 Google → 確認讀得到那本帳 → 用你的分類取代她的預設分類 → 記下帳本（`sync/joinLedger.ts`）。讀不到就停在接受邀請頁說明原因。
 - **iPhone**：加到主畫面的 App 與 Safari 不共用儲存空間，所以登入頁有「我收到了邀請連結」可以貼上。
+- **開發與正式分開**（擁有者指示，2026-09-13）：環境看 Vite 的 `MODE`，只有正式建置是 `prod`（`sync/config.ts`）。開發版建的試算表檔名加「（開發）」，兩邊都在 `配置!M2` 寫環境標記（`sheets/ledgerSheet.ts`）。加入時先讀這一格，環境不符就拒絕，不搬分類也不記下帳本（`joinLedger` 的 `wrong-env`）。沒有標記的舊帳本一律算開發：標記加上之前建的都是開發時建的。已經記下的帳本不再檢查，因為本機資料依網址分開，開發版與正式版本來就讀不到彼此的帳本 id。
 - **同步**（`sync/controller.ts`）：記帳後約 1.2 秒推送（合併連續幾筆）；每 5 秒輪詢，只讀一格版本戳記（`配置!L2`），有變才拉整張紀錄表；上線或切回前景立刻補一輪。兩人都開著 App 時，對方的新帳約 5 秒內出現。Google Sheets 沒有推播，每 5 秒一次＝每人每分鐘 12 次讀取，遠低於每人 60 次的配額。
 - **token 過期**：同步狀態變成「點一下連線 Google」（新狀態 `needs-auth`，不是紅燈），點一下在同一個點擊事件裡叫出 Google 視窗。
 - 刪除是假刪，同步來源改用含已刪除紀錄的 `ledgerRepo.allTxnsForSync()`——原本的 `listTxns` 會把刪除濾掉，本機刪的帳永遠傳不出去。

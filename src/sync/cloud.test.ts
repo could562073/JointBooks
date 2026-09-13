@@ -16,7 +16,7 @@ describe('ensureLedger', () => {
     const client = fakeLedgerClient();
     const setJoinedSid = vi.fn(async () => {});
     const id = await ensureLedger(client, {
-      joinedSid: async () => 'EXISTING', setJoinedSid, categories: async () => [], year: 2026,
+      joinedSid: async () => 'EXISTING', setJoinedSid, categories: async () => [], year: 2026, env: 'prod',
     });
     expect(id).toBe('EXISTING');
     expect(client.createSpreadsheet).not.toHaveBeenCalled();
@@ -29,10 +29,11 @@ describe('ensureLedger', () => {
     let n = 0;
     const cats = defaultCategories(() => `c-${n++}`);
     const id = await ensureLedger(client, {
-      joinedSid: async () => null, setJoinedSid, categories: async () => cats, year: 2026,
+      joinedSid: async () => null, setJoinedSid, categories: async () => cats, year: 2026, env: 'dev',
     });
     expect(id).toBe('NEW-SID');
     expect(client.createSpreadsheet).toHaveBeenCalledTimes(1);
+    expect(client.createSpreadsheet).toHaveBeenCalledWith('加拿大共用記帳（開發）', expect.anything());
     expect(setJoinedSid).toHaveBeenCalledWith('NEW-SID');
   });
 });
@@ -41,7 +42,7 @@ describe('createCloud', () => {
   it('試算表客戶端向 token 提供者要 token；還沒連線時直接丟 NeedsConnectError，不打網路', async () => {
     const tokens = { token: vi.fn(async () => { throw new NeedsConnectError(); }) } as unknown as TokenProvider;
     const fetchSpy = vi.spyOn(globalThis, 'fetch');
-    const cloud = createCloud('cid', tokens);
+    const cloud = createCloud('cid', 'dev', tokens);
     await expect(cloud.client.get('S', 'A1')).rejects.toBeInstanceOf(NeedsConnectError);
     expect(fetchSpy).not.toHaveBeenCalled();
     fetchSpy.mockRestore();

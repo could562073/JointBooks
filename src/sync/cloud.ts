@@ -1,19 +1,22 @@
 import { createTokenProvider, type TokenProvider } from '../auth/gis';
 import type { Category } from '../domain/types';
 import { createSheetsClient, type SheetsClient } from '../sheets/client';
-import { createLedger } from '../sheets/ledgerSheet';
+import { createLedger, type LedgerEnv } from '../sheets/ledgerSheet';
 
 /** 雲端＝Google 登入（token 只放記憶體）＋讀寫試算表的客戶端 */
 export type Cloud = {
   tokens: TokenProvider;
   client: SheetsClient;
+  /** 這一份 App 只建立、加入這個環境的帳本 */
+  env: LedgerEnv;
 };
 
 export function createCloud(
   clientId: string,
+  env: LedgerEnv,
   tokens: TokenProvider = createTokenProvider({ clientId })
 ): Cloud {
-  return { tokens, client: createSheetsClient({ token: () => tokens.token() }) };
+  return { tokens, client: createSheetsClient({ token: () => tokens.token() }), env };
 }
 
 export type EnsureLedgerDeps = {
@@ -21,6 +24,7 @@ export type EnsureLedgerDeps = {
   setJoinedSid(sid: string): Promise<void>;
   categories(): Promise<readonly Category[]>;
   year: number;
+  env: LedgerEnv;
 };
 
 /**
@@ -29,11 +33,14 @@ export type EnsureLedgerDeps = {
  *
  * 不能每次登入都建：那會在硬碟裡堆出一串同名的「加拿大共用記帳」，而且兩台
  * 手機會各自同步到不同的那一本。
+ *
+ * 沿用時不再檢查環境：本機資料依網址分開，開發版（localhost）與正式版讀不到
+ * 彼此記下的帳本 id，會混到的只有「貼別人的邀請連結」，那一關在 joinLedger 擋。
  */
 export async function ensureLedger(client: SheetsClient, d: EnsureLedgerDeps): Promise<string> {
   const existing = await d.joinedSid();
   if (existing) return existing;
-  const id = await createLedger(client, await d.categories(), d.year);
+  const id = await createLedger(client, await d.categories(), d.year, d.env);
   await d.setJoinedSid(id);
   return id;
 }
