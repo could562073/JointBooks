@@ -1,6 +1,7 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { defaultCategories } from '../../domain/categories';
+import { DUR } from '../../lib/motion';
 import type { Category, Txn } from '../../domain/types';
 import { EntrySheet } from './EntrySheet';
 
@@ -356,5 +357,62 @@ describe('EntrySheet 的離場（MOTION #2）', () => {
     vi.advanceTimersByTime(600);
     expect(onClose).not.toHaveBeenCalled();
     vi.useRealTimers();
+  });
+});
+
+describe('EntrySheet 的小月曆收合動畫（MOTION #38：展開與收起都有動畫）', () => {
+  function stubNormalMotion() {
+    vi.stubGlobal('matchMedia', (q: string) => ({
+      matches: false, media: q, addEventListener() {}, removeEventListener() {},
+    }));
+  }
+
+  it('再點一次日期卡：先留著播完離場，時間到才卸載', () => {
+    stubNormalMotion();
+    vi.useFakeTimers();
+    render(<EntrySheet {...BASE} />);
+    fireEvent.click(screen.getByTestId('date-row'));
+    expect(screen.getByTestId('date-row-panel')).not.toHaveAttribute('data-exiting');
+
+    fireEvent.click(screen.getByTestId('date-row'));
+    expect(screen.getByTestId('date-row-panel')).toHaveAttribute('data-exiting');
+    expect(screen.getByTestId('mini-calendar')).toBeInTheDocument();
+
+    act(() => { vi.advanceTimersByTime(DUR.popIn); });
+    expect(screen.queryByTestId('date-row-panel')).not.toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
+  it('選了日期之後一樣播完才收掉', () => {
+    stubNormalMotion();
+    vi.useFakeTimers();
+    render(<EntrySheet {...BASE} />);
+    fireEvent.click(screen.getByTestId('date-row'));
+    fireEvent.click(screen.getByTestId('mini-day-18'));
+    expect(screen.getByTestId('date-row-panel')).toHaveAttribute('data-exiting');
+
+    act(() => { vi.advanceTimersByTime(DUR.popIn); });
+    expect(screen.queryByTestId('mini-calendar')).not.toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
+  it('收起途中又點開：不會被先前排好的卸載收掉', () => {
+    stubNormalMotion();
+    vi.useFakeTimers();
+    render(<EntrySheet {...BASE} />);
+    fireEvent.click(screen.getByTestId('date-row'));
+    fireEvent.click(screen.getByTestId('date-row'));
+    act(() => { vi.advanceTimersByTime(DUR.popIn / 2); });
+    fireEvent.click(screen.getByTestId('date-row'));
+    act(() => { vi.advanceTimersByTime(DUR.popIn * 2); });
+    expect(screen.getByTestId('date-row-panel')).not.toHaveAttribute('data-exiting');
+    vi.useRealTimers();
+  });
+
+  it('reduced-motion 時收起當下就消失', () => {
+    render(<EntrySheet {...BASE} />);
+    fireEvent.click(screen.getByTestId('date-row'));
+    fireEvent.click(screen.getByTestId('date-row'));
+    expect(screen.queryByTestId('date-row-panel')).not.toBeInTheDocument();
   });
 });

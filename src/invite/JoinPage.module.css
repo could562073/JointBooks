@@ -54,7 +54,7 @@
   margin-bottom: 12px;
 }
 
-/* 第二顆往左疊。用明確的 class，不用 :nth-child——專案慣例禁止位置選擇器 */
+/* 第二顆往左疊。用明確的 class 而不是位置選擇器（專案慣例） */
 .partner {
   margin-left: -10px;
 }

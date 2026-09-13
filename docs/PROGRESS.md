@@ -24,7 +24,7 @@ Repo：`git@github.com:could562073/JointBooks.git`（private）
 **九份計畫全部完成。** 接下來是 `docs/MANUAL-TESTS.md` 的人工驗證，以及下方
 「延後給後續計畫的事」列的技術債。
 
-目前測試：**Vitest 947（85 檔）、Playwright 56（ip13）**，typecheck 兩個 project 都乾淨，
+目前測試：**Vitest 977（85 檔）、Playwright 56（ip13）**，typecheck 兩個 project 都乾淨，
 `npm run build` 通過。
 
 `docs/MOTION.md` 的 **37 條全部標為「已實作」**；「已驗收」要等擁有者跑完
@@ -186,6 +186,41 @@ domain 的 `weekStart` / `cycleDay` 參數保留為「日後要加回設定時�
 Vitest 從 `<App />` 最外層跑功能行為 1–22，版面 23–28 量的是
 `getBoundingClientRect()`（jsdom 一律回 0），連同 B 類截圖與 C 類真機手感一起
 列進 `docs/MANUAL-TESTS.md`。
+
+
+### 原型對齊（2026-09-12，Plan 09 之後）
+
+驗收發現實作與原型大量不一致。把原型解包、抽出每個節點的精確行內樣式當規格，
+放在 `docs/proto/*.outline.txt`（附截圖），抽取與轉大綱的腳本在 `tools/`。
+
+| 畫面 | 狀態 |
+| --- | --- |
+| 共用外殼（頭像對、同步藥丸、our book、裝飾圓、統一左右留白） | ✅ |
+| 日常頁 | ✅ |
+| 統計頁 | ✅ |
+| 配置頁、分類子頁 | ✅ |
+| 記一筆面板（分類改回一直展開，見下方裁決 3） | ✅ |
+| 登入頁、接受邀請頁 | ✅ |
+| 邀請面板（InvitePanel） | ⬜ 原型規格還沒抽出來 |
+
+另外補上的互動：
+- 記一筆的小月曆換月跟日常頁月曆同一套 MOTION #7：按鈕或左右滑，自方向側 ±38px 滑入。
+- 日期選擇展開與收起都有高度動畫（`lib/usePresence`：收起時先留著播完才卸載）。
+
+**截圖裡的方框字（□）不是字型問題。** 查證過每個字都確實在宣告它的 woff2 的
+glyph 表裡。那是 WSL 裡的 headless Chromium 沒有任何中文系統字型，font-display:
+swap 在分片載入完成前用的後備字型沒有中文字。真機與桌機瀏覽器不會發生。
+
+**WSL 上 Vite 看不到檔案變動。** 專案放在 `/mnt/c` 時 Windows 檔案系統不送
+inotify 事件，dev server 會一直服舊模組；`vite.config.ts` 已在偵測到 WSL 時改用輪詢。
+
+**subagent 改用小任務＋輕量模型。** 三個 Sonnet agent 領大範圍任務時連續撞到額度；
+一個 Haiku agent 拿精確數值改登入頁＋接受邀請頁，約 59K tokens 一次完成。
+
+**版面 e2e 暫停中。** `e2e/layout.spec.ts` 的 V1（§15.1-23 命中區 ≥44px）在真實
+瀏覽器量到大量違規，已標成 `test.describe.fixme`（跑的時候列為待修，不是假綠燈）。
+那批數字是原型對齊之前量的，恢復時要重量；也要先決定用不可見的 `::after` 擴大
+命中區，還是改外觀尺寸（會偏離原型）。V2–V9 尚未寫。
 
 ---
 

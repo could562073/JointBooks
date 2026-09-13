@@ -14,7 +14,7 @@
 | 4 | 儲存後新紀錄落定 | `DUR.sheetOut` `DUR.riseIn` `DUR.calCellPop` `EASE.enter` | 05 | 已實作 |
 | 5 | 明細依序浮現 | `DUR.riseIn` `DUR.riseStagger` `EASE.enter` | 04 | 已實作 |
 | 6 | 月曆選中框滑動 | `DUR.calSnap` `EASE.move` | 04 | 已實作 |
-| 7 | 月份切換（按鈕或左右滑） | `DUR.slide` `DUR.slideBack` `EASE.move` `GESTURE.monthSwipe` | 04 | 已實作 |
+| 7 | 月份切換（按鈕或左右滑；日常頁月曆與記一筆的小月曆共用同一套） | `DUR.slide` `DUR.slideBack` `EASE.move` `GESTURE.monthSwipe` | 04 | 已實作 |
 | 8 | 分頁切換—頁面 | `DUR.slide` `EASE.move` | 04 | 已實作 |
 | 9 | 分頁切換—滑塊 | `DUR.slide` `EASE.move` | 04 | 已實作 |
 | 10 | 分頁切換—饅頭 | `DUR.slide` `EASE.enter` | 04 | 已實作 |
@@ -44,4 +44,4 @@
 | 35 | 記一筆面板下滑關閉 | `DUR.panelSnap` `EASE.move` `GESTURE.panelDismiss` | 05 | 已實作 |
 | 36 | 支出／收入切換滑塊 | `DUR.slide` `DUR.kindColor` `EASE.move` | 05 | 已實作 |
 | 37 | 刪除紀錄確認窗 | `DUR.dialogIn` `DUR.scrimIn` `DUR.rowCollapse` `EASE.enter` | 05 | 已實作 |
-| 38 | 記一筆日期選擇器 | `DUR.chevron` `DUR.popIn` `DUR.outlineFade` `EASE.enter` | 05 | 已實作 |
+| 38 | 記一筆日期選擇器（展開與收起都收放高度；收起時播完才卸載） | `DUR.chevron` `DUR.popIn` `DUR.outlineFade` `EASE.enter` `EASE.exit` | 05 | 已實作 |

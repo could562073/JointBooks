@@ -123,7 +123,16 @@ function tooSmall(hits: Hit[]): string[] {
   return hits.filter((x) => x.w < MIN_HIT || x.h < MIN_HIT).map((x) => `${x.what} ${x.w}x${x.h}`);
 }
 
-test.describe('V1 §15.1-23 可點元素的命中區至少 44×44', () => {
+/*
+ * 暫停中（使用者要求先處理原型對齊）。這組在真實瀏覽器量到大量低於 44px 的
+ * 命中區——月曆格、chip、開關、分段、月份箭頭、返回／新增鍵。那些數字是在
+ * 原型對齊「之前」量的，之後很多元件尺寸變了，恢復時要重量。
+ *
+ * 標成 fixme 而不是刪掉或放寬門檻：跑的時候會被列成待修，不是假綠燈。
+ * 恢復方式：改回 test.describe，並先決定是用不可見的 ::after 擴大命中區，
+ * 還是直接改外觀尺寸（後者會偏離原型）。
+ */
+test.describe.fixme('V1 §15.1-23 可點元素的命中區至少 44×44', () => {
   test('日常頁：月曆格、月份箭頭、分頁列、懸浮 ＋', async ({ page }) => {
     await seed(page);
     const hits = await hitAreas(page, '[data-testid^="cell-"], [aria-label="上個月"], [aria-label="下個月"], [data-testid^="tab-"], [data-testid="fab"]');

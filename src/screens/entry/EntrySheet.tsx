@@ -3,6 +3,7 @@ import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { formatCad, pushDigit } from '../../domain/money';
 import type { Category, Currency, Person, Txn } from '../../domain/types';
 import { DUR, EASE } from '../../lib/motion';
+import { usePresence } from '../../lib/usePresence';
 import { useReducedMotion } from '../../lib/useReducedMotion';
 import type { NewTxnInput } from '../../repo/ledgerRepo';
 import { keyChar, type KeypadKey } from './amountInput';
@@ -82,6 +83,8 @@ export function EntrySheet({
   useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
 
   const dismiss = useSheetDismiss(requestClose);
+  // MOTION #38：小月曆展開與收起都要有動畫，收起時先留著播完才卸載
+  const datePanel = usePresence(dateOpen, DUR.popIn, reduced);
 
   const main = categories.find((c) => c.id === draft.mainId);
   const sub = main?.subs.find((s) => s.id === draft.subId);
@@ -294,17 +297,23 @@ export function EntrySheet({
           </div>
         </div>
 
-        {dateOpen && (
+        {datePanel.mounted && (
           <div
-            className={reduced ? styles.calendar : `${styles.calendar} ${styles.calendarIn}`}
+            className={[
+              styles.calendar,
+              reduced ? '' : datePanel.exiting ? styles.calendarExit : styles.calendarEnter,
+            ].filter(Boolean).join(' ')}
             style={{ ['--pop' as string]: `${DUR.popIn}ms` }}
+            data-exiting={datePanel.exiting ? '' : undefined}
             data-testid="date-row-panel"
           >
-            <MiniCalendar
-              value={draft.date}
-              onChange={(date) => setDraft((d) => ({ ...d, date }))}
-              onClose={() => setDateOpen(false)}
-            />
+            <div className={styles.calendarInner}>
+              <MiniCalendar
+                value={draft.date}
+                onChange={(date) => setDraft((d) => ({ ...d, date }))}
+                onClose={() => setDateOpen(false)}
+              />
+            </div>
           </div>
         )}
 

@@ -311,14 +311,42 @@
   background: var(--c-text);
 }
 
-.calendar { margin-top: 8px; }
+/*
+ * MOTION #38：小月曆展開與收起都有動畫。
+ *
+ * 收的是高度（grid-template-rows 0fr↔1fr），不是只淡出：只淡出的話，下面的
+ * 備註卡與鍵盤會在動畫結束那一格突然跳上來。與上方卡片的間距放在 inner 的
+ * padding 裡跟著一起收；放在外層 margin 會在最後一格跳 8px。
+ * 需要 Safari 16+（motion.css 的列收合已經是同一個前提）。
+ */
+.calendar {
+  display: grid;
+  grid-template-rows: 1fr;
+}
 
-/* MOTION #38：小月曆 translateY 10px→0 + opacity，240ms */
-.calendarIn { animation: popIn var(--pop) var(--ease-enter) both; }
+.calendarInner {
+  min-height: 0;
+  overflow: hidden;
+  /* 下緣多留 3px，小月曆卡片的實體陰影才不會被 overflow 切掉 */
+  padding: 8px 0 3px;
+}
 
-@keyframes popIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: none; }
+.calendarEnter { animation: calendarExpand var(--pop) var(--ease-enter) both; }
+
+/* 收起途中不接受點擊，免得點到一個正在消失的日期 */
+.calendarExit {
+  animation: calendarCollapse var(--pop) var(--ease-exit) both;
+  pointer-events: none;
+}
+
+@keyframes calendarExpand {
+  from { grid-template-rows: 0fr; opacity: 0; }
+  to   { grid-template-rows: 1fr; opacity: 1; }
+}
+
+@keyframes calendarCollapse {
+  from { grid-template-rows: 1fr; opacity: 1; }
+  to   { grid-template-rows: 0fr; opacity: 0; }
 }
 
 .noteCard {
