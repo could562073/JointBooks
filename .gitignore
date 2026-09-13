@@ -6,3 +6,8 @@ playwright-report
 .superpowers
 .DS_Store
 .serena
+
+# 本機環境變數（Google 用戶端 ID 等）不可進 git；範本檔 .env.example 例外
+.env
+.env.*
+!.env.example
