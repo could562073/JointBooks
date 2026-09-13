@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
+import { ScrollThumb, TAB_BAR_INSET } from '../../components/ScrollThumb';
 import { SegmentedControl, type Segment } from '../../components/SegmentedControl';
 import { budgetRows, comparePrevious, totalsIn, trendSeries } from '../../domain/aggregate';
 import { rangeOf } from '../../domain/date';
@@ -48,6 +49,8 @@ export function StatsScreen() {
     [txns, categories, dimension, anchor]
   );
   const quotaCents = useMemo(() => budgetTotal(budgets), [budgets]);
+  // 只在捲動時出現的捲動條要跟著這個捲動區
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   return (
     <div className={styles.screen} data-testid="stats-screen">
@@ -55,7 +58,8 @@ export function StatsScreen() {
         整頁一起捲動（跟原型的單一捲動容器一致），不像日常頁只有明細那一段捲——
         標題與週／月／年分段本來釘在頂端，但原型裡它們也是跟著內容一起捲走的。
       */}
-      <div className={styles.scroll} data-testid="stats-scroll">
+      <ScrollThumb target={scrollRef} bottomInset={TAB_BAR_INSET} />
+      <div ref={scrollRef} className={styles.scroll} data-testid="stats-scroll">
         <div className={styles.titleBlock}>
           <h1 className={styles.pageTitle}>統計</h1>
           <p className={styles.subtitle}>how we did</p>

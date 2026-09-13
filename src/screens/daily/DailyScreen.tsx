@@ -1,4 +1,5 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { ScrollThumb, TAB_BAR_INSET } from '../../components/ScrollThumb';
 import { calendarCells, dayTotal, totalsIn, txnsOn } from '../../domain/aggregate';
 import { rangeOf, todayLocal } from '../../domain/date';
 import type { Txn } from '../../domain/types';
@@ -61,6 +62,8 @@ export function DailyScreen({ onEdit, onAdd, collapsingTxns }: Props) {
   // §10 #27：目前重讀的是本機 Dexie；接上 Sheets 同步是 Plan 08
   const reload = useLedger((s) => s.load);
   const pull = usePullRefresh(reload);
+  // 只在捲動時出現的捲動條要跟著明細這個捲動區
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const selectedDate = useLedger(selectedDateOf);
 
@@ -151,7 +154,8 @@ export function DailyScreen({ onEdit, onAdd, collapsingTxns }: Props) {
         下拉重整的事件掛在這裡，但不套 touch-action:none——那會把原生捲動關掉；
         守門在 usePullRefresh 裡（捲到頂 + 往下拉才接管）。
       */}
-      <div className={styles.scroll} data-testid="txn-scroll" {...pull.handlers}>
+      <ScrollThumb target={scrollRef} bottomInset={TAB_BAR_INSET} />
+      <div ref={scrollRef} className={styles.scroll} data-testid="txn-scroll" {...pull.handlers}>
         <PullIndicator phase={pull.phase} offset={pull.offset} />
         <TxnList
           txns={dayRows}

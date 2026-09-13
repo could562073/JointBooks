@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Icon } from '../../components/Icon';
+import { ScrollThumb, TAB_BAR_INSET } from '../../components/ScrollThumb';
 import { SyncStatus } from '../../components/SyncStatus';
 import { Toggle } from '../../components/Toggle';
 import { DUR } from '../../lib/motion';
@@ -27,6 +28,8 @@ type Props = {
  */
 export function SettingsScreen({ onInvite, syncState, lastSyncAt, onRetrySync }: Props) {
   const [categoriesOpen, setCategoriesOpen] = useState(false);
+  // 只在捲動時出現的捲動條要跟著這個捲動區（hook 要在下面的提早 return 之前）
+  const scrollRef = useRef<HTMLDivElement>(null);
   const categories = useLedger((s) => s.categories);
   const txns = useLedger((s) => s.txns);
   const saveCategory = useLedger((s) => s.saveCategory);
@@ -59,7 +62,8 @@ export function SettingsScreen({ onInvite, syncState, lastSyncAt, onRetrySync }:
 
   return (
     <div className={styles.screen} data-testid="settings-screen">
-      <div className={styles.scroll} data-testid="settings-scroll">
+      <ScrollThumb target={scrollRef} bottomInset={TAB_BAR_INSET} />
+      <div ref={scrollRef} className={styles.scroll} data-testid="settings-scroll">
         <div className={styles.pageTitle}>
           <h1 className={styles.pageTitleMain}>配置</h1>
           <p className={styles.pageTitleSub}>budgets &amp; categories</p>

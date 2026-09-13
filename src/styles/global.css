@@ -30,5 +30,12 @@ input, textarea, select, button { font: inherit; font-size: max(16px, 1em); }
 
 button { background: none; border: 0; color: inherit; cursor: pointer; }
 
+/*
+ * 原生捲動條一律藏起來（原型也是這樣做）：桌機上它一直顯示、還會吃掉內容寬度。
+ * 主要分頁的捲動區改用只在捲動時出現的 ScrollThumb。
+ */
+* { scrollbar-width: none; }
+*::-webkit-scrollbar { width: 0; height: 0; }
+
 /* §11-9：所有可點目標 ≥44px。元件各自負責，這裡只提供 utility */
 .tappable { min-width: 44px; min-height: 44px; }

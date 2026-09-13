@@ -1,0 +1,20 @@
+/* 只在捲動時出現的細捲動條：浮在內容上、不佔寬度、點擊穿透 */
+.thumb {
+  position: absolute;
+  top: 0;
+  right: 3px;
+  z-index: 5;
+  width: 3px;
+  height: 0;
+  border-radius: 3px;
+  background: rgba(74, 63, 54, .28);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 360ms var(--ease-exit);
+  will-change: transform, opacity;
+}
+
+.thumb[data-visible] {
+  opacity: 1;
+  transition-duration: 120ms;
+}
