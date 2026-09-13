@@ -1,4 +1,4 @@
-import { createTokenProvider, type TokenProvider } from '../auth/gis';
+import { browserTokenStore, createTokenProvider, type TokenProvider } from '../auth/gis';
 import type { Category } from '../domain/types';
 import { createSheetsClient, type SheetsClient } from '../sheets/client';
 import { createLedger, type LedgerEnv } from '../sheets/ledgerSheet';
@@ -14,7 +14,8 @@ export type Cloud = {
 export function createCloud(
   clientId: string,
   env: LedgerEnv,
-  tokens: TokenProvider = createTokenProvider({ clientId })
+  // token 存 localStorage：到期前重整、重開 App 都不必重新連線
+  tokens: TokenProvider = createTokenProvider({ clientId, store: browserTokenStore() })
 ): Cloud {
   return { tokens, client: createSheetsClient({ token: () => tokens.token() }), env };
 }
