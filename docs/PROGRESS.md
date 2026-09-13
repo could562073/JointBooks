@@ -226,6 +226,28 @@ inotify 事件，dev server 會一直服舊模組；`vite.config.ts` 已在偵�
 那批數字是原型對齊之前量的，恢復時要重量；也要先決定用不可見的 `::after` 擴大
 命中區，還是改外觀尺寸（會偏離原型）。V2–V9 其實也已寫好，但寫在原型對齊之前、一次都沒跑過，一併標成 fixme；其中 V8 驗「SE 上鍵盤不捲就放得下」，前提已被裁決 3 取代，恢復前要改寫成驗捲動。
 
+
+### Google 登入與雲端同步（2026-09-12）
+
+**先前的登入從來沒有能動過。** 拿實際的用戶端 ID 對 Google token 端點測試（假授權碼、假續期 token，不碰任何帳號資料），交換授權碼與續期都回 `400 client_secret is missing`。改走瀏覽器端的 token model（見裁決 4），舊的 `auth/pkce.ts`、`tokens.ts`、`session.ts` 與 `/auth/callback` 路由已移除。
+
+現在接起來的流程：
+- **首次登入**（你）：彈出 Google 視窗 → 沒有帳本才在雲端硬碟建一本並記下（`sync/cloud.ts` 的 `ensureLedger`）。
+- **邀請**：配置頁 → 邀請成員 → 輸入她的 Google 帳號 →「分享帳本」→ 再傳連結。
+- **加入**（她）：連線 Google → 確認讀得到那本帳 → 用你的分類取代她的預設分類 → 記下帳本（`sync/joinLedger.ts`）。讀不到就停在接受邀請頁說明原因。
+- **iPhone**：加到主畫面的 App 與 Safari 不共用儲存空間，所以登入頁有「我收到了邀請連結」可以貼上。
+- **同步**（`sync/controller.ts`）：記帳後約 1.2 秒推送（合併連續幾筆）；每 5 秒輪詢，只讀一格版本戳記（`配置!L2`），有變才拉整張紀錄表；上線或切回前景立刻補一輪。兩人都開著 App 時，對方的新帳約 5 秒內出現。Google Sheets 沒有推播，每 5 秒一次＝每人每分鐘 12 次讀取，遠低於每人 60 次的配額。
+- **token 過期**：同步狀態變成「點一下連線 Google」（新狀態 `needs-auth`，不是紅燈），點一下在同一個點擊事件裡叫出 Google 視窗。
+- 刪除是假刪，同步來源改用含已刪除紀錄的 `ledgerRepo.allTxnsForSync()`——原本的 `listTxns` 會把刪除濾掉，本機刪的帳永遠傳不出去。
+- `.env.local` 已加進 `.gitignore`；`vitest.config.ts` 讓測試一律跑純本機模式，不吃開發者的 `.env.local`。
+
+**已知缺口：**
+- **分類只在加入時搬一次。** 之後任一邊改分類（改名、新增、預算），不會同步到另一邊；同步引擎目前只處理紀錄。
+- **沒有登出功能。** token 只在記憶體，關掉 App 就失效。
+- **App 在「測試中」狀態時，Google 的同意授權每 7 天過期一次**，到時會再看到一次同意畫面。
+- **GitHub Pages 還沒處理。** `vite.config.ts` 的 `base` 仍是 `/`，`/join` 深層連結在 GitHub Pages 上也需要 404 回退，正式部署前要改。
+- 以上全部還沒用真實 Google 帳號跑過，見 MANUAL-TESTS 的 G、I 組。
+
 ---
 
 ## 工作方式（2026-09-09 起，擁有者指示）
@@ -319,6 +341,9 @@ inotify 事件，dev server 會一直服舊模組；`vite.config.ts` 已在偵�
 | 1 | §4 說明細「依時間升冪」、§5 說新紀錄「出現在最前」 | **依 createdAt 降冪**，最新一筆在最上方 | `domain/aggregate.txnsOn` |
 | 2 | 數字鍵盤空白時先打小數點，原型留空、實作補成 `0.` | **補成 `0.`** | `domain/money.pushDigit` |
 | 3 | 增補檔 B-3 把記一筆面板的分類區改成可收合、預設收起（為了 iPhone SE 放得下鍵盤）；原型是一直展開 | **照原型一直展開**，版面也照原型；小螢幕靠整片面板捲動 | `screens/entry/EntrySheet`、`CategoryPicker` |
+| 4 | Google 登入：原本的授權碼＋PKCE＋refresh token 實測回 400「client_secret is missing」，而 GitHub Pages 藏不了密碼 | **改用 Google Identity Services 的 token model**：不需要密碼、不需要後端；token 約一小時過期，之後點一下重新連線 | `auth/gis.ts`、`App.tsx` |
+| 5 | 權限範圍：`drive.file` 讀不到對方建立、再分享過來的試算表 | **改用 `spreadsheets`＋`drive.file`**，她不必另外用檔案選擇器選檔；授權畫面會寫「所有試算表」 | `auth/gis.ts` 的 `SCOPES` |
+| 6 | App 不知道要把帳本分享給誰 | **邀請面板加一欄填她的 Google 帳號**，用 Drive API 設成可編輯（原型沒有這一欄） | `invite/InvitePanel.tsx` |
 
 第 2 題順帶確認了前導零不保留（`0` 再打 `5` 是 `5`）維持現狀。
 

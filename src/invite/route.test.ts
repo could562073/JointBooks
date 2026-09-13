@@ -6,13 +6,10 @@ describe('routeOf', () => {
     expect(routeOf('/join', '?sid=S&t=1.a')).toEqual({ kind: 'join', search: '?sid=S&t=1.a' });
   });
 
-  it('/auth/callback 是 OAuth 回呼', () => {
-    expect(routeOf('/auth/callback', '?code=c')).toEqual({ kind: 'callback', search: '?code=c' });
-  });
-
-  it('其他都是主程式', () => {
+  it('其他都是主程式（包含舊的 /auth/callback，登入已不走導回流程）', () => {
     expect(routeOf('/', '')).toEqual({ kind: 'app' });
     expect(routeOf('/index.html', '')).toEqual({ kind: 'app' });
     expect(routeOf('/join/extra', '')).toEqual({ kind: 'app' });
+    expect(routeOf('/auth/callback', '?code=c')).toEqual({ kind: 'app' });
   });
 });

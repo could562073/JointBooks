@@ -1,0 +1,77 @@
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { isEmail, normalizeEmail } from './email';
+import { InvitePanel } from './InvitePanel';
+
+const URL_ = 'https://app.example/join?sid=SID&t=1.abc';
+
+beforeEach(() => {
+  vi.stubGlobal('matchMedia', (q: string) => ({
+    matches: q.includes('prefers-reduced-motion'),
+    media: q, addEventListener() {}, removeEventListener() {},
+  }));
+  vi.stubGlobal('navigator', { clipboard: { writeText: vi.fn(async () => {}) } });
+});
+afterEach(() => vi.unstubAllGlobals());
+
+const BASE = { url: URL_, onClose: () => {}, onPreview: () => {} };
+
+async function submit(value: string) {
+  fireEvent.change(screen.getByTestId('invite-email'), { target: { value } });
+  await act(async () => { fireEvent.submit(screen.getByTestId('invite-share-form')); });
+}
+
+describe('email 格式', () => {
+  it('去空白、轉小寫', () => {
+    expect(normalizeEmail('  Wife@Gmail.COM ')).toBe('wife@gmail.com');
+  });
+
+  it('擋掉明顯打錯的，不限 gmail 網域', () => {
+    expect(isEmail('wife@gmail.com')).toBe(true);
+    expect(isEmail('wife@company.ca')).toBe(true);
+    expect(isEmail('wife@gmail')).toBe(false);
+    expect(isEmail('wife gmail.com')).toBe(false);
+  });
+});
+
+describe('邀請面板的「分享帳本給她」', () => {
+  it('沒有接上分享功能時不顯示這一段', () => {
+    render(<InvitePanel {...BASE} />);
+    expect(screen.queryByTestId('invite-share-form')).not.toBeInTheDocument();
+  });
+
+  it('還沒有帳本時也不顯示', () => {
+    render(<InvitePanel {...BASE} url={null} onShareEmail={async () => {}} />);
+    expect(screen.queryByTestId('invite-share-form')).not.toBeInTheDocument();
+  });
+
+  it('格式不對：顯示提示，不送出', async () => {
+    const onShareEmail = vi.fn(async () => {});
+    render(<InvitePanel {...BASE} onShareEmail={onShareEmail} />);
+    await submit('wife@gmail');
+    expect(onShareEmail).not.toHaveBeenCalled();
+    expect(screen.getByTestId('invite-email-error')).toHaveTextContent('完整的 Google 帳號');
+  });
+
+  it('送出整理過的帳號，成功後顯示已分享並清空欄位', async () => {
+    const onShareEmail = vi.fn(async () => {});
+    render(<InvitePanel {...BASE} onShareEmail={onShareEmail} />);
+    await submit('  Wife@Gmail.com ');
+    expect(onShareEmail).toHaveBeenCalledWith('wife@gmail.com');
+    expect(screen.getByTestId('invite-shared')).toHaveTextContent('已分享給 wife@gmail.com');
+    expect(screen.getByTestId('invite-email')).toHaveValue('');
+  });
+
+  it('分享失敗：顯示錯誤，不標成已分享', async () => {
+    const onShareEmail = vi.fn(async () => { throw new Error('403'); });
+    render(<InvitePanel {...BASE} onShareEmail={onShareEmail} />);
+    await submit('wife@gmail.com');
+    expect(screen.getByTestId('invite-email-error')).toHaveTextContent('分享失敗');
+    expect(screen.queryByTestId('invite-shared')).not.toBeInTheDocument();
+  });
+
+  it('之前分享過的帳號，重開面板照樣顯示', () => {
+    render(<InvitePanel {...BASE} onShareEmail={async () => {}} sharedWith="wife@gmail.com" />);
+    expect(screen.getByTestId('invite-shared')).toHaveTextContent('wife@gmail.com');
+  });
+});

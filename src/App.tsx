@@ -1,25 +1,27 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { ShellHeader } from './components/ShellHeader';
 import { TabBar, tabDirection } from './components/TabBar';
+import type { Txn } from './domain/types';
+import { InvitePanel } from './invite/InvitePanel';
+import { buildInviteUrl, checkInvite } from './invite/inviteLink';
+import { JoinPage } from './invite/JoinPage';
+import { joinStateOf, type JoinState } from './invite/joinFlow';
+import { LoginPage } from './invite/LoginPage';
+import { routeOf } from './invite/route';
 import { DUR } from './lib/motion';
 import { useRowRemoval } from './lib/useRowRemoval';
+import { ledgerRepo } from './repo/ledgerRepo';
 import { DailyScreen } from './screens/daily/DailyScreen';
+import { createMain, createSub } from './screens/entry/entryCategories';
 import { EntrySheet } from './screens/entry/EntrySheet';
 import { SettingsScreen } from './screens/settings/SettingsScreen';
 import { StatsScreen } from './screens/stats/StatsScreen';
-import { InvitePanel } from './invite/InvitePanel';
-import { JoinPage } from './invite/JoinPage';
-import { LoginPage } from './invite/LoginPage';
-import { buildInviteUrl, checkInvite } from './invite/inviteLink';
-import { joinStateOf, type JoinState } from './invite/joinFlow';
-import { routeOf } from './invite/route';
+import { selectedDate as selectedDateOf, useLedger } from './store/useLedger';
+import { connectErrorText, createCloud, ensureLedger, type Cloud } from './sync/cloud';
 import { isConfigured, readConfig } from './sync/config';
+import { createSyncController, type SyncController } from './sync/controller';
+import { joinLedger, joinOutcomeText } from './sync/joinLedger';
 import { joinedSid, setJoinedSid } from './sync/ledgerId';
-import { completeSignIn, hasSession, startSignIn } from './auth/session';
-import { createMain, createSub } from './screens/entry/entryCategories';
-import { selectedDate as selectedDateOf } from './store/useLedger';
-import type { Txn } from './domain/types';
-import { useLedger } from './store/useLedger';
 import styles from './App.module.css';
 
 // 只在 dev 模式下才會走到這裡；production 建置時 import.meta.env.DEV 會被
@@ -27,6 +29,22 @@ import styles from './App.module.css';
 // DebugGallery 用 dynamic import，就算沒被消掉也只會落在獨立的 chunk，
 // 不會混進一直被下載的正式進入點 chunk 裡。
 const DebugGallery = lazy(() => import('./debug/DebugGallery'));
+
+/** 邀請面板上「已經分享給誰」，重開面板時照樣顯示 */
+const SHARED_WITH_KEY = 'invite.sharedWith';
+
+/**
+ * 雲端（Google 登入＋試算表）只在設定了用戶端 ID 時存在；沒設定就是純本機模式。
+ * 整頁只建一次：access token 只放在它的記憶體裡，重建就等於登出。
+ */
+let cloudOnce: Cloud | null | undefined;
+function getCloud(): Cloud | null {
+  if (cloudOnce === undefined) {
+    const config = readConfig(import.meta.env as unknown as Record<string, string | undefined>);
+    cloudOnce = isConfigured(config) ? createCloud(config.clientId!) : null;
+  }
+  return cloudOnce;
+}
 
 export default function App() {
   const debugKey = import.meta.env.DEV
@@ -41,99 +59,128 @@ export default function App() {
     );
   }
 
+  const cloud = getCloud();
   const route = routeOf(location.pathname, location.search);
-  if (route.kind === 'join') return <Join search={route.search} />;
-  if (route.kind === 'callback') return <Callback search={route.search} />;
+  if (route.kind === 'join') return <Join search={route.search} cloud={cloud} />;
 
-  return <Gate />;
+  return <Gate cloud={cloud} />;
 }
 
 /**
- * 未設定 client id 時直接進主程式（純本機模式）；設定了但還沒登入就先給登入頁。
+ * 未設定 client id：直接進主程式（純本機模式）。
+ * 設定了：這台裝置已經有帳本就進主程式（同步狀態會提示點一下連線）；
+ * 還沒有就先給登入頁，登入後建立帳本。
  */
-function Gate() {
-  const config = readConfig(
-    import.meta.env as unknown as Record<string, string | undefined>,
-    location.origin
-  );
-  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+function Gate({ cloud }: { cloud: Cloud | null }) {
+  // undefined＝還在讀；null＝這台裝置還沒有帳本
+  const [sid, setSid] = useState<string | null | undefined>(cloud ? undefined : null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isConfigured(config)) { setSignedIn(true); return; }
+    if (!cloud) return;
     let alive = true;
-    void hasSession().then((v) => { if (alive) setSignedIn(v); });
+    void joinedSid().then((v) => { if (alive) setSid(v); });
+    // 先把 Google 的 script 載好：之後按登入時才能在同一個點擊事件裡叫出視窗
+    cloud.tokens.preload().catch(() => {});
     return () => { alive = false; };
-  }, [config]);
+  }, [cloud]);
 
-  if (signedIn === null) return null;
-  if (signedIn) return <Shell />;
+  if (!cloud) return <Shell cloud={null} />;
+  if (sid === undefined) return null;
+  if (sid) return <Shell cloud={cloud} />;
 
   return (
     <LoginPage
+      busy={busy}
+      error={error}
       onSignIn={() => {
-        void startSignIn({ clientId: config.clientId!, redirectUri: config.redirectUri });
+        setError(null);
+        setBusy(true);
+        // connect 必須在這個點擊事件裡同步呼叫，瀏覽器才不會擋掉 Google 視窗
+        cloud.tokens.connect()
+          .then(() => ensureLedger(cloud.client, {
+            joinedSid,
+            setJoinedSid,
+            categories: async () => { await ledgerRepo.bootstrap(); return ledgerRepo.listCategories(); },
+            year: new Date().getFullYear(),
+          }))
+          .then((id) => setSid(id))
+          .catch((e) => setError(connectErrorText(e)))
+          .finally(() => setBusy(false));
+      }}
+      onJoinLink={(link) => {
+        try {
+          const u = new URL(link);
+          location.assign(`/join${u.search}`);
+        } catch {
+          setError('這不是有效的邀請連結，請整條複製後再貼一次。');
+        }
       }}
     />
   );
 }
 
-/** §14.2 的 redirect 回程。成功或失敗都導回首頁，不留在這個中繼頁 */
-function Callback({ search }: { search: string }) {
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const config = readConfig(
-      import.meta.env as unknown as Record<string, string | undefined>,
-      location.origin
-    );
-    if (!isConfigured(config)) { location.replace('/'); return; }
-
-    void completeSignIn({ clientId: config.clientId!, redirectUri: config.redirectUri }, search)
-      .then((r) => {
-        if (r.kind === 'error') setError(r.error);
-        else location.replace('/');
-      });
-  }, [search]);
-
-  return (
-    <div data-testid="auth-callback">
-      {error ? `登入失敗：${error}` : '登入中…'}
-    </div>
-  );
-}
-
-/** §8.1 接受邀請頁。連結檢查與本機帳本 id 都是 async，所以先給 null 再補上 */
-function Join({ search }: { search: string }) {
+/**
+ * §8.1 接受邀請頁。連結檢查與本機帳本 id 都是 async，所以先給 null 再補上。
+ *
+ * 加入＝連線 Google → 確認這個帳號讀得到那本帳 → 搬對方的分類 → 記下帳本。
+ * 讀不到（對方還沒分享）就停在這頁說明原因，不記下一本打不開的帳。
+ */
+function Join({ search, cloud }: { search: string; cloud: Cloud | null }) {
   const [state, setState] = useState<JoinState | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
     void Promise.all([checkInvite(search), joinedSid()]).then(([check, sid]) => {
       if (alive) setState(joinStateOf({ check, joinedSid: sid }));
     });
+    cloud?.tokens.preload().catch(() => {});
     return () => { alive = false; };
-  }, [search]);
+  }, [search, cloud]);
 
   if (!state) return null;
+
+  const goHome = () => { location.href = '/'; };
 
   return (
     <JoinPage
       state={state}
-      // 加入＝把帳本 id 記在這台裝置上。權限本身是 Google 那邊給的，這裡
-      // 只是記下「我加入的是哪一本」，下次再點同一條連結才認得出已是成員
+      busy={busy}
+      error={error}
       onJoin={() => {
-        const go = () => { location.href = '/'; };
-        if (state.kind === 'invite' || state.kind === 'already') {
-          void setJoinedSid(state.sid).then(go);
-        } else go();
+        if (state.kind !== 'invite') { goHome(); return; }
+        const sid = state.sid;
+
+        // 純本機模式（沒設定 Google）：只記下帳本 id
+        if (!cloud) { void setJoinedSid(sid).then(goHome); return; }
+
+        setError(null);
+        setBusy(true);
+        // 已連線就不再叫視窗；沒連線時 connect 要在這個點擊事件裡同步呼叫
+        const ready = cloud.tokens.isConnected() ? Promise.resolve() : cloud.tokens.connect();
+        ready
+          .then(() => joinLedger(cloud.client, sid, {
+            replaceCategories: (cs) => ledgerRepo.replaceCategories(cs),
+            setJoinedSid,
+          }))
+          .then((r) => {
+            const msg = joinOutcomeText(r);
+            if (msg) setError(msg);
+            else goHome();
+          })
+          .catch((e) => setError(connectErrorText(e)))
+          .finally(() => setBusy(false));
       }}
       onBrowse={() => setState({ kind: 'browsing' })}
-      onHome={() => { location.href = '/'; }}
+      onHome={goHome}
     />
   );
 }
 
-function Shell() {
+function Shell({ cloud }: { cloud: Cloud | null }) {
   const ready = useLedger((s) => s.ready);
   const tab = useLedger((s) => s.tab);
   const setTab = useLedger((s) => s.setTab);
@@ -150,9 +197,14 @@ function Shell() {
   // null = 面板關著；'new' = 新增；Txn = 編輯那一筆
   const [entry, setEntry] = useState<'new' | Txn | null>(null);
   // null = 面板關著。開著時 url 可能仍是 null——那代表這台裝置還沒有雲端帳本
-  const [invite, setInvite] = useState<{ url: string | null } | null>(null);
+  const [invite, setInvite] = useState<{ url: string | null; sharedWith: string | null } | null>(null);
+  const syncRef = useRef<SyncController | null>(null);
+
+  // 本機改了帳：請同步控制器稍等一下（合併連續幾筆）再推上去
+  const pushSoon = useCallback(() => { syncRef.current?.requestPush(); }, []);
+
   // MOTION #37：刪除後那一列先收合再消失
-  const removeTxn = useCallback((id: string) => { void deleteTxn(id); }, [deleteTxn]);
+  const removeTxn = useCallback((id: string) => { void deleteTxn(id).then(pushSoon); }, [deleteTxn, pushSoon]);
   const txnRemoval = useRowRemoval(removeTxn);
 
   // 就地新增分類：存進 store 之後把 id 交回面板，讓它立即選中（§5）
@@ -182,9 +234,64 @@ function Shell() {
     void load();
   }, [load]);
 
+  // 雲端同步：每 5 秒輪詢、上線或回到前景就補一輪、記帳後推送
+  useEffect(() => {
+    if (!cloud) return;
+    let sidNow: string | null = null;
+    let stop = () => {};
+    let alive = true;
+
+    const ctl = createSyncController({
+      client: cloud.client,
+      tokens: cloud.tokens,
+      spreadsheetId: () => sidNow,
+      localTxns: () => ledgerRepo.allTxnsForSync(),
+      saveTxns: (ts) => ledgerRepo.saveSyncedTxns(ts),
+      onPulled: () => useLedger.getState().load(),
+      onState: (s) => useLedger.getState().setSyncState(s),
+      onSynced: (at) => useLedger.getState().markSynced(at),
+    });
+    syncRef.current = ctl;
+
+    void joinedSid().then((v) => {
+      if (!alive) return;
+      sidNow = v;
+      stop = ctl.start();
+    });
+    // 使用者點「連線 Google」成功後立刻補同步，不必等下一次輪詢
+    const unsubscribe = cloud.tokens.subscribe((connected) => { if (connected) void ctl.syncNow(); });
+
+    return () => {
+      alive = false;
+      stop();
+      unsubscribe();
+      syncRef.current = null;
+    };
+  }, [cloud]);
+
+  // 點同步狀態：連著就立刻同步；token 過期就在這個點擊裡叫出 Google 視窗
+  const retrySync = useCallback(() => {
+    if (!cloud) return;
+    if (cloud.tokens.isConnected()) { void syncRef.current?.syncNow(); return; }
+    cloud.tokens.connect().catch(() => useLedger.getState().setSyncState('needs-auth'));
+  }, [cloud]);
+
+  // 邀請面板：把帳本分享給她的 Google 帳號（Drive 權限：可編輯）
+  const shareWithHer = useCallback((email: string): Promise<void> => {
+    if (!cloud) return Promise.reject(new Error('no_cloud'));
+    const ready = cloud.tokens.isConnected() ? Promise.resolve() : cloud.tokens.connect();
+    return ready
+      .then(() => joinedSid())
+      .then((sid) => {
+        if (!sid) throw new Error('no_ledger');
+        return cloud.client.shareWith(sid, email);
+      })
+      .then(() => ledgerRepo.setMeta(SHARED_WITH_KEY, email));
+  }, [cloud]);
+
   return (
     <div className={styles.shell} data-testid="app-root">
-      <ShellHeader syncState={syncState} lastSyncAt={lastSyncAt} onRetrySync={() => {}} />
+      <ShellHeader syncState={syncState} lastSyncAt={lastSyncAt} onRetrySync={retrySync} />
 
       {/* key 帶著 tab：換頁就重掛，CSS 進場動畫才會重播（MOTION #8） */}
       <div
@@ -193,7 +300,6 @@ function Shell() {
         style={{ ['--slide' as string]: `${DUR.slide}ms` }}
         data-testid={`page-${tab}`}
       >
-        {/* 統計頁與配置頁是 Plan 06／07，先留位子讓分頁列可以切 */}
         {ready && tab === 'daily' && (
           <DailyScreen
             onEdit={(t) => setEntry(t)}
@@ -205,13 +311,17 @@ function Shell() {
         {ready && tab === 'settings' && (
           <SettingsScreen
             onInvite={() => {
-              void joinedSid().then(async (sid) => {
-                setInvite({ url: sid ? await buildInviteUrl(location.origin, sid) : null });
-              });
+              void Promise.all([joinedSid(), ledgerRepo.getMeta<string>(SHARED_WITH_KEY)])
+                .then(async ([sid, shared]) => {
+                  setInvite({
+                    url: sid ? await buildInviteUrl(location.origin, sid) : null,
+                    sharedWith: shared ?? null,
+                  });
+                });
             }}
             syncState={syncState}
             lastSyncAt={lastSyncAt}
-            onRetrySync={() => {}}
+            onRetrySync={retrySync}
           />
         )}
       </div>
@@ -226,6 +336,8 @@ function Shell() {
       {invite && (
         <InvitePanel
           url={invite.url}
+          sharedWith={invite.sharedWith}
+          {...(cloud ? { onShareEmail: shareWithHer } : {})}
           onClose={() => setInvite(null)}
           onPreview={() => {
             if (!invite.url) return;
@@ -242,8 +354,8 @@ function Shell() {
           defaultDate={selectedDate}
           {...(entry === 'new' ? {} : { txn: entry })}
           onSave={(input) => {
-            if (entry === 'new') void addTxn(input);
-            else void updateTxn(entry.id, input);
+            if (entry === 'new') void addTxn(input).then(pushSoon);
+            else void updateTxn(entry.id, input).then(pushSoon);
           }}
           onDelete={(id) => txnRemoval.remove(id)}
           onClose={() => setEntry(null)}

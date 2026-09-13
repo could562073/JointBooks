@@ -4,6 +4,7 @@ import { DUR, EASE } from '../lib/motion';
 import { useReducedMotion } from '../lib/useReducedMotion';
 import { useSheetDismiss } from '../screens/entry/useSheetDismiss';
 import { copyText, shareUrl } from './clipboard';
+import { isEmail, normalizeEmail } from './email';
 import { displayInviteUrl } from './inviteLink';
 import styles from './InvitePanel.module.css';
 
@@ -23,6 +24,13 @@ const STEPS = [
 type Props = {
   /** 還沒有雲端帳本時是 null：面板照開，但不能給出一條指向不存在帳本的連結 */
   url: string | null;
+  /**
+   * 把帳本分享給她的 Google 帳號（Drive 權限：可編輯）。使用者裁決加的欄位，原型沒有：
+   * 沒有這一步，她的 App 讀不到你建的試算表，連結傳過去也加入不了。
+   */
+  onShareEmail?(email: string): Promise<void>;
+  /** 已經分享過的帳號，重開面板時照樣顯示 */
+  sharedWith?: string | null;
   onClose(): void;
   /** §8.2 最下方「預覽她點開後看到的畫面 ›」 */
   onPreview(): void;
@@ -32,11 +40,15 @@ type Props = {
  * §8.2 邀請面板（MOTION #22 進場／下滑關閉、#23 複製回饋、#24 QR 展開）。
  * 把手的下滑關閉沿用記一筆面板的 useSheetDismiss——規格是同一條（#22「進場同 #1」）。
  */
-export function InvitePanel({ url, onClose, onPreview }: Props) {
+export function InvitePanel({ url, onClose, onPreview, onShareEmail, sharedWith = null }: Props) {
   const [copied, setCopied] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
   const [qr, setQr] = useState<string | null>(null);
   const [shareNote, setShareNote] = useState<string | null>(null);
+  const [email, setEmail] = useState('');
+  const [sharing, setSharing] = useState(false);
+  const [shareError, setShareError] = useState<string | null>(null);
+  const [sharedTo, setSharedTo] = useState<string | null>(sharedWith);
   const reduced = useReducedMotion();
   const dismiss = useSheetDismiss(onClose);
 
@@ -56,6 +68,25 @@ export function InvitePanel({ url, onClose, onPreview }: Props) {
     });
     return () => { alive = false; };
   }, [qrOpen, url]);
+
+  async function onShareToHer() {
+    if (!onShareEmail) return;
+    const addr = normalizeEmail(email);
+    if (!isEmail(addr)) { setShareError('請輸入完整的 Google 帳號，例如 name@gmail.com'); return; }
+    setShareError(null);
+    setSharing(true);
+    try {
+      // 這裡不先 await 任何東西：外層可能需要叫出 Google 連線視窗，
+      // 必須在使用者按下按鈕的同一個事件裡呼叫才不會被擋
+      await onShareEmail(addr);
+      setSharedTo(addr);
+      setEmail('');
+    } catch {
+      setShareError('分享失敗。請確認帳號正確、已加進 Google Cloud 的測試使用者，再試一次。');
+    } finally {
+      setSharing(false);
+    }
+  }
 
   async function onCopy() {
     if (!url) return;
@@ -107,6 +138,40 @@ export function InvitePanel({ url, onClose, onPreview }: Props) {
         ) : (
           <>
             <p className={styles.lead}>把連結傳給她，她點開登入就會加入這本帳，之後兩人看到同一份資料。</p>
+
+            {onShareEmail && (
+              <form
+                className={styles.shareCard}
+                onSubmit={(e) => { e.preventDefault(); void onShareToHer(); }}
+                data-testid="invite-share-form"
+              >
+                <label className={styles.linkLabel} htmlFor="invite-email">先分享帳本給她的 Google 帳號</label>
+                <div className={styles.shareRow}>
+                  <input
+                    id="invite-email"
+                    className={styles.emailInput}
+                    type="email"
+                    inputMode="email"
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    placeholder="name@gmail.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    data-testid="invite-email"
+                  />
+                  <button
+                    type="submit" className={styles.shareBtn} disabled={sharing}
+                    data-testid="invite-email-submit"
+                  >{sharing ? '分享中…' : '分享帳本'}</button>
+                </div>
+                {shareError && <p className={styles.note} data-testid="invite-email-error">{shareError}</p>}
+                {sharedTo && (
+                  <p className={styles.shared} data-testid="invite-shared">
+                    已分享給 {sharedTo}，再把下面的連結傳給她。
+                  </p>
+                )}
+              </form>
+            )}
 
             <div className={styles.linkCard}>
               <span className={styles.linkIcon} aria-hidden="true">

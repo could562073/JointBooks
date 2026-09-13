@@ -61,6 +61,17 @@ export const ledgerRepo = {
     await db.categories.put(c);
   },
 
+  /**
+   * 加入對方的帳本時，用對方的分類整批取代本機的預設分類。
+   * 包在同一個 transaction：清掉之後寫入失敗的話，不能留下一本沒有分類的帳。
+   */
+  async replaceCategories(cs: readonly Category[]): Promise<void> {
+    await db.transaction('rw', db.categories, async () => {
+      await db.categories.clear();
+      await db.categories.bulkPut([...cs]);
+    });
+  },
+
   /** 假刪（冪等）：不出現在選單，但歷史紀錄與統計金額完全不變（§15.1-14）。找不到 id 時無聲返回。 */
   async deleteCategory(id: string): Promise<void> {
     const c = await db.categories.get(id);
@@ -79,6 +90,24 @@ export const ledgerRepo = {
       ? await db.txns.where('date').between(r.start, r.end, true, false).toArray()
       : await db.txns.toArray();
     return rows.filter((t) => !t.deleted);
+  },
+
+  /**
+   * 同步用：含已刪除的紀錄。
+   *
+   * 刪除是假刪（deleted=true），必須一起推上 Sheet，對方那邊才會消失。
+   * listTxns 會把它們濾掉——拿它當同步來源的話，本機刪掉的帳永遠傳不出去。
+   */
+  async allTxnsForSync(): Promise<Txn[]> {
+    return db.txns.toArray();
+  },
+
+  /**
+   * 同步合併後寫回本機。不進 outbox：這批資料要嘛是從 Sheet 拉下來的、要嘛是
+   * 剛推上去的，再排進 outbox 就會在下一輪又推一次。
+   */
+  async saveSyncedTxns(ts: readonly Txn[]): Promise<void> {
+    await db.txns.bulkPut([...ts]);
   },
 
   /** §7.3 的持久化偏好設定（開關等），存在 meta key-value 表（I9） */

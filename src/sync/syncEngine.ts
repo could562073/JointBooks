@@ -1,3 +1,4 @@
+import { NeedsConnectError } from '../auth/gis';
 import type { Txn } from '../domain/types';
 import { rowToTxn, txnToRow } from '../sheets/rows';
 import type { SheetsClient } from '../sheets/client';
@@ -79,7 +80,9 @@ export function createSyncEngine(deps: SyncDeps) {
 
       await deps.saveTxns(merged);
       return { state: to({ type: 'done' }), pulled: remote.length, pushed: toPush.length };
-    } catch {
+    } catch (e) {
+      // token 過期是 token model 的常態，要請使用者點一下重新連線，不是亮紅燈的失敗
+      if (e instanceof NeedsConnectError) return { state: to({ type: 'needs-auth' }), pulled: 0, pushed: 0 };
       return { state: to({ type: 'fail' }), pulled: 0, pushed: 0 };
     }
   }

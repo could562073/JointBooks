@@ -1,0 +1,137 @@
+import { NeedsConnectError, type TokenProvider } from '../auth/gis';
+import type { Txn } from '../domain/types';
+import type { SheetsClient } from '../sheets/client';
+import { REV_RANGE } from '../sheets/ledgerSheet';
+import type { SyncState } from './state';
+import { createSyncEngine } from './syncEngine';
+
+/**
+ * 兩人同時開著 App 時，對方的新帳要在幾秒內出現（使用者要求）。
+ *
+ * Google Sheets 沒有推播，只能輪詢。配額是每位使用者每分鐘 60 次讀取：每 5 秒
+ * 輪詢一次＝每分鐘 12 次，兩個人加起來 24 次，離上限（每人 60、整個專案 300）
+ * 很遠，留得出寫入與重試的餘裕。
+ */
+export const POLL_MS = 5_000;
+
+/** 本機一改就推，但連續記好幾筆時合成一次，免得每按一下就打一次 API */
+export const PUSH_DEBOUNCE_MS = 1_200;
+
+export type SyncControllerDeps = {
+  client: SheetsClient;
+  tokens: Pick<TokenProvider, 'isConnected'>;
+  spreadsheetId(): string | null;
+  /** 含已刪除的紀錄（假刪也要推上去，對方那邊才會消失） */
+  localTxns(): Promise<Txn[]>;
+  saveTxns(ts: readonly Txn[]): Promise<void>;
+  /** 同步完成後讓畫面重讀本機資料 */
+  onPulled(): Promise<void> | void;
+  onState(s: SyncState): void;
+  onSynced(at: number): void;
+  isOnline?(): boolean;
+  isVisible?(): boolean;
+  now?(): number;
+};
+
+export type SyncController = {
+  /** 開始輪詢並監聽上線／回到前景；回傳停止函式 */
+  start(): () => void;
+  /** 立刻同步一次（同步進行中再叫一次，會在這一輪結束後補跑一輪） */
+  syncNow(): Promise<void>;
+  /** 本機剛改了帳：標記有東西要推，稍等一下合併後同步 */
+  requestPush(): void;
+};
+
+export function createSyncController(d: SyncControllerDeps): SyncController {
+  const online = () => d.isOnline?.() ?? navigator.onLine;
+  const visible = () => d.isVisible?.() ?? document.visibilityState !== 'hidden';
+  const now = () => d.now?.() ?? Date.now();
+
+  const engine = createSyncEngine({
+    client: d.client,
+    spreadsheetId: d.spreadsheetId,
+    localTxns: d.localTxns,
+    saveTxns: d.saveTxns,
+    isOnline: online,
+    onState: d.onState,
+  });
+
+  // 剛打開 App 時本機可能有離線期間記的帳，第一輪一定完整同步
+  let dirty = true;
+  let lastRev: string | null = null;
+  let running: Promise<void> | null = null;
+  let again = false;
+  let pushTimer: ReturnType<typeof setTimeout> | null = null;
+
+  async function readRev(sid: string): Promise<string> {
+    const rows = await d.client.get(sid, REV_RANGE);
+    return rows[0]?.[0] ?? '';
+  }
+
+  async function cycle(): Promise<void> {
+    const sid = d.spreadsheetId();
+    if (!sid) return;
+    if (!online()) { await engine.syncOnce(); return; }   // 讓狀態機轉成 offline
+    // 沒連線就別打 API：token() 反正會丟 NeedsConnectError，白白浪費一次請求
+    if (!d.tokens.isConnected()) { d.onState('needs-auth'); return; }
+
+    try {
+      // 版本戳記要在同步「之前」讀：同步途中對方剛好也推了，若同步完才讀，
+      // 會把對方那次的戳記當成已經拉過，下一輪就錯過它
+      const revBefore = await readRev(sid);
+      if (!dirty && revBefore === lastRev) return;
+
+      const r = await engine.syncOnce();
+      if (r.state !== 'synced') return;   // offline／needs-auth／error：保留 dirty，下一輪再來
+
+      dirty = false;
+      lastRev = revBefore;
+      if (r.pushed > 0) {
+        // 通知對方有新東西。自己不記這個新戳記，下一輪會再完整同步一次，
+        // 順便收到同步途中對方可能推上來的變更
+        await d.client.update(sid, REV_RANGE, [[String(now())]]);
+      }
+      await d.onPulled();
+      d.onSynced(now());
+    } catch (e) {
+      d.onState(e instanceof NeedsConnectError ? 'needs-auth' : 'error');
+    }
+  }
+
+  function syncNow(): Promise<void> {
+    if (running) { again = true; return running; }
+    running = cycle().finally(() => {
+      running = null;
+      if (again) { again = false; void syncNow(); }
+    });
+    return running;
+  }
+
+  function requestPush(): void {
+    dirty = true;
+    if (pushTimer) clearTimeout(pushTimer);
+    pushTimer = setTimeout(() => { pushTimer = null; void syncNow(); }, PUSH_DEBOUNCE_MS);
+  }
+
+  function start(): () => void {
+    void syncNow();
+    const poll = setInterval(() => { if (visible()) void syncNow(); }, POLL_MS);
+    const onOnline = () => { engine.setOnline(true); void syncNow(); };
+    const onOffline = () => engine.setOnline(false);
+    // iPhone 不讓網頁 App 在背景跑：切回前景時立刻補一輪
+    const onVisibility = () => { if (visible()) void syncNow(); };
+    window.addEventListener('online', onOnline);
+    window.addEventListener('offline', onOffline);
+    document.addEventListener('visibilitychange', onVisibility);
+
+    return () => {
+      clearInterval(poll);
+      if (pushTimer) { clearTimeout(pushTimer); pushTimer = null; }
+      window.removeEventListener('online', onOnline);
+      window.removeEventListener('offline', onOffline);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }
+
+  return { start, syncNow, requestPush };
+}

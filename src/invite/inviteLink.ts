@@ -1,4 +1,4 @@
-import { base64url } from '../auth/pkce';
+import { base64url } from '../lib/base64url';
 
 /** §14.3：邀請連結建議 7 天過期 */
 export const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000;

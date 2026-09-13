@@ -1,12 +1,17 @@
 /** §14.6：狀態機直接餵給同步狀態那顆點（MOTION #26） */
-export type SyncState = 'idle' | 'syncing' | 'synced' | 'offline' | 'error';
+/**
+ * needs-auth：Google 的 access token 過期了，要使用者點一下重新連線。
+ * 它不是 error——token model 沒有 refresh token，過期是常態，亮紅燈會讓人以為壞了。
+ */
+export type SyncState = 'idle' | 'syncing' | 'synced' | 'offline' | 'error' | 'needs-auth';
 
 export type SyncEvent =
   | { type: 'start' }
   | { type: 'done' }
   | { type: 'fail' }
   | { type: 'offline' }
-  | { type: 'online' };
+  | { type: 'online' }
+  | { type: 'needs-auth' };
 
 /**
  * §14.6 的狀態轉換。
@@ -26,6 +31,7 @@ export function nextState(current: SyncState, e: SyncEvent): SyncState {
     case 'start': return 'syncing';
     case 'done': return 'synced';
     case 'fail': return 'error';
+    case 'needs-auth': return 'needs-auth';
     // 已經在線上時收到 online 不動作
     case 'online': return current;
   }

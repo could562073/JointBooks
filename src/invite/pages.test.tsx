@@ -19,10 +19,11 @@ describe('LoginPage（§8.3）', () => {
     expect(screen.getByTestId('login-google')).toBeInTheDocument();
   });
 
-  it('權限說明與實際請求的 scope 一致（只有 drive.file）', () => {
+  // 使用者裁決改用 spreadsheets 權限（她的 App 才讀得到你建的帳本），說明要跟著誠實
+  it('權限說明與實際請求的範圍一致：讀寫 Google 試算表，不再宣稱只碰一份檔案', () => {
     render(<LoginPage onSignIn={() => {}} />);
-    expect(screen.getByTestId('login-scope'))
-      .toHaveTextContent('只會取得建立與編輯這一份試算表的權限');
+    expect(screen.getByTestId('login-scope')).toHaveTextContent('讀寫 Google 試算表');
+    expect(screen.getByTestId('login-scope')).not.toHaveTextContent('這一份試算表');
   });
 
   it('點了會回報', () => {

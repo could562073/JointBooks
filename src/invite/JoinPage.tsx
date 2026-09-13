@@ -9,10 +9,14 @@ type Props = {
   /** 「先看看，暫不加入」→ 唯讀試用 */
   onBrowse(): void;
   onHome(): void;
+  /** 連線 Google、確認讀得到帳本中 */
+  busy?: boolean;
+  /** 例如「對方還沒把帳本分享給你」 */
+  error?: string | null;
 };
 
 /** §8.3 接受邀請頁。四個分支的文案都在這裡，狀態由 joinFlow 算好 */
-export function JoinPage({ state, onJoin, onBrowse, onHome }: Props) {
+export function JoinPage({ state, onJoin, onBrowse, onHome, busy = false, error = null }: Props) {
   if (state.kind === 'expired' || state.kind === 'invalid') {
     return (
       <div className={styles.page} data-testid="join-page" data-state={state.kind}>
@@ -95,9 +99,14 @@ export function JoinPage({ state, onJoin, onBrowse, onHome }: Props) {
       </div>
 
       <div className={styles.actions}>
-        <button type="button" className={styles.cta} onClick={onJoin} data-testid="join-cta">
-          {already ? '進入帳本' : '用 Google 登入並加入'}
+        <button
+          type="button" className={styles.cta} onClick={onJoin} disabled={busy}
+          data-testid="join-cta"
+        >
+          {busy ? '連線中…' : already ? '進入帳本' : '用 Google 登入並加入'}
         </button>
+
+        {error && <p className={styles.error} role="alert" data-testid="join-error">{error}</p>}
 
         {!already && (
           <button type="button" className={styles.ghost} onClick={onBrowse} data-testid="join-browse">

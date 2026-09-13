@@ -192,3 +192,18 @@
   color: rgba(74, 63, 54, .5);
   cursor: pointer;
 }
+
+.cta:disabled {
+  opacity: .6;
+  cursor: default;
+}
+
+/* 加入失敗的說明，例如對方還沒把帳本分享給這個 Google 帳號 */
+.error {
+  margin: 0;
+  text-align: center;
+  font-family: var(--f-body);
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--c-expense);
+}

@@ -69,5 +69,16 @@ export async function createLedger(
     ...expense.map((c) => yearlyFormulaRow(c.name, year)),
   ]);
 
+  // 版本戳記（REV_RANGE＝配置!L2）：先放標籤與空值，同步控制器之後每次推送就改寫它
+  await client.update(id, `${SHEET.config}!L1:L2`, [['版本'], ['']]);
+
   return id;
 }
+
+/**
+ * 版本戳記所在的儲存格（配置頁 A–J 已被分類用掉，L 欄空著）。
+ *
+ * 任何一台裝置把變更推上來之後就改寫這一格；另一台每 5 秒輪詢時只讀這一格，
+ * 沒變就不必把整張紀錄表拉下來。紀錄表會越記越長，這一格永遠只有一個值。
+ */
+export const REV_RANGE = `${SHEET.config}!L2`;

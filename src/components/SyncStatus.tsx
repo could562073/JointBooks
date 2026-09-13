@@ -37,8 +37,9 @@ export function SyncStatus({ state, lastSyncAt, onRetry }: Props) {
     </>
   );
 
-  // 失敗時才給點擊重試；其他狀態點下去沒有意義，做成按鈕只會誤導
-  if (state === 'error' && onRetry) {
+  // 失敗時點一下重試；需要重新連線時點一下就是連線（Google 要求由使用者操作觸發）。
+  // 其他狀態點下去沒有意義，做成按鈕只會誤導
+  if ((state === 'error' || state === 'needs-auth') && onRetry) {
     return (
       <button type="button" className={styles.row} onClick={onRetry} data-testid="sync-status">
         {content}
