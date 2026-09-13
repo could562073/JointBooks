@@ -1,0 +1,33 @@
+<div>  {position: absolute; background: rgb(255, 246, 236); overflow: hidden; display: flex; flex-direction: column; padding: 12px 22px 40px}
+  <div>  {position: absolute; top: -40px; left: -50px; width: 170px; height: 170px; border-radius: 50%; background: rgb(250, 233, 243); opacity: 0.85}
+  <div>  {position: relative; flex: 1 1 0%; display: flex; flex-direction: column; justify-content: center; gap: 16px}
+    <div>  {background: rgb(255, 255, 255); border-radius: 26px; padding: 22px 20px; box-shadow: rgba(74, 63, 54, 0.07) 0px 4px 0px; text-align: center}
+      <div>  {display: flex; align-items: center; justify-content: center; margin-bottom: 12px}
+        <span>  {width: 44px; height: 37px; border-radius: 50% 50% 34% 34% / 64% 64% 36% 36%; background: rgb(183, 166, 229); position: relative; flex: 0 0 auto}
+          <span>  {position: absolute; top: 4px; left: 9px; width: 21px; height: 7px; border-radius: 50%; background: rgb(205, 192, 240); opacity: 0.85}
+          <span>  {position: absolute; top: 17px; left: 10px; width: 5px; height: 6px; border-radius: 50%; background: rgb(59, 50, 41)}
+          <span>  {position: absolute; top: 17px; right: 10px; width: 5px; height: 6px; border-radius: 50%; background: rgb(59, 50, 41)}
+        <span>  {width: 44px; height: 37px; border-radius: 50% 50% 34% 34% / 64% 64% 36% 36%; background: rgb(221, 166, 208); position: relative; flex: 0 0 auto; margin-left: -10px; box-shadow: rgb(255, 255, 255) 0px 0px 0px 3px}
+          <span>  {position: absolute; top: 4px; left: 9px; width: 21px; height: 7px; border-radius: 50%; background: rgb(237, 194, 226); opacity: 0.85}
+          <span>  {position: absolute; top: 17px; left: 10px; width: 5px; height: 6px; border-radius: 50%; background: rgb(59, 50, 41)}
+          <span>  {position: absolute; top: 17px; right: 10px; width: 5px; height: 6px; border-radius: 50%; background: rgb(59, 50, 41)}
+      <div> "老公 邀請你一起使用"  {font-family: "Noto Sans TC", sans-serif; font-size: 12px; color: rgba(74, 63, 54, 0.55)}
+      <div> "加拿大共用記帳"  {font-weight: 700; font-size: 20px; line-height: 1.35; margin-top: 4px}
+      <div>  {display: inline-flex; align-items: center; gap: 6px; margin-top: 11px; padding: 6px 12px; border-radius: 999px; background: rgb(237, 233, 250)}
+        <span>  {width: 7px; height: 7px; border-radius: 50%; background: rgb(107, 87, 184)}
+        <span> "加入後可新增與編輯所有紀錄"  {font-family: "Noto Sans TC", sans-serif; font-size: 11px; font-weight: 600; color: rgb(94, 79, 160)}
+    <div>  {background: rgb(255, 255, 255); border-radius: 22px; padding: 14px 16px; box-shadow: rgba(74, 63, 54, 0.06) 0px 3px 0px}
+      <div> "加入後會發生的事"  {font-family: "Noto Sans TC", sans-serif; font-size: 11px; font-weight: 600; color: rgba(74, 63, 54, 0.45); margin-bottom: 8px}
+      <div>  {display: flex; flex-direction: column; gap: 7px}
+        <div>  {display: flex; gap: 9px; align-items: flex-start}
+          <span> "1"  {width: 18px; height: 18px; border-radius: 50%; background: rgb(237, 233, 250); color: rgb(94, 79, 160); font-family: "Baloo 2", cursive; font-weight: 700; font-size: 10px; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; margin-top: 1px}
+          <span> "你的 Google 帳號成為帳本成員"  {font-family: "Noto Sans TC", sans-serif; font-size: 12px; line-height: 1.65; color: rgba(74, 63, 54, 0.65)}
+        <div>  {display: flex; gap: 9px; align-items: flex-start}
+          <span> "2"  {width: 18px; height: 18px; border-radius: 50%; background: rgb(237, 233, 250); color: rgb(94, 79, 160); font-family: "Baloo 2", cursive; font-weight: 700; font-size: 10px; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; margin-top: 1px}
+          <span> "同時被加為那份 Sheet 的編輯者"  {font-family: "Noto Sans TC", sans-serif; font-size: 12px; line-height: 1.65; color: rgba(74, 63, 54, 0.65)}
+        <div>  {display: flex; gap: 9px; align-items: flex-start}
+          <span> "3"  {width: 18px; height: 18px; border-radius: 50%; background: rgb(237, 233, 250); color: rgb(94, 79, 160); font-family: "Baloo 2", cursive; font-weight: 700; font-size: 10px; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; margin-top: 1px}
+          <span> "兩支手機之後看到的都是同一份資料"  {font-family: "Noto Sans TC", sans-serif; font-size: 12px; line-height: 1.65; color: rgba(74, 63, 54, 0.65)}
+  <div>  {position: relative; display: flex; flex-direction: column; gap: 9px}
+    <button> "用 Google 登入並加入"  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: rgb(107, 87, 184); color: rgb(255, 255, 255); border-radius: 999px; padding: 16px 18px; font-family: "Noto Sans TC", sans-serif; font-size: 14px; font-weight: 700; box-shadow: rgb(78, 63, 146) 0px 4px 0px}
+    <button> "先看看，暫不加入"  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: none; padding: 8px; font-family: "Noto Sans TC", sans-serif; font-size: 12.5px; color: rgba(74, 63, 54, 0.5)}

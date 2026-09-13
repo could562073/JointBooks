@@ -1,0 +1,182 @@
+<div>  {position: relative; flex: 1 1 0%; min-height: 0px; overflow: hidden auto; padding: 0px 16px 110px}
+  <div>
+    <div>  {margin: 6px 0px 13px}
+      <div> "統計"  {font-weight: 700; font-size: 23px; line-height: 1.15}
+      <div> "how we did"  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 15px; color: rgb(94, 79, 160)}
+    <div>  {position: relative; display: flex; gap: 4px; padding: 4px; background: rgba(74, 63, 54, 0.07); border-radius: 999px; margin-bottom: 13px}
+      <span>  {position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(33.3333% - 5.33333px); border-radius: 999px; background: rgb(255, 255, 255); box-shadow: rgba(74, 63, 54, 0.1) 0px 2px 0px}
+      <button>  {position: relative; flex: 1 1 0%; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; padding: 9px 0px; border-radius: 999px; font-family: "Noto Sans TC", sans-serif; font-size: 13px; font-weight: 700; background: transparent; color: rgba(74, 63, 54, 0.5)}
+        <span> "週"
+      <button>  {position: relative; flex: 1 1 0%; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; padding: 9px 0px; border-radius: 999px; font-family: "Noto Sans TC", sans-serif; font-size: 13px; font-weight: 700; background: transparent; color: rgb(74, 63, 54)}
+        <span> "月"
+      <button>  {position: relative; flex: 1 1 0%; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; padding: 9px 0px; border-radius: 999px; font-family: "Noto Sans TC", sans-serif; font-size: 13px; font-weight: 700; background: transparent; color: rgba(74, 63, 54, 0.5)}
+        <span> "年"
+    <div>  {background: rgb(255, 255, 255); border-radius: 24px; padding: 15px 16px; box-shadow: rgba(74, 63, 54, 0.06) 0px 3px 0px}
+      <div>  {display: flex; align-items: center; justify-content: space-between; gap: 8px}
+        <div> "結餘"  {font-family: "Noto Sans TC", sans-serif; font-size: 11.5px; color: rgba(74, 63, 54, 0.55)}
+          <span> "本月"
+        <div>  {font-family: "Noto Sans TC", sans-serif; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: rgb(251, 235, 228); color: rgb(184, 95, 66)}
+          <span> "▼ 9.1% vs 上期"
+      <div>  {display: flex; align-items: center; gap: 10px; margin: 4px 0px 13px}
+        <div>  {font-family: "Baloo 2", cursive; font-weight: 700; font-size: 31px; letter-spacing: -0.01em}
+          <span> "$2,044"
+        <div>  {position: relative; width: 38px; height: 30px; flex: 0 0 auto}
+          <span>  {position: absolute; left: 5px; bottom: 0px; width: 8px; height: 6px; border-radius: 0px 0px 5px 5px; background: rgb(148, 132, 206)}
+          <span>  {position: absolute; right: 5px; bottom: 0px; width: 8px; height: 6px; border-radius: 0px 0px 5px 5px; background: rgb(148, 132, 206)}
+          <span>  {position: absolute; border-radius: 50% 50% 34% 34% / 64% 64% 36% 36%; background: rgb(183, 166, 229)}
+          <span>  {position: absolute; top: 4px; left: 8px; width: 16px; height: 6px; border-radius: 50%; background: rgb(205, 192, 240); opacity: 0.8}
+          <span>  {position: absolute; top: 14px; left: 10px; width: 4px; height: 5px; border-radius: 50%; background: rgb(59, 50, 41)}
+          <span>  {position: absolute; top: 14px; right: 10px; width: 4px; height: 5px; border-radius: 50%; background: rgb(59, 50, 41)}
+          <span>  {position: absolute; top: 20px; left: 50%; width: 6px; height: 3px; border-radius: 0px 0px 6px 6px; background: rgb(59, 50, 41)}
+      <div>  {display: flex; gap: 10px}
+        <div>  {flex: 1 1 0%; min-width: 0px}
+          <div> "收入"  {font-family: "Noto Sans TC", sans-serif; font-size: 10.5px; color: rgba(74, 63, 54, 0.5)}
+          <div>  {font-family: "Baloo 2", cursive; font-weight: 700; font-size: 17px; color: rgb(62, 127, 99)}
+            <span> "$5,786"
+          <div>  {height: 7px; border-radius: 5px; background: rgb(221, 166, 208); margin-top: 6px}
+        <div>  {flex: 1 1 0%; min-width: 0px}
+          <div> "支出"  {font-family: "Noto Sans TC", sans-serif; font-size: 10.5px; color: rgba(74, 63, 54, 0.5)}
+          <div>  {font-family: "Baloo 2", cursive; font-weight: 700; font-size: 17px; color: rgb(184, 95, 66)}
+            <span> "$3,742"
+          <div>  {height: 7px; border-radius: 5px; background: rgba(74, 63, 54, 0.09); margin-top: 6px}
+            <div>  {height: 7px; border-radius: 5px; background: rgb(148, 132, 206); width: 65%}
+    <div>  {margin: 17px 0px 8px; display: flex; align-items: center; gap: 9px}
+      <div> "趨勢"  {font-weight: 700; font-size: 15px}
+      <div>  {height: 2px; flex: 1 1 0%; border-radius: 2px; background: rgba(74, 63, 54, 0.1)}
+      <div>  {display: flex; gap: 9px; font-family: "Noto Sans TC", sans-serif; font-size: 10.5px; color: rgba(74, 63, 54, 0.5)}
+        <span> "支出"  {display: flex; align-items: center; gap: 4px}
+          <span>  {width: 10px; height: 3px; border-radius: 2px; background: rgb(148, 132, 206)}
+        <span> "收入"  {display: flex; align-items: center; gap: 4px}
+          <span>  {width: 10px; height: 3px; border-radius: 2px; background: rgb(221, 166, 208)}
+    <div>  {background: rgb(255, 255, 255); border-radius: 24px; padding: 13px 13px 9px; box-shadow: rgba(74, 63, 54, 0.06) 0px 3px 0px}
+      <svg>  {width: 100%; height: auto; display: block}
+        <line>
+        <line>
+        <line>
+        <path>
+        <polyline>
+        <polyline>
+        <circle>
+        <circle>
+        <circle>
+        <circle>
+        <circle>
+        <circle>
+      <div>  {display: flex; justify-content: space-between; margin-top: 2px}
+        <div>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; color: rgba(74, 63, 54, 0.45)}
+          <span> "4月"
+        <div>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; color: rgba(74, 63, 54, 0.45)}
+          <span> "5月"
+        <div>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; color: rgba(74, 63, 54, 0.45)}
+          <span> "6月"
+        <div>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; color: rgba(74, 63, 54, 0.45)}
+          <span> "7月"
+        <div>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; color: rgba(74, 63, 54, 0.45)}
+          <span> "8月"
+        <div>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; color: rgba(74, 63, 54, 0.45)}
+          <span> "9月"
+    <div>  {margin: 17px 0px 8px; display: flex; align-items: center; gap: 9px}
+      <div> "預算"  {font-weight: 700; font-size: 15px}
+      <div>  {height: 2px; flex: 1 1 0%; border-radius: 2px; background: rgba(74, 63, 54, 0.1)}
+      <div>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 11.5px; color: rgba(74, 63, 54, 0.5)}
+        <span> "月額度 $3,990"
+    <div>  {display: flex; flex-direction: column; gap: 8px}
+      <div>  {background: rgb(255, 255, 255); border-radius: 20px; padding: 11px 13px; box-shadow: rgba(74, 63, 54, 0.06) 0px 3px 0px}
+        <div>  {display: flex; align-items: center; justify-content: space-between; gap: 8px}
+          <span>  {display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; flex: 0 0 auto}
+            <span>  {width: 22px; height: 22px; border-radius: 8px; background: rgb(237, 233, 250); display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto}
+              <span>  {width: 17px; height: 17px; display: block; background: url("blob:null/60d8fc0d-bc1a-4736-992b-f73691f76e44") center center / contain no-repeat}
+              <svg>  {width: 16px; height: 16px; display: none}
+                <path>
+                <path>
+                <path>
+                <path>
+            <span> "租屋"
+          <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.55)}
+            <span> "$2,050 / $2,100"
+        <div>  {height: 8px; border-radius: 6px; background: rgba(74, 63, 54, 0.08); margin-top: 8px; overflow: hidden}
+          <div>  {height: 8px; border-radius: 6px; width: 97.6%; background: rgb(242, 201, 122)}
+        <div>  {font-family: "Noto Sans TC", sans-serif; font-size: 11px; color: rgba(74, 63, 54, 0.48); margin-top: 5px}
+          <span> "還可以花 $50"
+      <div>  {background: rgb(255, 255, 255); border-radius: 20px; padding: 11px 13px; box-shadow: rgba(74, 63, 54, 0.06) 0px 3px 0px}
+        <div>  {display: flex; align-items: center; justify-content: space-between; gap: 8px}
+          <span>  {display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; flex: 0 0 auto}
+            <span>  {width: 22px; height: 22px; border-radius: 8px; background: rgb(233, 234, 250); display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto}
+              <span>  {width: 17px; height: 17px; display: block; background: url("blob:null/4525dc5e-71e9-40f2-a2f0-1626c64e6836") center center / contain no-repeat}
+              <svg>  {width: 16px; height: 16px; display: none}
+                <path>
+                <path>
+            <span> "保險"
+          <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.55)}
+            <span> "$248 / $260"
+        <div>  {height: 8px; border-radius: 6px; background: rgba(74, 63, 54, 0.08); margin-top: 8px; overflow: hidden}
+          <div>  {height: 8px; border-radius: 6px; width: 95.4%; background: rgb(242, 201, 122)}
+        <div>  {font-family: "Noto Sans TC", sans-serif; font-size: 11px; color: rgba(74, 63, 54, 0.48); margin-top: 5px}
+          <span> "還可以花 $12"
+      <div>  {background: rgb(255, 255, 255); border-radius: 20px; padding: 11px 13px; box-shadow: rgba(74, 63, 54, 0.06) 0px 3px 0px}
+        <div>  {display: flex; align-items: center; justify-content: space-between; gap: 8px}
+          <span>  {display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; flex: 0 0 auto}
+            <span>  {width: 22px; height: 22px; border-radius: 8px; background: rgb(244, 233, 250); display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto}
+              <span>  {width: 17px; height: 17px; display: block; background: url("blob:null/e86db9fe-7c5a-4028-b86c-4e5b603ed73c") center center / contain no-repeat}
+              <svg>  {width: 16px; height: 16px; display: none}
+                <path>
+                <path>
+                <path>
+                <path>
+            <span> "外食"
+          <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.55)}
+            <span> "$373 / $450"
+        <div>  {height: 8px; border-radius: 6px; background: rgba(74, 63, 54, 0.08); margin-top: 8px; overflow: hidden}
+          <div>  {height: 8px; border-radius: 6px; width: 83%; background: rgb(207, 163, 224)}
+        <div>  {font-family: "Noto Sans TC", sans-serif; font-size: 11px; color: rgba(74, 63, 54, 0.48); margin-top: 5px}
+          <span> "還可以花 $77"
+      <div>  {background: rgb(255, 255, 255); border-radius: 20px; padding: 11px 13px; box-shadow: rgba(74, 63, 54, 0.06) 0px 3px 0px}
+        <div>  {display: flex; align-items: center; justify-content: space-between; gap: 8px}
+          <span>  {display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; flex: 0 0 auto}
+            <span>  {width: 22px; height: 22px; border-radius: 8px; background: rgb(239, 233, 250); display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto}
+              <span>  {width: 17px; height: 17px; display: block; background: url("blob:null/db10f53e-43db-4cec-acad-9f459ad5f008") center center / contain no-repeat}
+              <svg>  {width: 16px; height: 16px; display: none}
+                <path>
+                <path>
+                <path>
+                <path>
+            <span> "超市"
+          <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.55)}
+            <span> "$771 / $800"
+        <div>  {height: 8px; border-radius: 6px; background: rgba(74, 63, 54, 0.08); margin-top: 8px; overflow: hidden}
+          <div>  {height: 8px; border-radius: 6px; width: 96.4%; background: rgb(242, 201, 122)}
+        <div>  {font-family: "Noto Sans TC", sans-serif; font-size: 11px; color: rgba(74, 63, 54, 0.48); margin-top: 5px}
+          <span> "還可以花 $29"
+      <div>  {background: rgb(255, 255, 255); border-radius: 20px; padding: 11px 13px; box-shadow: rgba(74, 63, 54, 0.06) 0px 3px 0px}
+        <div>  {display: flex; align-items: center; justify-content: space-between; gap: 8px}
+          <span>  {display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; flex: 0 0 auto}
+            <span>  {width: 22px; height: 22px; border-radius: 8px; background: rgb(250, 233, 243); display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto}
+              <span>  {width: 17px; height: 17px; display: block; background: url("blob:null/66aa097f-2649-4203-bb5b-447a40cd546a") center center / contain no-repeat}
+              <svg>  {width: 16px; height: 16px; display: none}
+                <path>
+                <path>
+                <path>
+            <span> "娛樂"
+          <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.55)}
+            <span> "$103 / $200"
+        <div>  {height: 8px; border-radius: 6px; background: rgba(74, 63, 54, 0.08); margin-top: 8px; overflow: hidden}
+          <div>  {height: 8px; border-radius: 6px; width: 51.5%; background: rgb(221, 166, 208)}
+        <div>  {font-family: "Noto Sans TC", sans-serif; font-size: 11px; color: rgba(74, 63, 54, 0.48); margin-top: 5px}
+          <span> "還可以花 $97"
+      <div>  {background: rgb(255, 255, 255); border-radius: 20px; padding: 11px 13px; box-shadow: rgba(74, 63, 54, 0.06) 0px 3px 0px}
+        <div>  {display: flex; align-items: center; justify-content: space-between; gap: 8px}
+          <span>  {display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; flex: 0 0 auto}
+            <span>  {width: 22px; height: 22px; border-radius: 8px; background: rgb(234, 234, 248); display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto}
+              <span>  {width: 17px; height: 17px; display: block; background: url("blob:null/f0ff4d5b-1718-4e70-b3ff-ce93694d71cd") center center / contain no-repeat}
+              <svg>  {width: 16px; height: 16px; display: none}
+                <path>
+                <path>
+                <path>
+                <path>
+            <span> "交通"
+          <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.55)}
+            <span> "$167 / $180"
+        <div>  {height: 8px; border-radius: 6px; background: rgba(74, 63, 54, 0.08); margin-top: 8px; overflow: hidden}
+          <div>  {height: 8px; border-radius: 6px; width: 92.6%; background: rgb(242, 201, 122)}
+        <div>  {font-family: "Noto Sans TC", sans-serif; font-size: 11px; color: rgba(74, 63, 54, 0.48); margin-top: 5px}
+          <span> "還可以花 $13"

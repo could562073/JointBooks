@@ -1,11 +1,15 @@
 import styles from './Mantou.module.css';
 
-export type MantouVariant = 'full' | 'tab' | 'empty';
+export type MantouVariant = 'full' | 'tab' | 'partner' | 'muted' | 'empty';
 
 // 只能用 tokens.css 的變數，不可用色碼字面量（Plan 01 Task 2）。
 const PALETTE = {
   full:  { body: 'var(--c-primary)', hi: 'var(--c-hi)', eye: 'var(--c-face)', foot: 'var(--c-shade)' },
   tab:   { body: 'var(--c-primary)', hi: 'var(--c-hi)', eye: 'var(--c-face)', foot: 'var(--c-shade)' },
+  // 老婆那顆：原型外殼左上的頭像對是紫＋粉各一顆
+  partner: { body: 'var(--c-partner)', hi: 'var(--c-partner-hi)', eye: 'var(--c-face)', foot: 'var(--c-partner-shade)' },
+  // 分頁列未選中的那兩顆：原型是灰的，選中才轉紫
+  muted: { body: 'var(--c-muted-body)', hi: 'var(--c-muted-hi)', eye: 'var(--c-muted-eye)', foot: 'var(--c-muted-hi)' },
   empty: { body: 'var(--c-muted-body)', hi: 'var(--c-muted-hi)', eye: 'var(--c-muted-eye)', foot: 'var(--c-muted-hi)' },
 } as const;
 

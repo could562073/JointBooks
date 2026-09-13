@@ -1,0 +1,87 @@
+<div>  {position: relative; flex: 1 1 0%; min-height: 0px; overflow: hidden auto; padding: 0px 16px 110px}
+  <div>  {height: 100%}
+    <div>  {margin: 6px 0px 15px}
+      <div> "配置"  {font-weight: 700; font-size: 23px; line-height: 1.15}
+      <div> "budgets & categories"  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 15px; color: rgb(94, 79, 160)}
+    <div> "帳本成員"  {font-family: "Noto Sans TC", sans-serif; font-size: 11px; color: rgba(74, 63, 54, 0.45); font-weight: 600; margin-bottom: 7px}
+    <div>  {background: rgb(255, 255, 255); border-radius: 22px; padding: 4px 14px; box-shadow: rgba(74, 63, 54, 0.06) 0px 3px 0px}
+      <div>  {display: flex; align-items: center; gap: 11px; padding: 11px 0px; border-bottom: 2px dashed rgba(74, 63, 54, 0.1)}
+        <div>  {width: 36px; height: 30px; border-radius: 50% 50% 34% 34% / 64% 64% 36% 36%; background: rgb(183, 166, 229); position: relative; flex: 0 0 auto}
+          <span>  {position: absolute; top: 4px; left: 8px; width: 17px; height: 6px; border-radius: 50%; background: rgb(205, 192, 240); opacity: 0.85}
+          <span>  {position: absolute; top: 13px; left: 9px; width: 4px; height: 5px; border-radius: 50%; background: rgb(59, 50, 41)}
+          <span>  {position: absolute; top: 13px; right: 9px; width: 4px; height: 5px; border-radius: 50%; background: rgb(59, 50, 41)}
+          <span>  {position: absolute; top: 20px; left: 50%; width: 7px; height: 3px; border-radius: 0px 0px 7px 7px; background: rgb(59, 50, 41)}
+        <div>  {flex: 1 1 0%; min-width: 0px}
+          <div>  {font-size: 13.5px; font-weight: 700}
+            <span> "我"
+          <div>  {font-family: "Noto Sans TC", sans-serif; font-size: 11px; color: rgba(74, 63, 54, 0.5); overflow: hidden}
+            <span> "擁有者 · iPhone"
+        <div>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 11.5px; color: rgb(62, 127, 99); flex: 0 0 auto}
+          <span> "線上"
+      <div>  {display: flex; align-items: center; gap: 11px; padding: 11px 0px; border-bottom: 2px dashed rgba(74, 63, 54, 0.1)}
+        <div>  {width: 36px; height: 30px; border-radius: 50% 50% 34% 34% / 64% 64% 36% 36%; background: rgb(221, 166, 208); position: relative; flex: 0 0 auto}
+          <span>  {position: absolute; top: 4px; left: 8px; width: 17px; height: 6px; border-radius: 50%; background: rgb(237, 194, 226); opacity: 0.85}
+          <span>  {position: absolute; top: 13px; left: 9px; width: 4px; height: 5px; border-radius: 50%; background: rgb(59, 50, 41)}
+          <span>  {position: absolute; top: 13px; right: 9px; width: 4px; height: 5px; border-radius: 50%; background: rgb(59, 50, 41)}
+          <span>  {position: absolute; top: 20px; left: 50%; width: 7px; height: 3px; border-radius: 0px 0px 7px 7px; background: rgb(59, 50, 41)}
+        <div>  {flex: 1 1 0%; min-width: 0px}
+          <div>  {font-size: 13.5px; font-weight: 700}
+            <span> "老婆"
+          <div>  {font-family: "Noto Sans TC", sans-serif; font-size: 11px; color: rgba(74, 63, 54, 0.5); overflow: hidden}
+            <span> "可編輯 · 剛剛同步"
+        <div>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 11.5px; color: rgb(62, 127, 99); flex: 0 0 auto}
+          <span> "2 分鐘前"
+      <button>  {width: 100%; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: none; display: flex; align-items: center; justify-content: space-between; padding: 12px 0px}
+        <span> "邀請成員"  {font-size: 13px; color: rgb(94, 79, 160); font-weight: 700}
+        <span> "分享連結 ›"  {font-family: "Noto Sans TC", sans-serif; font-size: 11px; font-weight: 600; color: rgba(74, 63, 54, 0.45)}
+    <div> "分類與預算"  {font-family: "Noto Sans TC", sans-serif; font-size: 11px; color: rgba(74, 63, 54, 0.45); font-weight: 600; margin: 17px 0px 7px}
+    <div>  {background: rgb(255, 255, 255); border-radius: 22px; padding: 4px 14px; box-shadow: rgba(74, 63, 54, 0.06) 0px 3px 0px}
+      <button>  {width: 100%; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: none; display: flex; align-items: center; gap: 11px; padding: 13px 0px}
+        <span>  {display: flex; flex: 0 0 auto}
+          <span>  {width: 26px; height: 26px; border-radius: 9px; background: rgb(237, 233, 250); margin-left: 0px; box-shadow: rgb(255, 255, 255) 0px 0px 0px 2px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto}
+            <span>  {width: 17px; height: 17px; display: block; background: url("blob:null/60d8fc0d-bc1a-4736-992b-f73691f76e44") center center / contain no-repeat}
+          <span>  {width: 26px; height: 26px; border-radius: 9px; background: rgb(233, 234, 250); margin-left: -8px; box-shadow: rgb(255, 255, 255) 0px 0px 0px 2px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto}
+            <span>  {width: 17px; height: 17px; display: block; background: url("blob:null/4525dc5e-71e9-40f2-a2f0-1626c64e6836") center center / contain no-repeat}
+          <span>  {width: 26px; height: 26px; border-radius: 9px; background: rgb(244, 233, 250); margin-left: -8px; box-shadow: rgb(255, 255, 255) 0px 0px 0px 2px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto}
+            <span>  {width: 17px; height: 17px; display: block; background: url("blob:null/e86db9fe-7c5a-4028-b86c-4e5b603ed73c") center center / contain no-repeat}
+          <span>  {width: 26px; height: 26px; border-radius: 9px; background: rgb(239, 233, 250); margin-left: -8px; box-shadow: rgb(255, 255, 255) 0px 0px 0px 2px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto}
+            <span>  {width: 17px; height: 17px; display: block; background: url("blob:null/db10f53e-43db-4cec-acad-9f459ad5f008") center center / contain no-repeat}
+          <span>  {width: 26px; height: 26px; border-radius: 9px; background: rgb(250, 233, 243); margin-left: -8px; box-shadow: rgb(255, 255, 255) 0px 0px 0px 2px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto}
+            <span>  {width: 17px; height: 17px; display: block; background: url("blob:null/66aa097f-2649-4203-bb5b-447a40cd546a") center center / contain no-repeat}
+        <span>  {flex: 1 1 0%; min-width: 0px; text-align: left}
+          <span> "編輯分類與月預算"  {display: block; font-family: "Noto Sans TC", sans-serif; font-size: 13px; font-weight: 700; color: rgb(74, 63, 54)}
+          <span>  {display: block; font-family: "Noto Sans TC", sans-serif; font-size: 11px; color: rgba(74, 63, 54, 0.5); margin-top: 1px}
+            <span> "6 個分類 · 月額度 $3,990"
+        <span> "›"  {font-family: "Baloo 2", cursive; font-size: 15px; color: rgba(74, 63, 54, 0.3); flex: 0 0 auto}
+    <div> "其他"  {font-family: "Noto Sans TC", sans-serif; font-size: 11px; color: rgba(74, 63, 54, 0.45); font-weight: 600; margin: 17px 0px 7px}
+    <div>  {background: rgb(255, 255, 255); border-radius: 22px; padding: 4px 14px; box-shadow: rgba(74, 63, 54, 0.06) 0px 3px 0px}
+      <div>  {border-bottom: 2px dashed rgba(74, 63, 54, 0.1)}
+        <button>  {width: 100%; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: none; display: flex; align-items: center; gap: 10px; padding: 12px 0px}
+          <span>  {flex: 1 1 0%; min-width: 0px; text-align: left; font-family: "Noto Sans TC", sans-serif; font-size: 13px; color: rgb(74, 63, 54)}
+            <span> "月結日"
+          <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.5); flex: 0 0 auto}
+            <span> "每月 1 日"
+          <span> "›"  {font-family: "Baloo 2", cursive; font-size: 14px; color: rgba(74, 63, 54, 0.3); flex: 0 0 auto}
+      <div>  {border-bottom: 2px dashed rgba(74, 63, 54, 0.1)}
+        <button>  {width: 100%; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: none; display: flex; align-items: center; gap: 10px; padding: 12px 0px}
+          <span>  {flex: 1 1 0%; min-width: 0px; text-align: left; font-family: "Noto Sans TC", sans-serif; font-size: 13px; color: rgb(74, 63, 54)}
+            <span> "週起始"
+          <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.5); flex: 0 0 auto}
+            <span> "週一"
+          <span> "›"  {font-family: "Baloo 2", cursive; font-size: 14px; color: rgba(74, 63, 54, 0.3); flex: 0 0 auto}
+      <div>  {border-bottom: 2px dashed rgba(74, 63, 54, 0.1)}
+        <button>  {width: 100%; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: none; display: flex; align-items: center; gap: 10px; padding: 12px 0px}
+          <span>  {flex: 1 1 0%; min-width: 0px; text-align: left; font-family: "Noto Sans TC", sans-serif; font-size: 13px; color: rgb(74, 63, 54)}
+            <span> "對方記帳時通知我"
+          <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.5); flex: 0 0 auto}
+            <span>
+          <span>  {width: 40px; height: 24px; border-radius: 999px; background: rgb(183, 166, 229); position: relative; display: inline-block; flex: 0 0 auto}
+            <span>  {position: absolute; top: 2px; left: 18px; width: 20px; height: 20px; border-radius: 50%; background: rgb(255, 255, 255); box-shadow: rgba(74, 63, 54, 0.25) 0px 1px 3px}
+      <div>  {border-bottom: 2px dashed transparent}
+        <button>  {width: 100%; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: none; display: flex; align-items: center; gap: 10px; padding: 12px 0px}
+          <span>  {flex: 1 1 0%; min-width: 0px; text-align: left; font-family: "Noto Sans TC", sans-serif; font-size: 13px; color: rgb(74, 63, 54)}
+            <span> "每筆顯示記帳人"
+          <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.5); flex: 0 0 auto}
+            <span>
+          <span>  {width: 40px; height: 24px; border-radius: 999px; background: rgb(183, 166, 229); position: relative; display: inline-block; flex: 0 0 auto}
+            <span>  {position: absolute; top: 2px; left: 18px; width: 20px; height: 20px; border-radius: 50%; background: rgb(255, 255, 255); box-shadow: rgba(74, 63, 54, 0.25) 0px 1px 3px}

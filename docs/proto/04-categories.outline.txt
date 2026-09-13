@@ -1,0 +1,143 @@
+<div>  {position: relative; flex: 1 1 0%; min-height: 0px; overflow: hidden; padding: 0px 16px}
+  <div>  {height: 100%}
+    <div>  {height: 100%; padding-top: 6px; display: flex; flex-direction: column}
+      <div>  {flex: 0 0 auto; display: flex; align-items: center; gap: 8px; margin: 2px 0px 12px}
+        <button> "‹"  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: rgb(255, 255, 255); box-shadow: rgba(74, 63, 54, 0.08) 0px 2px 0px; width: 32px; height: 32px; border-radius: 50%; font-size: 15px; color: rgba(74, 63, 54, 0.5); flex: 0 0 auto}
+        <div>  {flex: 1 1 0%; min-width: 0px}
+          <div> "分類與月預算"  {font-weight: 700; font-size: 19px; line-height: 1.2}
+          <div> "點圖示換、點金額改預算"  {font-family: "Noto Sans TC", sans-serif; font-size: 10.5px; color: rgba(74, 63, 54, 0.5); margin-top: 1px}
+        <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; padding: 0px; width: 38px; height: 38px; border-radius: 14px; background: linear-gradient(160deg, rgb(139, 117, 214) 0%, rgb(107, 87, 184) 55%, rgb(90, 70, 166) 100%); box-shadow: rgba(255, 255, 255, 0.42) 0px 1px 0px inset, rgba(74, 63, 54, 0.14) 0px -2px 6px inset, rgba(74, 63, 54, 0.08) 0px 0px 0px 0.5px; flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center}
+          <svg>  {width: 20px; height: 20px; display: block}
+            <path>
+      <div> "左滑可刪除 · 點名稱改名 · 點圖示換圖"  {flex: 0 0 auto; font-family: "Noto Sans TC", sans-serif; font-size: 10px; color: rgba(74, 63, 54, 0.42); margin-bottom: 9px}
+      <div>  {flex: 1 1 0%; min-height: 0px; overflow: hidden auto; padding-bottom: 110px; display: flex; flex-direction: column; gap: 8px}
+        <div>  {position: relative; flex: 0 0 auto; border-radius: 22px; overflow: hidden}
+          <button> "刪除"  {position: absolute; top: 0px; right: 0px; bottom: 0px; width: 84px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: rgb(217, 112, 92); color: rgb(255, 255, 255); font-family: "Noto Sans TC", sans-serif; font-size: 13px; font-weight: 700}
+          <div>  {position: relative; background: rgb(255, 255, 255); border-radius: 22px; padding: 12px 14px; box-shadow: rgba(74, 63, 54, 0.06) 0px 3px 0px}
+            <div>  {display: flex; align-items: center; justify-content: space-between; gap: 8px}
+              <span>  {display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14.5px; flex: 0 0 auto}
+                <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; width: 32px; height: 32px; border-radius: 11px; background: rgb(237, 233, 250); display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; box-shadow: none}
+                  <span>  {width: 22px; height: 22px; display: block; background: url("blob:null/60d8fc0d-bc1a-4736-992b-f73691f76e44") center center / contain no-repeat}
+                  <svg>  {width: 21px; height: 21px; display: none}
+                <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: none; padding: 0px; font-family: "Zen Maru Gothic", "Noto Sans TC", sans-serif; font-weight: 700; font-size: 14.5px; color: rgb(74, 63, 54)}
+                  <span> "租屋"
+              <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; display: inline-flex; align-items: baseline; gap: 3px; padding: 6px 12px; border-radius: 999px; background: rgba(74, 63, 54, 0.06); flex: 0 0 auto}
+                <span>  {font-family: "Baloo 2", cursive; font-weight: 700; font-size: 13px; color: rgb(74, 63, 54)}
+                  <span> "$2,100"
+                <span> "／月"  {font-family: "Noto Sans TC", sans-serif; font-size: 10px; color: rgba(74, 63, 54, 0.45)}
+            <div>  {display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px}
+              <button> "✕"  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; padding: 5px 10px; border-radius: 999px; background: rgb(237, 233, 250); font-family: "Noto Sans TC", sans-serif; font-size: 11px; font-weight: 600; color: rgb(94, 79, 160); flex: 0 0 auto}
+                <span> "租屋"
+              <button> "＋ 子分類"  {background: none; padding: 5px 10px; border-radius: 999px; border: 2px dashed rgba(74, 63, 54, 0.18); font-family: "Noto Sans TC", sans-serif; font-size: 11px; color: rgba(74, 63, 54, 0.5); flex: 0 0 auto}
+        <div>  {position: relative; flex: 0 0 auto; border-radius: 22px; overflow: hidden}
+          <button> "刪除"  {position: absolute; top: 0px; right: 0px; bottom: 0px; width: 84px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: rgb(217, 112, 92); color: rgb(255, 255, 255); font-family: "Noto Sans TC", sans-serif; font-size: 13px; font-weight: 700}
+          <div>  {position: relative; background: rgb(255, 255, 255); border-radius: 22px; padding: 12px 14px; box-shadow: rgba(74, 63, 54, 0.06) 0px 3px 0px}
+            <div>  {display: flex; align-items: center; justify-content: space-between; gap: 8px}
+              <span>  {display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14.5px; flex: 0 0 auto}
+                <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; width: 32px; height: 32px; border-radius: 11px; background: rgb(233, 234, 250); display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; box-shadow: none}
+                  <span>  {width: 22px; height: 22px; display: block; background: url("blob:null/4525dc5e-71e9-40f2-a2f0-1626c64e6836") center center / contain no-repeat}
+                  <svg>  {width: 21px; height: 21px; display: none}
+                <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: none; padding: 0px; font-family: "Zen Maru Gothic", "Noto Sans TC", sans-serif; font-weight: 700; font-size: 14.5px; color: rgb(74, 63, 54)}
+                  <span> "保險"
+              <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; display: inline-flex; align-items: baseline; gap: 3px; padding: 6px 12px; border-radius: 999px; background: rgba(74, 63, 54, 0.06); flex: 0 0 auto}
+                <span>  {font-family: "Baloo 2", cursive; font-weight: 700; font-size: 13px; color: rgb(74, 63, 54)}
+                  <span> "$260"
+                <span> "／月"  {font-family: "Noto Sans TC", sans-serif; font-size: 10px; color: rgba(74, 63, 54, 0.45)}
+            <div>  {display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px}
+              <button> "✕"  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; padding: 5px 10px; border-radius: 999px; background: rgb(233, 234, 250); font-family: "Noto Sans TC", sans-serif; font-size: 11px; font-weight: 600; color: rgb(79, 82, 160); flex: 0 0 auto}
+                <span> "保險"
+              <button> "＋ 子分類"  {background: none; padding: 5px 10px; border-radius: 999px; border: 2px dashed rgba(74, 63, 54, 0.18); font-family: "Noto Sans TC", sans-serif; font-size: 11px; color: rgba(74, 63, 54, 0.5); flex: 0 0 auto}
+        <div>  {position: relative; flex: 0 0 auto; border-radius: 22px; overflow: hidden}
+          <button> "刪除"  {position: absolute; top: 0px; right: 0px; bottom: 0px; width: 84px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: rgb(217, 112, 92); color: rgb(255, 255, 255); font-family: "Noto Sans TC", sans-serif; font-size: 13px; font-weight: 700}
+          <div>  {position: relative; background: rgb(255, 255, 255); border-radius: 22px; padding: 12px 14px; box-shadow: rgba(74, 63, 54, 0.06) 0px 3px 0px}
+            <div>  {display: flex; align-items: center; justify-content: space-between; gap: 8px}
+              <span>  {display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14.5px; flex: 0 0 auto}
+                <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; width: 32px; height: 32px; border-radius: 11px; background: rgb(244, 233, 250); display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; box-shadow: none}
+                  <span>  {width: 22px; height: 22px; display: block; background: url("blob:null/e86db9fe-7c5a-4028-b86c-4e5b603ed73c") center center / contain no-repeat}
+                  <svg>  {width: 21px; height: 21px; display: none}
+                <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: none; padding: 0px; font-family: "Zen Maru Gothic", "Noto Sans TC", sans-serif; font-weight: 700; font-size: 14.5px; color: rgb(74, 63, 54)}
+                  <span> "外食"
+              <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; display: inline-flex; align-items: baseline; gap: 3px; padding: 6px 12px; border-radius: 999px; background: rgba(74, 63, 54, 0.06); flex: 0 0 auto}
+                <span>  {font-family: "Baloo 2", cursive; font-weight: 700; font-size: 13px; color: rgb(74, 63, 54)}
+                  <span> "$450"
+                <span> "／月"  {font-family: "Noto Sans TC", sans-serif; font-size: 10px; color: rgba(74, 63, 54, 0.45)}
+            <div>  {display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px}
+              <button> "✕"  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; padding: 5px 10px; border-radius: 999px; background: rgb(244, 233, 250); font-family: "Noto Sans TC", sans-serif; font-size: 11px; font-weight: 600; color: rgb(138, 79, 158); flex: 0 0 auto}
+                <span> "飲料"
+              <button> "✕"  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; padding: 5px 10px; border-radius: 999px; background: rgb(244, 233, 250); font-family: "Noto Sans TC", sans-serif; font-size: 11px; font-weight: 600; color: rgb(138, 79, 158); flex: 0 0 auto}
+                <span> "外帶"
+              <button> "✕"  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; padding: 5px 10px; border-radius: 999px; background: rgb(244, 233, 250); font-family: "Noto Sans TC", sans-serif; font-size: 11px; font-weight: 600; color: rgb(138, 79, 158); flex: 0 0 auto}
+                <span> "內用"
+              <button> "＋ 子分類"  {background: none; padding: 5px 10px; border-radius: 999px; border: 2px dashed rgba(74, 63, 54, 0.18); font-family: "Noto Sans TC", sans-serif; font-size: 11px; color: rgba(74, 63, 54, 0.5); flex: 0 0 auto}
+        <div>  {position: relative; flex: 0 0 auto; border-radius: 22px; overflow: hidden}
+          <button> "刪除"  {position: absolute; top: 0px; right: 0px; bottom: 0px; width: 84px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: rgb(217, 112, 92); color: rgb(255, 255, 255); font-family: "Noto Sans TC", sans-serif; font-size: 13px; font-weight: 700}
+          <div>  {position: relative; background: rgb(255, 255, 255); border-radius: 22px; padding: 12px 14px; box-shadow: rgba(74, 63, 54, 0.06) 0px 3px 0px}
+            <div>  {display: flex; align-items: center; justify-content: space-between; gap: 8px}
+              <span>  {display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14.5px; flex: 0 0 auto}
+                <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; width: 32px; height: 32px; border-radius: 11px; background: rgb(239, 233, 250); display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; box-shadow: none}
+                  <span>  {width: 22px; height: 22px; display: block; background: url("blob:null/db10f53e-43db-4cec-acad-9f459ad5f008") center center / contain no-repeat}
+                  <svg>  {width: 21px; height: 21px; display: none}
+                <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: none; padding: 0px; font-family: "Zen Maru Gothic", "Noto Sans TC", sans-serif; font-weight: 700; font-size: 14.5px; color: rgb(74, 63, 54)}
+                  <span> "超市"
+              <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; display: inline-flex; align-items: baseline; gap: 3px; padding: 6px 12px; border-radius: 999px; background: rgba(74, 63, 54, 0.06); flex: 0 0 auto}
+                <span>  {font-family: "Baloo 2", cursive; font-weight: 700; font-size: 13px; color: rgb(74, 63, 54)}
+                  <span> "$800"
+                <span> "／月"  {font-family: "Noto Sans TC", sans-serif; font-size: 10px; color: rgba(74, 63, 54, 0.45)}
+            <div>  {display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px}
+              <button> "✕"  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; padding: 5px 10px; border-radius: 999px; background: rgb(239, 233, 250); font-family: "Noto Sans TC", sans-serif; font-size: 11px; font-weight: 600; color: rgb(107, 79, 160); flex: 0 0 auto}
+                <span> "食材"
+              <button> "✕"  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; padding: 5px 10px; border-radius: 999px; background: rgb(239, 233, 250); font-family: "Noto Sans TC", sans-serif; font-size: 11px; font-weight: 600; color: rgb(107, 79, 160); flex: 0 0 auto}
+                <span> "水果"
+              <button> "✕"  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; padding: 5px 10px; border-radius: 999px; background: rgb(239, 233, 250); font-family: "Noto Sans TC", sans-serif; font-size: 11px; font-weight: 600; color: rgb(107, 79, 160); flex: 0 0 auto}
+                <span> "雜貨"
+              <button> "✕"  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; padding: 5px 10px; border-radius: 999px; background: rgb(239, 233, 250); font-family: "Noto Sans TC", sans-serif; font-size: 11px; font-weight: 600; color: rgb(107, 79, 160); flex: 0 0 auto}
+                <span> "消耗品"
+              <button> "✕"  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; padding: 5px 10px; border-radius: 999px; background: rgb(239, 233, 250); font-family: "Noto Sans TC", sans-serif; font-size: 11px; font-weight: 600; color: rgb(107, 79, 160); flex: 0 0 auto}
+                <span> "化妝品"
+              <button> "✕"  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; padding: 5px 10px; border-radius: 999px; background: rgb(239, 233, 250); font-family: "Noto Sans TC", sans-serif; font-size: 11px; font-weight: 600; color: rgb(107, 79, 160); flex: 0 0 auto}
+                <span> "零食"
+              <button> "✕"  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; padding: 5px 10px; border-radius: 999px; background: rgb(239, 233, 250); font-family: "Noto Sans TC", sans-serif; font-size: 11px; font-weight: 600; color: rgb(107, 79, 160); flex: 0 0 auto}
+                <span> "熟食"
+              <button> "✕"  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; padding: 5px 10px; border-radius: 999px; background: rgb(239, 233, 250); font-family: "Noto Sans TC", sans-serif; font-size: 11px; font-weight: 600; color: rgb(107, 79, 160); flex: 0 0 auto}
+                <span> "稅"
+              <button> "＋ 子分類"  {background: none; padding: 5px 10px; border-radius: 999px; border: 2px dashed rgba(74, 63, 54, 0.18); font-family: "Noto Sans TC", sans-serif; font-size: 11px; color: rgba(74, 63, 54, 0.5); flex: 0 0 auto}
+        <div>  {position: relative; flex: 0 0 auto; border-radius: 22px; overflow: hidden}
+          <button> "刪除"  {position: absolute; top: 0px; right: 0px; bottom: 0px; width: 84px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: rgb(217, 112, 92); color: rgb(255, 255, 255); font-family: "Noto Sans TC", sans-serif; font-size: 13px; font-weight: 700}
+          <div>  {position: relative; background: rgb(255, 255, 255); border-radius: 22px; padding: 12px 14px; box-shadow: rgba(74, 63, 54, 0.06) 0px 3px 0px}
+            <div>  {display: flex; align-items: center; justify-content: space-between; gap: 8px}
+              <span>  {display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14.5px; flex: 0 0 auto}
+                <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; width: 32px; height: 32px; border-radius: 11px; background: rgb(250, 233, 243); display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; box-shadow: none}
+                  <span>  {width: 22px; height: 22px; display: block; background: url("blob:null/66aa097f-2649-4203-bb5b-447a40cd546a") center center / contain no-repeat}
+                  <svg>  {width: 21px; height: 21px; display: none}
+                <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: none; padding: 0px; font-family: "Zen Maru Gothic", "Noto Sans TC", sans-serif; font-weight: 700; font-size: 14.5px; color: rgb(74, 63, 54)}
+                  <span> "娛樂"
+              <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; display: inline-flex; align-items: baseline; gap: 3px; padding: 6px 12px; border-radius: 999px; background: rgba(74, 63, 54, 0.06); flex: 0 0 auto}
+                <span>  {font-family: "Baloo 2", cursive; font-weight: 700; font-size: 13px; color: rgb(74, 63, 54)}
+                  <span> "$200"
+                <span> "／月"  {font-family: "Noto Sans TC", sans-serif; font-size: 10px; color: rgba(74, 63, 54, 0.45)}
+            <div>  {display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px}
+              <button> "✕"  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; padding: 5px 10px; border-radius: 999px; background: rgb(250, 233, 243); font-family: "Noto Sans TC", sans-serif; font-size: 11px; font-weight: 600; color: rgb(158, 79, 135); flex: 0 0 auto}
+                <span> "門票"
+              <button> "✕"  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; padding: 5px 10px; border-radius: 999px; background: rgb(250, 233, 243); font-family: "Noto Sans TC", sans-serif; font-size: 11px; font-weight: 600; color: rgb(158, 79, 135); flex: 0 0 auto}
+                <span> "電影票"
+              <button> "＋ 子分類"  {background: none; padding: 5px 10px; border-radius: 999px; border: 2px dashed rgba(74, 63, 54, 0.18); font-family: "Noto Sans TC", sans-serif; font-size: 11px; color: rgba(74, 63, 54, 0.5); flex: 0 0 auto}
+        <div>  {position: relative; flex: 0 0 auto; border-radius: 22px; overflow: hidden}
+          <button> "刪除"  {position: absolute; top: 0px; right: 0px; bottom: 0px; width: 84px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: rgb(217, 112, 92); color: rgb(255, 255, 255); font-family: "Noto Sans TC", sans-serif; font-size: 13px; font-weight: 700}
+          <div>  {position: relative; background: rgb(255, 255, 255); border-radius: 22px; padding: 12px 14px; box-shadow: rgba(74, 63, 54, 0.06) 0px 3px 0px}
+            <div>  {display: flex; align-items: center; justify-content: space-between; gap: 8px}
+              <span>  {display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14.5px; flex: 0 0 auto}
+                <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; width: 32px; height: 32px; border-radius: 11px; background: rgb(234, 234, 248); display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; box-shadow: none}
+                  <span>  {width: 22px; height: 22px; display: block; background: url("blob:null/f0ff4d5b-1718-4e70-b3ff-ce93694d71cd") center center / contain no-repeat}
+                  <svg>  {width: 21px; height: 21px; display: none}
+                <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: none; padding: 0px; font-family: "Zen Maru Gothic", "Noto Sans TC", sans-serif; font-weight: 700; font-size: 14.5px; color: rgb(74, 63, 54)}
+                  <span> "交通"
+              <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; display: inline-flex; align-items: baseline; gap: 3px; padding: 6px 12px; border-radius: 999px; background: rgba(74, 63, 54, 0.06); flex: 0 0 auto}
+                <span>  {font-family: "Baloo 2", cursive; font-weight: 700; font-size: 13px; color: rgb(74, 63, 54)}
+                  <span> "$180"
+                <span> "／月"  {font-family: "Noto Sans TC", sans-serif; font-size: 10px; color: rgba(74, 63, 54, 0.45)}
+            <div>  {display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px}
+              <button> "✕"  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; padding: 5px 10px; border-radius: 999px; background: rgb(234, 234, 248); font-family: "Noto Sans TC", sans-serif; font-size: 11px; font-weight: 600; color: rgb(90, 90, 168); flex: 0 0 auto}
+                <span> "儲值"
+              <button> "✕"  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; padding: 5px 10px; border-radius: 999px; background: rgb(234, 234, 248); font-family: "Noto Sans TC", sans-serif; font-size: 11px; font-weight: 600; color: rgb(90, 90, 168); flex: 0 0 auto}
+                <span> "單程票"
+              <button> "＋ 子分類"  {background: none; padding: 5px 10px; border-radius: 999px; border: 2px dashed rgba(74, 63, 54, 0.18); font-family: "Noto Sans TC", sans-serif; font-size: 11px; color: rgba(74, 63, 54, 0.5); flex: 0 0 auto}

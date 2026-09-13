@@ -29,6 +29,15 @@
   --c-expense: #B85F42;
   --c-expense-bg: #FBEBE4;
 
+  /* 老婆那顆饅頭（原型外殼的頭像對、明細頭像） */
+  --c-partner: #DDA6D0;
+  --c-partner-hi: #EDC2E2;
+  --c-partner-shade: #C98FBC;
+
+  /* 外殼右上、左側的裝飾圓 */
+  --c-decor-a: #EDE9FA;
+  --c-decor-b: #FAE9F3;
+
   /* 其他 */
   --c-sync: #4E9B7A;
   --c-blush: #F79BA0;

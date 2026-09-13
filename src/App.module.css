@@ -1,4 +1,7 @@
 .shell {
+  /* 裝飾圓是絕對定位在這一層，且要被切掉溢出的部分 */
+  position: relative;
+  background: var(--c-bg);
   display: flex;
   flex-direction: column;
   /* 用 dvh 而不是 vh：iOS Safari 的網址列收展會讓 vh 算錯，底部分頁列被切掉 */
@@ -12,10 +15,16 @@
  * 才量得到高度——少了 min-height:0，內容會把外殼撐高、分頁列被推出畫面。
  */
 .page {
+  position: relative;
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
+  /*
+   * 左右留白統一在這裡給，各畫面不要再自己加——原型的外殼就是這樣，
+   * 分散在各畫面時只要有一頁少給就會左右對不齊。
+   */
+  padding: 0 16px;
 }
 
 /* MOTION #8：往後自右進，往前自左進 */

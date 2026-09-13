@@ -1,0 +1,351 @@
+<div>  {position: relative; flex: 1 1 0%; min-height: 0px; overflow: hidden; padding: 0px 16px}
+  <div>  {height: 100%; display: flex; flex-direction: column; min-height: 0px}
+    <div>  {display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 6px 0px 2px}
+      <div>  {display: flex; align-items: center; gap: 4px; min-width: 0px}
+        <button> "‹"  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: rgb(255, 255, 255); box-shadow: rgba(74, 63, 54, 0.08) 0px 2px 0px; width: 26px; height: 26px; border-radius: 50%; font-size: 14px; color: rgba(74, 63, 54, 0.5); flex: 0 0 auto}
+        <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: none; text-align: left; padding: 0px 6px; min-width: 0px}
+          <div>  {display: flex; align-items: center; gap: 5px}
+            <span>  {font-family: "Zen Maru Gothic", "Noto Sans TC", sans-serif; font-weight: 700; font-size: 23px; line-height: 1.15; color: rgb(74, 63, 54)}
+              <span> "2026年9月"
+            <span> "▾"  {font-family: "Baloo 2", cursive; font-size: 13px; color: rgba(74, 63, 54, 0.35)}
+          <div>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 14px; color: rgb(94, 79, 160); margin-top: -2px; text-align: left}
+            <span> "September 2026"
+        <button> "›"  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: rgb(255, 255, 255); box-shadow: rgba(74, 63, 54, 0.08) 0px 2px 0px; width: 26px; height: 26px; border-radius: 50%; font-size: 14px; color: rgba(74, 63, 54, 0.5); flex: 0 0 auto}
+    <div>  {flex: 0 0 auto; overflow: hidden; max-height: 460px; opacity: 1}
+      <div>  {display: flex; gap: 7px; margin: 13px 0px 12px}
+        <div>  {flex: 1 1 0%; min-width: 0px; background: rgb(230, 244, 238); border-radius: 18px; padding: 9px 11px}
+          <div> "收入"  {font-family: "Noto Sans TC", sans-serif; font-size: 10px; color: rgb(62, 127, 99); font-weight: 600}
+          <div>  {font-family: "Baloo 2", cursive; font-weight: 700; font-size: 16px; color: rgb(62, 127, 99); margin-top: 1px}
+            <span> "$5,786"
+        <div>  {flex: 1 1 0%; min-width: 0px; background: rgb(251, 235, 228); border-radius: 18px; padding: 9px 11px}
+          <div> "支出"  {font-family: "Noto Sans TC", sans-serif; font-size: 10px; color: rgb(184, 95, 66); font-weight: 600}
+          <div>  {font-family: "Baloo 2", cursive; font-weight: 700; font-size: 16px; color: rgb(184, 95, 66); margin-top: 1px}
+            <span> "$3,712"
+        <div>  {flex: 1 1 0%; min-width: 0px; background: rgb(74, 63, 54); border-radius: 18px; padding: 9px 11px}
+          <div> "結餘"  {font-family: "Noto Sans TC", sans-serif; font-size: 10px; color: rgba(255, 246, 236, 0.62); font-weight: 600}
+            <span> "本月"
+          <div>  {font-family: "Baloo 2", cursive; font-weight: 700; font-size: 16px; color: rgb(255, 246, 236); margin-top: 1px}
+            <span> "$2,074"
+      <div>  {background: rgb(255, 255, 255); border-radius: 24px; padding: 12px 11px 13px; box-shadow: rgba(74, 63, 54, 0.06) 0px 3px 0px; overflow: hidden}
+        <div>  {display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 6px}
+          <div>  {text-align: center; font-family: "Noto Sans TC", sans-serif; font-size: 10px; color: rgba(74, 63, 54, 0.42); font-weight: 600}
+            <span> "一"
+          <div>  {text-align: center; font-family: "Noto Sans TC", sans-serif; font-size: 10px; color: rgba(74, 63, 54, 0.42); font-weight: 600}
+            <span> "二"
+          <div>  {text-align: center; font-family: "Noto Sans TC", sans-serif; font-size: 10px; color: rgba(74, 63, 54, 0.42); font-weight: 600}
+            <span> "三"
+          <div>  {text-align: center; font-family: "Noto Sans TC", sans-serif; font-size: 10px; color: rgba(74, 63, 54, 0.42); font-weight: 600}
+            <span> "四"
+          <div>  {text-align: center; font-family: "Noto Sans TC", sans-serif; font-size: 10px; color: rgba(74, 63, 54, 0.42); font-weight: 600}
+            <span> "五"
+          <div>  {text-align: center; font-family: "Noto Sans TC", sans-serif; font-size: 10px; color: rgb(184, 95, 66); font-weight: 600}
+            <span> "六"
+          <div>  {text-align: center; font-family: "Noto Sans TC", sans-serif; font-size: 10px; color: rgb(184, 95, 66); font-weight: 600}
+            <span> "日"
+        <div>  {position: relative; display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; opacity: 1}
+          <span>  {position: absolute; left: calc(71.4286% + 2.14286px); top: 0px; width: calc(14.2857% - 2.57143px); height: 50px; border-radius: 14px; box-shadow: rgb(183, 166, 229) 0px 0px 0px 2.5px inset; background: rgba(237, 233, 250, 0.5)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: transparent; box-shadow: none; opacity: 0; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: transparent}
+              <span>
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span>
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.58); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "1"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$2.2k"
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.145); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "2"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$29"
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.16); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "3"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$96"
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.176); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "4"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$172"
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.15); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgb(94, 79, 160)}
+              <span> "5"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$51"
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.153); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "6"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$52"
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.15); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "7"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$45"
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.2); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "8"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$288"
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.153); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "9"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$64"
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.145); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "10"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$29"
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.153); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "11"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$56"
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.153); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "12"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$59"
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.145); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "13"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$22"
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.157); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "14"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$88"
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.153); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "15"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$60"
+            <span>  {width: 14px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(74, 63, 54, 0.035); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "16"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span>
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.15); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "17"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$38"
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.14); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "18"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$7"
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.14); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "19"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$14"
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.145); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "20"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$31"
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.153); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "21"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$71"
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.145); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "22"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$26"
+            <span>  {width: 14px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(74, 63, 54, 0.035); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "23"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span>
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.15); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "24"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$46"
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.153); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "25"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$69"
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.153); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "26"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$60"
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.145); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "27"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$19"
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.14); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "28"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$7"
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(183, 166, 229, 0.153); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "29"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span> "$55"
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: rgba(74, 63, 54, 0.035); box-shadow: none; opacity: 1; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: rgba(74, 63, 54, 0.6)}
+              <span> "30"
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span>
+            <span>  {width: 14px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: transparent; box-shadow: none; opacity: 0; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: transparent}
+              <span>
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span>
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: transparent; box-shadow: none; opacity: 0; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: transparent}
+              <span>
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span>
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: transparent; box-shadow: none; opacity: 0; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: transparent}
+              <span>
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span>
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+          <button>  {border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; padding: 4px 2px 5px; min-height: 50px; border-radius: 14px; background: transparent; box-shadow: none; opacity: 0; display: flex; flex-direction: column; align-items: center; gap: 1px}
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 12px; color: transparent}
+              <span>
+            <span>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; line-height: 1.2; color: rgb(184, 95, 66)}
+              <span>
+            <span>  {width: 0px; height: 4px; border-radius: 3px; background: rgb(221, 166, 208)}
+    <button>  {flex: 0 0 auto; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: none; padding: 11px 0px 7px; display: flex; flex-direction: column; align-items: center; gap: 4px}
+      <span>  {width: 46px; height: 5px; border-radius: 4px; background: rgba(74, 63, 54, 0.2)}
+      <span>  {font-family: "Noto Sans TC", sans-serif; font-size: 10.5px; font-weight: 600; color: rgba(74, 63, 54, 0.42)}
+        <span> "往上滑看更多明細"
+    <div>  {flex: 0 0 auto; display: flex; align-items: center; gap: 9px; margin: 2px 0px 10px}
+      <div>  {font-weight: 700; font-size: 16px}
+        <span> "9月5日 · 週六"
+      <div>  {font-family: "Baloo 2", cursive; font-weight: 700; font-size: 13px; color: rgb(184, 95, 66)}
+        <span> "-50.95"
+      <div>  {height: 2px; flex: 1 1 0%; border-radius: 2px; background: rgba(74, 63, 54, 0.1)}
+    <div>  {flex: 1 1 0%; min-height: 0px; overflow: hidden auto; padding-bottom: 104px; margin: 0px -4px; padding-left: 4px; padding-right: 4px}
+      <div>  {display: flex; flex-direction: column; gap: 7px}
+        <div>  {background: rgb(255, 255, 255); border-radius: 20px; padding: 11px 12px; display: flex; align-items: center; gap: 10px; box-shadow: rgba(74, 63, 54, 0.06) 0px 3px 0px}
+          <div>  {width: 36px; height: 36px; border-radius: 13px; background: rgb(244, 233, 250); flex: 0 0 auto; display: flex; align-items: center; justify-content: center}
+            <span>  {width: 23px; height: 23px; display: block; background: url("blob:null/e86db9fe-7c5a-4028-b86c-4e5b603ed73c") center center / contain no-repeat}
+            <svg>  {width: 22px; height: 22px; display: none}
+              <path>
+              <path>
+              <path>
+              <path>
+          <div>  {flex: 1 1 0%; min-width: 0px}
+            <div>  {display: flex; align-items: center; gap: 6px; flex-wrap: wrap}
+              <span>  {padding: 2px 8px; border-radius: 999px; background: rgb(244, 233, 250); font-family: "Noto Sans TC", sans-serif; font-size: 10.5px; font-weight: 600; color: rgb(138, 79, 158); flex: 0 0 auto}
+                <span> "外食"
+              <span>  {font-size: 13.5px; font-weight: 500}
+                <span> "飲料"
+            <div>  {display: flex; align-items: center; gap: 7px; margin-top: 3px; font-family: "Noto Sans TC", sans-serif; font-size: 11px; color: rgba(74, 63, 54, 0.48); min-width: 0px}
+              <span>  {font-family: "Baloo 2", cursive; font-weight: 600; flex: 0 0 auto}
+                <span> "08:40"
+              <span>  {overflow: hidden}
+                <span> "咖啡"
+          <div>  {display: flex; align-items: center; gap: 8px; flex: 0 0 auto}
+            <div>  {text-align: right}
+              <div>  {font-family: "Baloo 2", cursive; font-weight: 700; font-size: 15px; color: rgb(74, 63, 54)}
+                <span> "-5.20"
+              <div>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; color: rgba(74, 63, 54, 0.4)}
+                <span> "CAD"
+            <div>  {width: 22px; height: 22px; border-radius: 50%; background: rgb(221, 166, 208); position: relative; opacity: 1}
+              <span>  {position: absolute; top: 8px; left: 5.5px; width: 3px; height: 4px; border-radius: 50%; background: rgb(74, 63, 54)}
+              <span>  {position: absolute; top: 8px; right: 5.5px; width: 3px; height: 4px; border-radius: 50%; background: rgb(74, 63, 54)}
+        <div>  {background: rgb(255, 255, 255); border-radius: 20px; padding: 11px 12px; display: flex; align-items: center; gap: 10px; box-shadow: rgba(74, 63, 54, 0.06) 0px 3px 0px}
+          <div>  {width: 36px; height: 36px; border-radius: 13px; background: rgb(239, 233, 250); flex: 0 0 auto; display: flex; align-items: center; justify-content: center}
+            <span>  {width: 23px; height: 23px; display: block; background: url("blob:null/db10f53e-43db-4cec-acad-9f459ad5f008") center center / contain no-repeat}
+            <svg>  {width: 22px; height: 22px; display: none}
+              <path>
+              <path>
+              <path>
+              <path>
+          <div>  {flex: 1 1 0%; min-width: 0px}
+            <div>  {display: flex; align-items: center; gap: 6px; flex-wrap: wrap}
+              <span>  {padding: 2px 8px; border-radius: 999px; background: rgb(239, 233, 250); font-family: "Noto Sans TC", sans-serif; font-size: 10.5px; font-weight: 600; color: rgb(107, 79, 160); flex: 0 0 auto}
+                <span> "超市"
+              <span>  {font-size: 13.5px; font-weight: 500}
+                <span> "熟食"
+            <div>  {display: flex; align-items: center; gap: 7px; margin-top: 3px; font-family: "Noto Sans TC", sans-serif; font-size: 11px; color: rgba(74, 63, 54, 0.48); min-width: 0px}
+              <span>  {font-family: "Baloo 2", cursive; font-weight: 600; flex: 0 0 auto}
+                <span> "18:55"
+              <span>  {overflow: hidden}
+                <span> "烤雞"
+          <div>  {display: flex; align-items: center; gap: 8px; flex: 0 0 auto}
+            <div>  {text-align: right}
+              <div>  {font-family: "Baloo 2", cursive; font-weight: 700; font-size: 15px; color: rgb(74, 63, 54)}
+                <span> "-16.75"
+              <div>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; color: rgba(74, 63, 54, 0.4)}
+                <span> "CAD"
+            <div>  {width: 22px; height: 22px; border-radius: 50%; background: rgb(183, 166, 229); position: relative; opacity: 1}
+              <span>  {position: absolute; top: 8px; left: 5.5px; width: 3px; height: 4px; border-radius: 50%; background: rgb(74, 63, 54)}
+              <span>  {position: absolute; top: 8px; right: 5.5px; width: 3px; height: 4px; border-radius: 50%; background: rgb(74, 63, 54)}
+        <div>  {background: rgb(255, 255, 255); border-radius: 20px; padding: 11px 12px; display: flex; align-items: center; gap: 10px; box-shadow: rgba(74, 63, 54, 0.06) 0px 3px 0px}
+          <div>  {width: 36px; height: 36px; border-radius: 13px; background: rgb(250, 233, 243); flex: 0 0 auto; display: flex; align-items: center; justify-content: center}
+            <span>  {width: 23px; height: 23px; display: block; background: url("blob:null/66aa097f-2649-4203-bb5b-447a40cd546a") center center / contain no-repeat}
+            <svg>  {width: 22px; height: 22px; display: none}
+              <path>
+              <path>
+              <path>
+          <div>  {flex: 1 1 0%; min-width: 0px}
+            <div>  {display: flex; align-items: center; gap: 6px; flex-wrap: wrap}
+              <span>  {padding: 2px 8px; border-radius: 999px; background: rgb(250, 233, 243); font-family: "Noto Sans TC", sans-serif; font-size: 10.5px; font-weight: 600; color: rgb(158, 79, 135); flex: 0 0 auto}
+                <span> "娛樂"
+              <span>  {font-size: 13.5px; font-weight: 500}
+                <span> "電影票"
+            <div>  {display: flex; align-items: center; gap: 7px; margin-top: 3px; font-family: "Noto Sans TC", sans-serif; font-size: 11px; color: rgba(74, 63, 54, 0.48); min-width: 0px}
+              <span>  {font-family: "Baloo 2", cursive; font-weight: 600; flex: 0 0 auto}
+                <span> "20:30"
+              <span>  {overflow: hidden}
+                <span> "Cineplex"
+          <div>  {display: flex; align-items: center; gap: 8px; flex: 0 0 auto}
+            <div>  {text-align: right}
+              <div>  {font-family: "Baloo 2", cursive; font-weight: 700; font-size: 15px; color: rgb(74, 63, 54)}
+                <span> "-29.00"
+              <div>  {font-family: "Baloo 2", cursive; font-weight: 600; font-size: 10px; color: rgba(74, 63, 54, 0.4)}
+                <span> "CAD"
+            <div>  {width: 22px; height: 22px; border-radius: 50%; background: rgb(183, 166, 229); position: relative; opacity: 1}
+              <span>  {position: absolute; top: 8px; left: 5.5px; width: 3px; height: 4px; border-radius: 50%; background: rgb(74, 63, 54)}
+              <span>  {position: absolute; top: 8px; right: 5.5px; width: 3px; height: 4px; border-radius: 50%; background: rgb(74, 63, 54)}

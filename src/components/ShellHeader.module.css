@@ -1,0 +1,73 @@
+/* 兩顆裝飾圓：原型是靜止的背景，被外殼的 overflow:hidden 切掉一角 */
+.decor {
+  position: absolute;
+  border-radius: 50%;
+  opacity: .9;
+  pointer-events: none;
+}
+
+.decorA {
+  top: -46px;
+  right: -40px;
+  width: 180px;
+  height: 180px;
+  background: var(--c-decor-a);
+}
+
+.decorB {
+  top: 120px;
+  left: -60px;
+  width: 130px;
+  height: 130px;
+  background: var(--c-decor-b);
+}
+
+.bar {
+  position: relative;
+  /*
+   * 原型是 56px，對應的是瀏海機的狀態列高度。真機用 env() 才不會被瀏海壓到，
+   * 但 env() 在桌機瀏覽器是 0，所以取兩者較大的——桌機對得上原型，真機夠高。
+   */
+  padding: max(56px, calc(env(safe-area-inset-top) + 8px)) 16px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex: none;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.avatars {
+  display: flex;
+  align-items: center;
+  flex: none;
+}
+
+.second {
+  margin-left: -11px;
+  /* 用底色描邊把兩顆分開，而不是加邊框——邊框會讓饅頭的圓角走樣 */
+  box-shadow: 0 0 0 2.5px var(--c-bg);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  background: var(--c-income-bg);
+  flex: none;
+}
+
+.brand {
+  font-family: var(--f-num);
+  font-weight: 600;
+  font-size: 17px;
+  color: rgba(74, 63, 54, .4);
+  flex: none;
+}

@@ -1,4 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { ShellHeader } from './components/ShellHeader';
 import { TabBar, tabDirection } from './components/TabBar';
 import { DUR } from './lib/motion';
 import { useRowRemoval } from './lib/useRowRemoval';
@@ -183,6 +184,8 @@ function Shell() {
 
   return (
     <div className={styles.shell} data-testid="app-root">
+      <ShellHeader syncState={syncState} lastSyncAt={lastSyncAt} onRetrySync={() => {}} />
+
       {/* key 帶著 tab：換頁就重掛，CSS 進場動畫才會重播（MOTION #8） */}
       <div
         key={tab}
