@@ -1,98 +1,185 @@
 .page {
   position: fixed;
-  top: env(safe-area-inset-top, 0px);
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 24px;
-  overflow: hidden;
   background: var(--c-bg);
+  padding: calc(12px + env(safe-area-inset-top)) 22px calc(40px + env(safe-area-inset-bottom));
+}
+
+.decor {
+  position: absolute;
+  top: -40px;
+  left: -50px;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: var(--c-decor-b);
+  opacity: .85;
+  pointer-events: none;
+}
+
+.main {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+}
+
+.actions {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
 }
 
 .card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  width: 100%;
-  max-width: 320px;
-  padding: 20px;
-  border-radius: var(--r-lg);
+  text-align: center;
   background: var(--c-card);
+  border-radius: 26px;
+  padding: 22px 20px;
   box-shadow: 0 4px 0 rgba(74, 63, 54, .07);
 }
 
 .pair {
   display: flex;
-  gap: 6px;
-  margin-bottom: 4px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+/* 第二顆往左疊。用明確的 class，不用 :nth-child——專案慣例禁止位置選擇器 */
+.partner {
+  margin-left: -10px;
 }
 
 .from {
   margin: 0;
+  font-family: var(--f-body);
   font-size: 12px;
-  color: var(--c-text-3);
+  color: rgba(74, 63, 54, .55);
 }
 
 .ledger {
-  margin: 0;
-  font-size: 16px;
+  margin-top: 4px;
+  font-family: var(--f-title);
   font-weight: 700;
+  font-size: 20px;
+  line-height: 1.35;
   color: var(--c-text);
 }
 
 .role {
-  padding: 3px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 11px;
+  padding: 6px 12px;
   border-radius: var(--r-pill);
-  background: #EDE9FA;
-  color: #5E4FA0;
+  background: var(--c-tint);
+  font-family: var(--f-body);
   font-size: 11px;
+  font-weight: 600;
+  color: var(--c-tint-ink);
+}
+
+.roleDot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--c-primary-deep);
+  flex: none;
+}
+
+/* 原型的第二張卡是靠左的步驟清單，只有第一張邀請卡置中 */
+.facts {
+  background: var(--c-card);
+  border-radius: 22px;
+  padding: 14px 16px;
+  box-shadow: var(--sh-card);
+}
+
+.factsHeading {
+  margin: 0 0 8px;
+  font-family: var(--f-body);
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(74, 63, 54, .45);
+}
+
+.factsList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.factsList li {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+}
+
+.factNumber {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  flex: none;
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--c-tint);
+  color: var(--c-tint-ink);
+  font-family: var(--f-num);
   font-weight: 700;
+  font-size: 10px;
+}
+
+.factText {
+  font-family: var(--f-body);
+  font-size: 12px;
+  line-height: 1.65;
+  color: rgba(74, 63, 54, .65);
 }
 
 .title {
-  margin: 4px 0 0;
-  font-size: 17px;
+  margin: 0;
+  text-align: center;
+  font-family: var(--f-title);
   font-weight: 700;
+  font-size: 20px;
   color: var(--c-text);
 }
 
 .body {
   margin: 0;
-  max-width: 300px;
   text-align: center;
+  font-family: var(--f-body);
   font-size: 12px;
   line-height: 1.7;
-  color: var(--c-text-3);
-}
-
-.facts {
-  margin: 0;
-  padding-left: 18px;
-  max-width: 320px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 11px;
-  line-height: 1.7;
-  color: var(--c-text-3);
+  color: rgba(74, 63, 54, .55);
 }
 
 .cta {
-  width: 100%;
-  max-width: 320px;
-  min-height: 50px;
   border: 0;
-  border-radius: var(--r-pill);
-  background: linear-gradient(160deg, #8B75D6 0%, #6B57B8 55%, #5A46A6 100%);
+  background: var(--c-primary-deep);
   color: #fff;
+  border-radius: var(--r-pill);
+  padding: 16px 18px;
+  font-family: var(--f-body);
   font-size: 14px;
   font-weight: 700;
+  box-shadow: 0 4px 0 var(--c-primary-deep-shadow);
   cursor: pointer;
 }
 
@@ -100,7 +187,8 @@
   border: 0;
   background: none;
   padding: 8px;
-  font-size: 12px;
-  color: var(--c-text-4);
+  font-family: var(--f-body);
+  font-size: 12.5px;
+  color: rgba(74, 63, 54, .5);
   cursor: pointer;
 }

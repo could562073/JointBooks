@@ -25,7 +25,9 @@ type Props = {
    * 一定要掛在本體（有 blob 圓角）而不是外框——外框是矩形，box-shadow 會
    * 在饅頭身上切出一條直線。
    */
-  ring?: boolean;
+  ring?: boolean | string;
+  /** 描邊寬度（px）。原型外殼頭像是 2.5，接受邀請頁卡片上的大頭像是 3 */
+  ringWidth?: number;
   /**
    * 只畫本體、高光與兩隻眼睛——原型外殼左上的頭像對就是這個簡化版，
    * 沒有嘴、腮紅與腳。30px 大小下那三樣只會糊成雜點。
@@ -37,7 +39,7 @@ type Props = {
 };
 
 export function Mantou({
-  variant, width, breathing = false, ring = false, minimal = false,
+  variant, width, breathing = false, ring = false, ringWidth = 2.5, minimal = false,
   className, 'data-testid': testId,
 }: Props) {
   const c = PALETTE[variant];
@@ -60,7 +62,8 @@ export function Mantou({
           height: `${h}px`,
           background: c.body,
           borderRadius: '50% 50% 34% 34% / 64% 64% 36% 36%',
-          ...(ring ? { boxShadow: '0 0 0 2.5px var(--c-bg)' } : {}),
+          // true＝描頁面底色；給色碼字串時描那個色（例如疊在白卡上要描白）
+          ...(ring ? { boxShadow: `0 0 0 ${ringWidth}px ${ring === true ? 'var(--c-bg)' : ring}` } : {}),
         }}
       >
         <span

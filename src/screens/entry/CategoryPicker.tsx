@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Icon } from '../../components/Icon';
 import { selectable } from '../../domain/categories';
-import { colorSetOf } from '../../domain/palette';
 import type { Category, CategoryKind } from '../../domain/types';
 import styles from './CategoryPicker.module.css';
 
@@ -11,7 +10,6 @@ type Props = {
   mainId: string;
   subId: string;
   onPickMain(id: string): void;
-  /** 選子分類即收合（B-3），所以這支不自己管收合，交給外層 */
   onPickSub(id: string): void;
   /** 就地新增主分類；回傳新分類的 id 讓這裡立即選中 */
   onAddMain(name: string): Promise<string> | string;
@@ -19,7 +17,10 @@ type Props = {
 };
 
 /**
- * §5／增補檔 B-3 的主分類與子分類 chip 區。
+ * §5 的主分類與子分類 chip 區，照原型一直展開。
+ *
+ * 增補檔 B-3 曾把這一區改成可收合、預設收起（為了 iPhone SE 放得下鍵盤）；
+ * 使用者驗收後裁決改回原型——原型的面板本身整片可捲動，SE 靠捲動解決。
  * 「＋ 新增」是虛線 chip，就地建立後立即選中（§5）。
  */
 export function CategoryPicker({
@@ -67,24 +68,23 @@ export function CategoryPicker({
 
   return (
     <div className={styles.wrap} data-testid="category-picker">
+      <div className={styles.label}>主分類</div>
       <div className={styles.grid} data-testid="main-chips">
-        {mains.map((c) => {
-          const set = colorSetOf(c.colorSet);
-          return (
-            <button
-              key={c.id}
-              type="button"
-              className={styles.chip}
-              data-selected={c.id === mainId ? '' : undefined}
-              aria-pressed={c.id === mainId}
-              onClick={() => onPickMain(c.id)}
-              data-testid={`main-${c.id}`}
-            >
-              <Icon name={c.icon} size={16} box={24} boxRadius={8} tint={set.tint} />
-              {c.name}
-            </button>
-          );
-        })}
+        {mains.map((c) => (
+          <button
+            key={c.id}
+            type="button"
+            className={styles.main}
+            data-selected={c.id === mainId ? '' : undefined}
+            aria-pressed={c.id === mainId}
+            onClick={() => onPickMain(c.id)}
+            data-testid={`main-${c.id}`}
+          >
+            {/* 原型的主分類 chip 裡是裸圖示，沒有底色方塊 */}
+            <Icon name={c.icon} size={18} />
+            {c.name}
+          </button>
+        ))}
 
         {adding === 'main' ? input : (
           <button
@@ -94,12 +94,15 @@ export function CategoryPicker({
         )}
       </div>
 
-      <div className={`${styles.grid} ${styles.subs}`} data-testid="sub-chips">
+      <div className={`${styles.label} ${styles.subLabel}`}>
+        子分類 · <span>{main?.name ?? '未選'}</span>
+      </div>
+      <div className={styles.grid} data-testid="sub-chips">
         {(main?.subs ?? []).map((s) => (
           <button
             key={s.id}
             type="button"
-            className={styles.chip}
+            className={styles.sub}
             data-selected={s.id === subId ? '' : undefined}
             aria-pressed={s.id === subId}
             onClick={() => onPickSub(s.id)}

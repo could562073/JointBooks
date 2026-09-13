@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { useLedger } from '../store/useLedger';
 import {
@@ -15,7 +15,6 @@ describe('§15.1-5 記一筆：金額 → 分類 → 儲存', () => {
 
     fireEvent.click(screen.getByTestId('fab'));
     typeAmount('42.50');
-    fireEvent.click(screen.getByTestId('category-row'));
     // 換一個不是預設的主分類，確認選擇真的有被帶進去
     const second = useLedger.getState().categories.filter((c) => c.kind === 'expense')[1]!;
     fireEvent.click(screen.getByTestId(`main-${second.id}`));
@@ -126,7 +125,7 @@ describe('§15.1-9 點明細進編輯模式', () => {
     expect(screen.getByTestId('entry-mode')).toHaveTextContent('編輯這筆');
     expect(screen.getByTestId('field-amount')).toHaveTextContent('88.80');
     expect(screen.getByTestId('entry-note')).toHaveValue('Costco 週採買');
-    expect(screen.getByTestId('date-row')).toHaveTextContent('10日');
+    expect(screen.getByTestId('date-row')).toHaveTextContent('2026-09-10');
     expect(screen.getByTestId('entry-delete')).toBeInTheDocument();
     // 儲存鍵是一個白色大勾號的 svg，沒有文字（§5）
     expect(screen.getByTestId('key-save')).toHaveAccessibleName('儲存');
@@ -144,24 +143,26 @@ describe('§15.1-10 面板內就地新增主／子分類', () => {
   it('新主分類立即出現且被選中', async () => {
     await openApp();
     fireEvent.click(screen.getByTestId('fab'));
-    fireEvent.click(screen.getByTestId('category-row'));
     fireEvent.click(screen.getByTestId('add-main'));
     fireEvent.change(screen.getByTestId('category-input'), { target: { value: '寵物' } });
     fireEvent.keyDown(screen.getByTestId('category-input'), { key: 'Enter' });
 
-    await waitFor(() => expect(screen.getByTestId('category-row')).toHaveTextContent('寵物'));
+    await waitFor(() =>
+      expect(within(screen.getByTestId('main-chips')).getByText('寵物').closest('button'))
+        .toHaveAttribute('aria-pressed', 'true'));
     expect(useLedger.getState().categories.some((c) => c.name === '寵物')).toBe(true);
   });
 
   it('新子分類立即出現且被選中', async () => {
     await openApp();
     fireEvent.click(screen.getByTestId('fab'));
-    fireEvent.click(screen.getByTestId('category-row'));
     fireEvent.click(screen.getByTestId('add-sub'));
     fireEvent.change(screen.getByTestId('category-input'), { target: { value: '貓砂' } });
     fireEvent.keyDown(screen.getByTestId('category-input'), { key: 'Enter' });
 
-    await waitFor(() => expect(screen.getByTestId('category-row')).toHaveTextContent('貓砂'));
+    await waitFor(() =>
+      expect(within(screen.getByTestId('sub-chips')).getByText('貓砂').closest('button'))
+        .toHaveAttribute('aria-pressed', 'true'));
   });
 });
 

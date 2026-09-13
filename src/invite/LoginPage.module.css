@@ -1,68 +1,115 @@
 .page {
   position: fixed;
-  top: env(safe-area-inset-top, 0px);
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  padding: 24px;
-  /* §8.3：兩頁都從狀態列下方開始且不捲動 */
-  overflow: hidden;
   background: var(--c-bg);
+  padding: env(safe-area-inset-top) 26px calc(40px + env(safe-area-inset-bottom));
+}
+
+.decorA {
+  position: absolute;
+  top: -46px;
+  right: -40px;
+  width: 190px;
+  height: 190px;
+  background: var(--c-decor-a);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.decorB {
+  position: absolute;
+  bottom: 70px;
+  left: -60px;
+  width: 150px;
+  height: 150px;
+  background: var(--c-decor-b);
+  opacity: .8;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.hero {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+}
+
+.mantouWrapper {
+  margin-bottom: 10px;
 }
 
 .tagline {
-  margin: 4px 0 8px;
-  font-size: 17px;
+  margin: 0;
+  font-family: var(--f-title);
   font-weight: 700;
+  font-size: 24px;
+  line-height: 1.3;
   color: var(--c-text);
-  text-align: center;
+}
+
+.description {
+  margin: 6px 0 0;
+  max-width: 250px;
+  font-family: var(--f-body);
+  font-size: 12.5px;
+  line-height: 1.8;
+  color: rgba(74, 63, 54, .6);
+}
+
+.actions {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
 }
 
 .google {
+  border: 0;
+  background: var(--c-card);
+  border-radius: var(--r-pill);
+  padding: 15px 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  width: 100%;
-  max-width: 300px;
-  min-height: 50px;
-  border: 0;
-  border-radius: var(--r-pill);
-  background: #fff;
-  box-shadow: 0 3px 0 rgba(74, 63, 54, .08);
+  box-shadow: 0 3px 0 rgba(74, 63, 54, .1);
+  cursor: pointer;
+  font-family: var(--f-body);
   font-size: 14px;
   font-weight: 700;
   color: var(--c-text);
-  cursor: pointer;
 }
 
-.google:disabled { opacity: .5; cursor: default; }
-
-.dots {
-  display: grid;
-  grid-template-columns: repeat(2, 7px);
-  gap: 2px;
+.google:disabled {
+  opacity: .5;
+  cursor: default;
 }
 
-.dots i {
-  display: block;
-  width: 7px;
-  height: 7px;
-  border-radius: var(--r-pill);
+.googleIcon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  flex: none;
+  background: conic-gradient(#EA4335 0 25%, #FBBC05 0 50%, #34A853 0 75%, #4285F4 0); /* Google brand colours */
 }
 
 .scope, .unconfigured {
   margin: 0;
-  max-width: 300px;
   text-align: center;
-  font-size: 11px;
-  line-height: 1.6;
-  color: var(--c-text-4);
+  font-family: var(--f-body);
+  font-size: 10.5px;
+  line-height: 1.7;
+  color: rgba(74, 63, 54, .45);
 }
 
-.unconfigured { color: var(--c-expense); }
+.unconfigured {
+  color: var(--c-expense);
+}

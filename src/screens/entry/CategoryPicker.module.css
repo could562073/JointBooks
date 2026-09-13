@@ -1,8 +1,18 @@
 .wrap {
   display: flex;
   flex-direction: column;
-  gap: 8px;
 }
+
+/* 「主分類」「子分類 · 超市」小標 */
+.label {
+  font-family: var(--f-body);
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(74, 63, 54, .45);
+  margin-bottom: 7px;
+}
+
+.subLabel { margin-top: 15px; }
 
 .grid {
   display: flex;
@@ -10,53 +20,73 @@
   gap: 6px;
 }
 
-.chip {
-  display: flex;
+/* 主分類 chip：白底 + 淺實體陰影，裡面是裸圖示 + 名稱 */
+.main {
+  display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  flex: none;
   border: 0;
   border-radius: var(--r-pill);
   background: var(--c-card);
-  box-shadow: var(--sh-card);
-  padding: 5px 11px 5px 5px;
-  /* §0：可點元素 ≥44px 的高度由列高與內距合起來達成，這裡保底 */
-  min-height: 34px;
-  font-size: 12px;
-  color: var(--c-text);
+  box-shadow: 0 2px 0 rgba(74, 63, 54, .07);
+  padding: 7px 13px;
+  font-family: var(--f-body);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: rgba(74, 63, 54, .6);
   cursor: pointer;
 }
 
-/* 子分類 chip 沒有圖示，左右內距要對稱 */
-.subs .chip {
-  padding: 5px 11px;
+/* 選中：淡紫底 + 2.5px 的紫色外圈。外圈是 box-shadow，不佔版面，chip 不會把後面擠換行 */
+.main[data-selected] {
+  background: #EFE9FA;
+  color: #6B4FA0;
+  box-shadow: 0 0 0 2.5px #BFA3E5;
 }
 
-.chip[data-selected] {
-  background: #EDE9FA;
-  color: #5E4FA0;
-  /* inset 描邊，選中不會讓 chip 長大把後面的擠換行 */
-  box-shadow: inset 0 0 0 2px var(--c-primary);
+/* 子分類 chip：沒有圖示；選中是深咖啡底，跟主分類的淡紫選中態刻意分開 */
+.sub {
+  flex: none;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--c-card);
+  box-shadow: 0 2px 0 rgba(74, 63, 54, .07);
+  padding: 7px 13px;
+  font-family: var(--f-body);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: rgba(74, 63, 54, .6);
+  cursor: pointer;
 }
 
-/* §5：「＋ 新增」是虛線 chip */
+.sub[data-selected] {
+  background: var(--c-text);
+  color: var(--c-bg);
+  box-shadow: none;
+}
+
+/* §5：「＋ 新增」是 2px 虛線 chip */
 .add {
-  border: 1px dashed rgba(74, 63, 54, .28);
+  flex: none;
+  border: 2px dashed rgba(74, 63, 54, .2);
   border-radius: var(--r-pill);
   background: none;
-  padding: 5px 11px;
-  min-height: 34px;
-  font-size: 12px;
-  color: var(--c-text-3);
+  padding: 6px 12px;
+  font-family: var(--f-body);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--c-tint-ink);
   cursor: pointer;
 }
 
 .input {
-  border: 1px solid var(--c-primary);
+  border: 2px solid var(--c-primary);
   border-radius: var(--r-pill);
   background: var(--c-card);
-  padding: 5px 11px;
-  min-height: 34px;
+  padding: 6px 12px;
   width: 116px;
-  font-size: 12px;
+  font-family: var(--f-body);
+  font-size: 12.5px;
   color: var(--c-text);
 }

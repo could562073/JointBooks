@@ -7,33 +7,41 @@ type Props = { onSignIn(): void; disabled?: boolean };
 export function LoginPage({ onSignIn, disabled = false }: Props) {
   return (
     <div className={styles.page} data-testid="login-page">
-      <Mantou variant="full" width={112} breathing data-testid="login-mantou" />
+      <span className={styles.decorA} aria-hidden="true" />
+      <span className={styles.decorB} aria-hidden="true" />
 
-      <h1 className={styles.tagline}>兩人一本，加拿大生活記帳</h1>
-
-      <button
-        type="button" className={styles.google} onClick={onSignIn}
-        disabled={disabled} data-testid="login-google"
-      >
-        <span className={styles.dots} aria-hidden="true">
-          <i style={{ background: '#4285F4' }} />
-          <i style={{ background: '#EA4335' }} />
-          <i style={{ background: '#FBBC05' }} />
-          <i style={{ background: '#34A853' }} />
+      <div className={styles.hero}>
+        <span className={styles.mantouWrapper}>
+          <Mantou variant="full" width={104} breathing data-testid="login-mantou" />
         </span>
-        使用 Google 登入
-      </button>
 
-      {/* §8.3：權限說明小字。scope 只有 drive.file，這句話要跟實際請求一致 */}
-      <p className={styles.scope} data-testid="login-scope">
-        只會取得建立與編輯這一份試算表的權限
-      </p>
+        <h1 className={styles.tagline}>兩人一本，<br />加拿大生活記帳</h1>
 
-      {disabled && (
-        <p className={styles.unconfigured} data-testid="login-unconfigured">
-          尚未設定 Google 用戶端 ID，目前以純本機模式運作。
+        <p className={styles.description}>
+          用 Google 登入，帳本會建在你的雲端硬碟上；資料就是那份 Sheet，你隨時能自己打開看。
         </p>
-      )}
+      </div>
+
+      <div className={styles.actions}>
+        <button
+          type="button" className={styles.google} onClick={onSignIn}
+          disabled={disabled} data-testid="login-google"
+        >
+          <span className={styles.googleIcon} aria-hidden="true" />
+          <span>使用 Google 登入</span>
+        </button>
+
+        {/* §8.3：權限說明小字。scope 只有 drive.file，這句話要跟實際請求一致 */}
+        <p className={styles.scope} data-testid="login-scope">
+          只會取得建立與編輯這一份試算表的權限
+        </p>
+
+        {disabled && (
+          <p className={styles.unconfigured} data-testid="login-unconfigured">
+            尚未設定 Google 用戶端 ID，目前以純本機模式運作。
+          </p>
+        )}
+      </div>
     </div>
   );
 }

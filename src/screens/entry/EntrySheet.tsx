@@ -1,22 +1,16 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
-import { Icon } from '../../components/Icon';
-import { colorSetOf } from '../../domain/palette';
-import { formatCad } from '../../domain/money';
+import { formatCad, pushDigit } from '../../domain/money';
 import type { Category, Currency, Person, Txn } from '../../domain/types';
-import { DUR } from '../../lib/motion';
+import { DUR, EASE } from '../../lib/motion';
 import { useReducedMotion } from '../../lib/useReducedMotion';
 import type { NewTxnInput } from '../../repo/ledgerRepo';
-import { dayTitle } from '../daily/labels';
-import { parseDate } from '../../domain/date';
-import { pushDigit } from '../../domain/money';
 import { keyChar, type KeypadKey } from './amountInput';
 import { CategoryPicker } from './CategoryPicker';
 import {
   actualCadCents, canSave, draftForNew, draftFromTxn, needsCadField,
   setCurrency, setKind, setMain, toInput, type AmountField, type EntryDraft,
 } from './entryDraft';
-import { FieldRow } from './FieldRow';
 import { Keypad } from './Keypad';
 import { KindSegment } from './KindSegment';
 import { MiniCalendar } from './MiniCalendar';
@@ -25,6 +19,14 @@ import styles from './EntrySheet.module.css';
 
 const CURRENCIES: Currency[] = ['CAD', 'TWD', 'USD'];
 const PEOPLE: Person[] = ['我', '妻'];
+
+/** 「誰記的」兩顆小圓臉的底色，與明細列的頭像同一組 */
+const FACE: Record<Person, string> = { 我: 'var(--c-primary)', 妻: 'var(--c-partner)' };
+
+/** 金額還是 0（或只打了 0.）時用淡色字，跟原型的空狀態一樣 */
+function isBlank(v: string): boolean {
+  return v === '' || /^0?(\.0*)?$/.test(v);
+}
 
 type Props = {
   categories: Category[];
@@ -42,6 +44,9 @@ type Props = {
 /**
  * §5 記一筆／編輯面板。同一個面板兩種模式：有 txn 就是編輯（欄位帶入原值）。
  *
+ * 版面照原型：分類與子分類一直展開，整個面板可捲動。增補檔 B-3 曾把分類
+ * 區改成可收合（為了 iPhone SE 放得下鍵盤），使用者驗收後裁決改回原型。
+ *
  * 狀態是一份 EntryDraft，所有轉換都走 entryDraft 的純函式——面板本身只負責
  * 把它畫出來並把事件轉回去（專案分層規則 R1）。
  */
@@ -54,7 +59,7 @@ export function EntrySheet({
   const [draft, setDraft] = useState<EntryDraft>(() =>
     txn ? draftFromTxn(categories, txn) : draftForNew(categories, defaultDate)
   );
-  const [openRow, setOpenRow] = useState<'date' | 'category' | null>(null);
+  const [dateOpen, setDateOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [closing, setClosing] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -91,11 +96,6 @@ export function EntrySheet({
   }, []);
 
   const focus = (field: AmountField) => setDraft((d) => ({ ...d, field }));
-
-  const dateLabel = useMemo(() => {
-    const d = parseDate(draft.date);
-    return dayTitle(d.getFullYear(), d.getMonth(), d.getDate());
-  }, [draft.date]);
 
   function save() {
     if (!saveable) return;
@@ -167,46 +167,40 @@ export function EntrySheet({
             <button
               type="button" className={styles.iconBtn} onClick={requestClose}
               aria-label="關閉" data-testid="entry-close"
-            >✕</button>
+            >
+              {/* 用 SVG 而不是 ✕ 字元：字元的粗細跟著字型走，每台機器長得不一樣 */}
+              <svg width="19" height="19" viewBox="0 0 19 19" aria-hidden="true">
+                <path
+                  d="M5.5 5.5l8 8M13.5 5.5l-8 8"
+                  fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"
+                />
+              </svg>
+            </button>
           </div>
         </div>
 
         <p className={styles.mode} data-testid="entry-mode">{editing ? '編輯這筆' : '記一筆'}</p>
 
-        <div className={styles.body}>
-          <div className={styles.amounts}>
-            <button
-              type="button"
-              className={styles.amountField}
-              data-focused={draft.field === 'amount' ? '' : undefined}
-              onClick={() => focus('amount')}
-              data-testid="field-amount"
-            >
-              <span className={styles.fieldLabel}>金額</span>
-              <span className={styles.fieldValue}>{draft.amount || '0'}</span>
-            </button>
-
-            {/* §5：非 CAD 時才出現實扣 CAD 欄位 */}
-            {showCad && (
-              <button
-                type="button"
-                className={styles.amountField}
-                data-focused={draft.field === 'cad' ? '' : undefined}
-                onClick={() => focus('cad')}
-                data-testid="field-cad"
-              >
-                <span className={styles.fieldLabel}>實際扣款 CAD</span>
-                <span className={styles.fieldValue}>{draft.cad || '0'}</span>
-              </button>
-            )}
-          </div>
+        <div className={styles.amountRow}>
+          <button
+            type="button"
+            className={styles.amount}
+            data-focused={draft.field === 'amount' ? '' : undefined}
+            onClick={() => focus('amount')}
+            data-testid="field-amount"
+          >
+            <span className={styles.dollar} aria-hidden="true">$</span>
+            <span className={styles.digits} data-empty={isBlank(draft.amount) ? '' : undefined}>
+              {draft.amount || '0'}
+            </span>
+          </button>
 
           <div className={styles.currencies} data-testid="currencies">
             {CURRENCIES.map((c) => (
               <button
                 key={c}
                 type="button"
-                className={styles.pill}
+                className={styles.currency}
                 data-selected={draft.currency === c ? '' : undefined}
                 aria-pressed={draft.currency === c}
                 onClick={() => setDraft((d) => setCurrency(d, c))}
@@ -214,75 +208,108 @@ export function EntrySheet({
               >{c}</button>
             ))}
           </div>
+        </div>
 
-          <p className={styles.hint} data-testid="currency-hint">
-            {showCad
-              ? '非 CAD：請填銀行實際扣款的 CAD 金額（不用匯率換算）'
-              : '主幣別 CAD · 直接記錄'}
-          </p>
+        <p className={styles.hint} data-testid="currency-hint">
+          {showCad
+            ? '非 CAD：請填銀行實際扣款的 CAD 金額（不用匯率換算）'
+            : '主幣別 CAD · 直接記錄'}
+        </p>
 
-          <FieldRow
-            label="日期"
-            value={dateLabel}
-            open={openRow === 'date'}
-            onToggle={() => setOpenRow((r) => (r === 'date' ? null : 'date'))}
-            testId="date-row"
+        {/* §5：非 CAD 時才出現實扣 CAD 欄位 */}
+        {showCad && (
+          <button
+            type="button"
+            className={styles.cad}
+            data-focused={draft.field === 'cad' ? '' : undefined}
+            onClick={() => focus('cad')}
+            data-testid="field-cad"
+          >
+            <span className={styles.cardLabel}>實際扣款 CAD</span>
+            <span className={styles.cadLine}>
+              <span className={styles.dollarSm} aria-hidden="true">$</span>
+              <span className={styles.cadDigits} data-empty={isBlank(draft.cad) ? '' : undefined}>
+                {draft.cad || '0'}
+              </span>
+            </span>
+          </button>
+        )}
+
+        <CategoryPicker
+          categories={categories}
+          kind={draft.kind}
+          mainId={draft.mainId}
+          subId={draft.subId}
+          onPickMain={(id) => setDraft((d) => setMain(d, categories, id))}
+          onPickSub={(id) => setDraft((d) => ({ ...d, subId: id }))}
+          onAddMain={onAddMain}
+          onAddSub={(name) => onAddSub(draft.mainId, name)}
+        />
+
+        <div className={styles.cards}>
+          <button
+            type="button"
+            className={`${styles.card} ${styles.dateCard}`}
+            data-open={dateOpen ? '' : undefined}
+            aria-expanded={dateOpen}
+            onClick={() => setDateOpen((o) => !o)}
+            data-testid="date-row"
+          >
+            <span className={styles.cardLabel}>日期</span>
+            <span className={styles.dateLine}>
+              <span className={styles.dateValue}>{draft.date}</span>
+              {/* MOTION #38：▾ 轉 180°，不是換成 ▴ */}
+              <span
+                className={styles.chevron}
+                style={{
+                  transform: dateOpen ? 'rotate(180deg)' : 'none',
+                  transition: reduced ? 'none' : `transform ${DUR.chevron}ms ${EASE.exit}`,
+                }}
+                data-testid="date-row-chevron"
+                aria-hidden="true"
+              >▾</span>
+            </span>
+          </button>
+
+          <div className={styles.card}>
+            <span className={styles.cardLabel}>誰記的</span>
+            <span className={styles.people} data-testid="people">
+              {PEOPLE.map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  className={styles.face}
+                  style={{ background: FACE[p] }}
+                  data-selected={draft.by === p ? '' : undefined}
+                  aria-pressed={draft.by === p}
+                  aria-label={p}
+                  onClick={() => setDraft((d) => ({ ...d, by: p }))}
+                  data-testid={`by-${p}`}
+                >
+                  <span className={styles.eye} style={{ left: 6 }} />
+                  <span className={styles.eye} style={{ right: 6 }} />
+                </button>
+              ))}
+            </span>
+          </div>
+        </div>
+
+        {dateOpen && (
+          <div
+            className={reduced ? styles.calendar : `${styles.calendar} ${styles.calendarIn}`}
+            style={{ ['--pop' as string]: `${DUR.popIn}ms` }}
+            data-testid="date-row-panel"
           >
             <MiniCalendar
               value={draft.date}
               onChange={(date) => setDraft((d) => ({ ...d, date }))}
-              onClose={() => setOpenRow(null)}
+              onClose={() => setDateOpen(false)}
             />
-          </FieldRow>
-
-          {/* 增補檔 B-3：分類區可收合，預設收起 */}
-          <FieldRow
-            label="分類"
-            value={
-              <>
-                {main && (
-                  <Icon
-                    name={main.icon} size={14} box={20} boxRadius={6}
-                    tint={colorSetOf(main.colorSet).tint}
-                  />
-                )}
-                {main?.name ?? '未選'} · {sub?.name ?? '未選'}
-              </>
-            }
-            open={openRow === 'category'}
-            onToggle={() => setOpenRow((r) => (r === 'category' ? null : 'category'))}
-            testId="category-row"
-          >
-            <CategoryPicker
-              categories={categories}
-              kind={draft.kind}
-              mainId={draft.mainId}
-              subId={draft.subId}
-              onPickMain={(id) => setDraft((d) => setMain(d, categories, id))}
-              onPickSub={(id) => {
-                setDraft((d) => ({ ...d, subId: id }));
-                // B-3：選完子分類即自動收合
-                setOpenRow(null);
-              }}
-              onAddMain={onAddMain}
-              onAddSub={(name) => onAddSub(draft.mainId, name)}
-            />
-          </FieldRow>
-
-          <div className={styles.people} data-testid="people">
-            {PEOPLE.map((p) => (
-              <button
-                key={p}
-                type="button"
-                className={styles.pill}
-                data-selected={draft.by === p ? '' : undefined}
-                aria-pressed={draft.by === p}
-                onClick={() => setDraft((d) => ({ ...d, by: p }))}
-                data-testid={`by-${p}`}
-              >{p}</button>
-            ))}
           </div>
+        )}
 
+        <label className={styles.noteCard}>
+          <span className={styles.cardLabel}>備註（可不填）</span>
           <input
             className={styles.note}
             value={draft.note}
@@ -291,7 +318,7 @@ export function EntrySheet({
             aria-label="備註"
             data-testid="entry-note"
           />
-        </div>
+        </label>
 
         <Keypad onKey={key} onSave={save} canSave={saveable} />
       </div>

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import App from './App';
 import { resetDb } from './db/schema';
@@ -142,17 +142,20 @@ describe('App 的記一筆面板', () => {
     await openDaily();
     fireEvent.click(screen.getByRole('button', { name: /^18$/ }));
     fireEvent.click(screen.getByTestId('fab'));
-    expect(screen.getByTestId('date-row')).toHaveTextContent('18日');
+    // 日期卡照原型顯示 ISO 日期（YYYY-MM-18）
+    expect(screen.getByTestId('date-row')).toHaveTextContent(/-18(?!\d)/);
   });
 
   it('就地新增的主分類存進 store 並立即選中', async () => {
     await openDaily();
     fireEvent.click(screen.getByTestId('fab'));
-    fireEvent.click(screen.getByTestId('category-row'));
     fireEvent.click(screen.getByTestId('add-main'));
     fireEvent.change(screen.getByTestId('category-input'), { target: { value: '寵物' } });
     fireEvent.keyDown(screen.getByTestId('category-input'), { key: 'Enter' });
 
-    await waitFor(() => expect(screen.getByTestId('category-row')).toHaveTextContent('寵物'));
+    // 分類一直展開：新主分類以「已選中」的 chip 出現
+    await waitFor(() =>
+      expect(within(screen.getByTestId('main-chips')).getByText('寵物').closest('button'))
+        .toHaveAttribute('aria-pressed', 'true'));
   });
 });

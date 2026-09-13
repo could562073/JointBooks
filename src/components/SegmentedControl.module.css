@@ -3,7 +3,8 @@
   display: flex;
   padding: 4px;
   border-radius: var(--r-pill);
-  background: rgba(74, 63, 54, .06);
+  /* 兩份原型（記一筆、統計）都是 .07 */
+  background: rgba(74, 63, 54, .07);
 }
 
 .slider {
@@ -12,7 +13,7 @@
   bottom: 4px;
   /* left／width 由 JS 給 */
   border-radius: var(--r-pill);
-  box-shadow: 0 2px 0 rgba(74, 63, 54, .05);
+  box-shadow: 0 2px 0 rgba(74, 63, 54, .1);
   will-change: left, background;
 }
 
@@ -24,10 +25,19 @@
   min-height: 36px;
   font-size: 13px;
   font-weight: 700;
-  color: var(--c-text-3);
+  color: var(--c-text-2);
   cursor: pointer;
 }
 
 .seg[data-active] {
   color: var(--c-text);
+}
+
+/* 記一筆面板頂部：不撐滿，按鈕照字寬（原型 padding 7px 16px、12.5px） */
+.compact { display: inline-flex; }
+
+.compact .seg {
+  padding: 7px 16px;
+  min-height: 0;
+  font-size: 12.5px;
 }

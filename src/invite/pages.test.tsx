@@ -45,7 +45,7 @@ describe('JoinPage 的邀請卡（§8.3）', () => {
   it('顯示帳本名稱與權限 pill', () => {
     render(<JoinPage {...HANDLERS} state={{ kind: 'invite', sid: 'S' }} />);
     expect(screen.getByTestId('join-card')).toHaveTextContent('加拿大共用記帳');
-    expect(screen.getByTestId('join-card')).toHaveTextContent('可編輯');
+    expect(screen.getByTestId('join-card')).toHaveTextContent('加入後可新增與編輯所有紀錄');
   });
 
   it('列出「加入後會發生的事」三條', () => {

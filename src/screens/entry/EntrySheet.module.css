@@ -21,14 +21,20 @@
   to   { opacity: 0; }
 }
 
+/*
+ * 原型：整片面板一起捲，不是只捲中段。分類一直展開後內容比畫面高，
+ * 小螢幕（iPhone SE）靠這裡捲到鍵盤。
+ */
 .sheet {
-  display: flex;
-  flex-direction: column;
   width: 100%;
-  /* 面板自己不捲動；裝不下時由 body 捲（分類區收合後應該裝得下，見增補檔 B-3） */
-  max-height: 92dvh;
-  border-radius: 22px 22px 0 0;
+  max-height: 96dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background: var(--c-bg);
+  border-radius: 30px 30px 0 0;
+  padding: 0 16px calc(26px + env(safe-area-inset-bottom));
+  /* 面板浮在遮罩上，這一條是原型刻意的模糊陰影，跟卡片的實體陰影不同 */
+  box-shadow: 0 -10px 30px rgba(74, 63, 54, .2);
   will-change: transform;
 }
 
@@ -49,16 +55,15 @@
 .handle {
   display: flex;
   justify-content: center;
-  padding: 10px 0 6px;
-  flex: none;
+  padding: 11px 0 13px;
   cursor: grab;
 }
 
 .bar {
-  width: 44px;
-  height: 4px;
-  border-radius: var(--r-pill);
-  background: rgba(74, 63, 54, .18);
+  width: 40px;
+  height: 5px;
+  border-radius: 4px;
+  background: rgba(74, 63, 54, .16);
 }
 
 .header {
@@ -66,32 +71,26 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 0 16px;
-  flex: none;
-}
-
-/* 分段控制不該撐滿整列，右邊要留給圖示鍵 */
-.header > :first-child {
-  flex: 1 1 auto;
-  max-width: 200px;
 }
 
 .headerBtns {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 7px;
   flex: none;
 }
 
 .iconBtn {
   width: 38px;
   height: 38px;
-  display: grid;
-  place-items: center;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 0;
-  border-radius: var(--r-pill);
-  background: rgba(74, 63, 54, .06);
-  color: var(--c-text-2);
-  font-size: 15px;
+  border-radius: 50%;
+  background: rgba(74, 63, 54, .07);
+  color: rgba(74, 63, 54, .55);
   cursor: pointer;
 }
 
@@ -102,99 +101,247 @@
 }
 
 .mode {
-  margin: 4px 16px 0;
+  margin: 10px 0 0;
+  font-family: var(--f-body);
   font-size: 11px;
-  color: var(--c-text-4);
-  flex: none;
+  font-weight: 600;
+  color: rgba(74, 63, 54, .45);
 }
 
-.body {
+/* 金額大字在左、幣別藥丸在右，兩者底部對齊 */
+.amountRow {
   display: flex;
-  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
   gap: 10px;
-  padding: 10px 16px 0;
-  /* 內容比面板高時由這裡捲，把手與鍵盤留在原位 */
-  overflow-y: auto;
-  min-height: 0;
+  margin: 15px 0 3px;
 }
 
-.amounts {
+.amount {
   display: flex;
-  gap: 8px;
-}
-
-.amountField {
-  flex: 1 1 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-  padding: 8px 12px;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
   border: 0;
-  border-radius: var(--r-md);
-  background: var(--c-card);
-  box-shadow: var(--sh-card);
-  min-height: 52px;
+  background: none;
+  border-radius: 14px;
+  padding: 2px 10px;
   cursor: pointer;
-  text-align: left;
 }
 
-/* §5：選中的欄位有紫色外框。inset 不改變盒子尺寸，欄位不會因此位移 */
-.amountField[data-focused] {
-  box-shadow: inset 0 0 0 2px #B7A6E5;
+/* §5：正在輸入的那個金額欄位套紫色外框。inset 不改變盒子尺寸，不會位移 */
+.amount[data-focused],
+.cad[data-focused] {
+  box-shadow: inset 0 0 0 2px var(--c-primary);
 }
 
-.fieldLabel {
-  font-size: 11px;
-  color: var(--c-text-4);
+.dollar {
+  font-family: var(--f-num);
+  font-weight: 600;
+  font-size: 21px;
+  color: rgba(74, 63, 54, .35);
 }
 
-.fieldValue {
-  font-size: 20px;
+.digits {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--f-num);
   font-weight: 700;
+  font-size: 40px;
+  line-height: 1.15;
+  letter-spacing: -.01em;
   color: var(--c-text);
   font-variant-numeric: tabular-nums;
 }
 
-.currencies, .people {
+.digits[data-empty] { color: rgba(74, 63, 54, .25); }
+
+.currencies {
   display: flex;
-  gap: 6px;
+  gap: 4px;
+  flex: none;
 }
 
-.pill {
+.currency {
+  flex: none;
   border: 0;
   border-radius: var(--r-pill);
-  background: var(--c-card);
-  box-shadow: var(--sh-card);
-  padding: 7px 14px;
-  min-height: 34px;
-  font-size: 12px;
+  padding: 5px 10px;
+  background: rgba(74, 63, 54, .07);
+  font-family: var(--f-num);
+  font-size: 11.5px;
   font-weight: 700;
-  color: var(--c-text-3);
+  color: rgba(74, 63, 54, .55);
   cursor: pointer;
 }
 
-.pill[data-selected] {
-  background: #EDE9FA;
-  color: #5E4FA0;
-  box-shadow: inset 0 0 0 2px var(--c-primary);
+.currency[data-selected] {
+  background: var(--c-text);
+  color: var(--c-bg);
 }
 
 .hint {
-  margin: 0;
+  margin: 0 0 10px 10px;
+  font-family: var(--f-body);
+  font-size: 11.5px;
+  color: rgba(74, 63, 54, .5);
+}
+
+/* 非 CAD 時才出現的實扣 CAD 欄位：跟日期卡同一種白卡 */
+.cad {
+  display: block;
+  width: 100%;
+  margin-bottom: 12px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: var(--c-card);
+  padding: 10px 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cadLine {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.dollarSm {
+  font-family: var(--f-num);
+  font-weight: 600;
+  font-size: 14px;
+  color: rgba(74, 63, 54, .35);
+}
+
+.cadDigits {
+  font-family: var(--f-num);
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--c-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.cadDigits[data-empty] { color: rgba(74, 63, 54, .25); }
+
+/* 日期與誰記的：兩張並排的白卡 */
+.cards {
+  display: flex;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.card {
+  flex: 1 1 0;
+  min-width: 0;
+  display: block;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: var(--c-card);
+  padding: 10px 13px;
+  text-align: left;
+}
+
+.dateCard { cursor: pointer; }
+
+/* MOTION #38：日期卡展開時套紫色外框 */
+.dateCard[data-open] {
+  box-shadow: inset 0 0 0 2px var(--c-primary);
+}
+
+.cardLabel {
+  display: block;
+  font-family: var(--f-body);
+  font-size: 10px;
+  color: rgba(74, 63, 54, .45);
+}
+
+.dateLine {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.dateValue {
+  font-family: var(--f-num);
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--c-text);
+}
+
+.chevron {
+  display: inline-block;
+  font-family: var(--f-num);
   font-size: 11px;
-  line-height: 1.5;
-  color: var(--c-text-4);
+  color: rgba(74, 63, 54, .35);
+  will-change: transform;
+}
+
+.people {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 3px;
+}
+
+/* 誰記的：兩顆 24px 小圓臉，沒選中的淡到 .35 */
+.face {
+  position: relative;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  opacity: .35;
+  cursor: pointer;
+}
+
+.face[data-selected] { opacity: 1; }
+
+.eye {
+  position: absolute;
+  top: 9px;
+  width: 3.5px;
+  height: 4.5px;
+  border-radius: 50%;
+  background: var(--c-text);
+}
+
+.calendar { margin-top: 8px; }
+
+/* MOTION #38：小月曆 translateY 10px→0 + opacity，240ms */
+.calendarIn { animation: popIn var(--pop) var(--ease-enter) both; }
+
+@keyframes popIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.noteCard {
+  display: block;
+  margin-top: 8px;
+  border-radius: var(--r-sm);
+  background: var(--c-card);
+  padding: 10px 13px;
+}
+
+/* 輸入框本身不畫外框，焦點狀態改由整張卡顯示，鍵盤使用者仍看得到 */
+.noteCard:focus-within {
+  box-shadow: inset 0 0 0 2px var(--c-primary);
 }
 
 .note {
-  border: 0;
-  border-radius: var(--r-md);
-  background: var(--c-card);
-  box-shadow: var(--sh-card);
-  padding: 0 12px;
-  min-height: 44px;
-  font-size: 13px;
-  color: var(--c-text);
+  display: block;
   width: 100%;
+  border: 0;
+  background: none;
+  padding: 3px 0 0;
+  outline: none;
+  font-family: var(--f-body);
+  font-size: 13.5px;
+  color: var(--c-text);
 }

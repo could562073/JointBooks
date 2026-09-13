@@ -17,6 +17,11 @@ type Props<T extends string> = {
   fill?: string;
   /** 選中時的文字色 */
   activeColor?: string;
+  /**
+   * 不撐滿整列、按鈕照字寬排。記一筆面板頂部那顆是這樣（原型 padding 7px 16px），
+   * 統計頁的週／月／年則是撐滿整列。
+   */
+  compact?: boolean;
   testId: string;
 };
 
@@ -27,13 +32,13 @@ type Props<T extends string> = {
  * 按鈕本身不各自變底色。差別只有滑塊顏色，所以做成 prop 而不是兩份元件。
  */
 export function SegmentedControl<T extends string>({
-  segments, value, onChange, fill = '#FFFFFF', activeColor, testId,
+  segments, value, onChange, fill = '#FFFFFF', activeColor, compact = false, testId,
 }: Props<T>) {
   const reduced = useReducedMotion();
   const index = Math.max(0, segments.findIndex((s) => s.key === value));
 
   return (
-    <div className={styles.wrap} data-testid={testId}>
+    <div className={compact ? `${styles.wrap} ${styles.compact}` : styles.wrap} data-testid={testId}>
       <span
         className={styles.slider}
         style={{

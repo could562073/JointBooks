@@ -65,12 +65,13 @@ describe('EntrySheet 的兩種模式', () => {
     expect(screen.getByTestId('field-amount')).toHaveTextContent('12.50');
     expect(screen.getByTestId('entry-note')).toHaveValue('原本的備註');
     expect(screen.getByTestId('by-妻')).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByTestId('date-row')).toHaveTextContent('8月20日');
+    // 日期卡照原型顯示 ISO 日期
+    expect(screen.getByTestId('date-row')).toHaveTextContent('2026-08-20');
   });
 
   it('新增模式的日期預設是月曆上的選中日', () => {
     render(<EntrySheet {...BASE} />);
-    expect(screen.getByTestId('date-row')).toHaveTextContent('9月6日');
+    expect(screen.getByTestId('date-row')).toHaveTextContent('2026-09-06');
   });
 });
 
@@ -119,7 +120,9 @@ describe('EntrySheet 的支出／收入切換', () => {
   it('切到收入時分類換成收入分類', () => {
     render(<EntrySheet {...BASE} />);
     fireEvent.click(screen.getByTestId('kind-income'));
-    expect(screen.getByTestId('category-row')).toHaveTextContent(INCOME[0]!.name);
+    expect(screen.getByTestId(`main-${INCOME[0]!.id}`)).toHaveAttribute('aria-pressed', 'true');
+    // 整批換成收入分類，不是在支出分類後面多加幾顆
+    expect(screen.queryByTestId(`main-${EXPENSE[0]!.id}`)).not.toBeInTheDocument();
   });
 
   it('切換不會清掉已輸入的金額', () => {
@@ -130,39 +133,68 @@ describe('EntrySheet 的支出／收入切換', () => {
   });
 });
 
-describe('EntrySheet 的收合列', () => {
-  it('日期與分類都預設收起（增補檔 B-3）', () => {
+describe('EntrySheet 的分類與日期（使用者裁決：分類一直展開，取代增補檔 B-3）', () => {
+  it('分類區一打開就在，不用先點開', () => {
     render(<EntrySheet {...BASE} />);
-    expect(screen.queryByTestId('mini-calendar')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('category-picker')).not.toBeInTheDocument();
+    expect(screen.getByTestId('category-picker')).toBeInTheDocument();
+    expect(screen.getByTestId('main-chips')).toBeInTheDocument();
+    expect(screen.getByTestId('sub-chips')).toBeInTheDocument();
   });
 
-  it('一次只展開一個，展開分類會收掉日期', () => {
+  it('小月曆預設收起，點日期卡才展開', () => {
     render(<EntrySheet {...BASE} />);
+    expect(screen.queryByTestId('mini-calendar')).not.toBeInTheDocument();
     fireEvent.click(screen.getByTestId('date-row'));
     expect(screen.getByTestId('mini-calendar')).toBeInTheDocument();
-
-    fireEvent.click(screen.getByTestId('category-row'));
-    expect(screen.queryByTestId('mini-calendar')).not.toBeInTheDocument();
-    expect(screen.getByTestId('category-picker')).toBeInTheDocument();
+    expect(screen.getByTestId('date-row')).toHaveAttribute('aria-expanded', 'true');
   });
 
-  it('選日期後收合，且日期欄跟著換', () => {
+  it('選日期後收合，日期卡顯示新日期', () => {
     render(<EntrySheet {...BASE} />);
     fireEvent.click(screen.getByTestId('date-row'));
     fireEvent.click(screen.getByTestId('mini-day-18'));
     expect(screen.queryByTestId('mini-calendar')).not.toBeInTheDocument();
-    expect(screen.getByTestId('date-row')).toHaveTextContent('9月18日');
+    expect(screen.getByTestId('date-row')).toHaveTextContent('2026-09-18');
   });
 
-  it('選子分類後自動收合（B-3）', () => {
+  it('選子分類後它被選中，分類區不會收起來', () => {
     const multi = EXPENSE.find((c) => c.subs.length > 1)!;
     render(<EntrySheet {...BASE} />);
-    fireEvent.click(screen.getByTestId('category-row'));
     fireEvent.click(screen.getByTestId(`main-${multi.id}`));
     fireEvent.click(screen.getByTestId(`sub-${multi.subs[1]!.id}`));
-    expect(screen.queryByTestId('category-picker')).not.toBeInTheDocument();
-    expect(screen.getByTestId('category-row')).toHaveTextContent(multi.subs[1]!.name);
+    expect(screen.getByTestId(`sub-${multi.subs[1]!.id}`)).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByTestId('category-picker')).toBeInTheDocument();
+  });
+
+  it('子分類小標跟著選中的主分類換', () => {
+    const multi = EXPENSE.find((c) => c.subs.length > 1)!;
+    render(<EntrySheet {...BASE} />);
+    fireEvent.click(screen.getByTestId(`main-${multi.id}`));
+    expect(screen.getByTestId('category-picker')).toHaveTextContent(`子分類 · ${multi.name}`);
+  });
+
+  // 原本在 FieldRow.test 裡的 MOTION #38 覆蓋；FieldRow 移除後搬到這裡
+  it('日期卡的 ▾ 展開時轉 180°（MOTION #38）', () => {
+    render(<EntrySheet {...BASE} />);
+    expect(screen.getByTestId('date-row-chevron')).toHaveStyle({ transform: 'none' });
+    fireEvent.click(screen.getByTestId('date-row'));
+    expect(screen.getByTestId('date-row-chevron')).toHaveStyle({ transform: 'rotate(180deg)' });
+  });
+
+  it('reduced-motion 下 ▾ 不做轉場', () => {
+    render(<EntrySheet {...BASE} />);
+    expect(screen.getByTestId('date-row-chevron')).toHaveStyle({ transition: 'none' });
+  });
+});
+
+describe('EntrySheet 的誰記的', () => {
+  it('是兩顆小圓臉而不是「我」「妻」文字，選中的那顆 aria-pressed', () => {
+    render(<EntrySheet {...BASE} />);
+    expect(screen.getByTestId('by-我').textContent).toBe('');
+    expect(screen.getByTestId('by-我')).toHaveAccessibleName('我');
+    fireEvent.click(screen.getByTestId('by-妻'));
+    expect(screen.getByTestId('by-妻')).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByTestId('by-我')).toHaveAttribute('aria-pressed', 'false');
   });
 });
 

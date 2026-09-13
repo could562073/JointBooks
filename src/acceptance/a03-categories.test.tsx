@@ -126,7 +126,6 @@ describe('§15.1-13 刪除確認窗顯示「已用在 N 筆紀錄」', () => {
     await addEntry('20');
     fireEvent.click(screen.getByTestId('fab'));
     fireEvent.click(screen.getByTestId('key-3'));
-    fireEvent.click(screen.getByTestId('category-row'));
     fireEvent.click(screen.getByTestId(`main-${other.id}`));
     fireEvent.click(screen.getByTestId(`sub-${other.subs[0]!.id}`));
     fireEvent.click(screen.getByTestId('key-save'));
@@ -183,7 +182,6 @@ describe('§15.1-14 刪除分類後歷史紀錄與統計金額完全不變', () 
 
     // 但記帳選單裡選不到了
     fireEvent.click(screen.getByTestId('fab'));
-    fireEvent.click(screen.getByTestId('category-row'));
     expect(screen.queryByTestId(`main-${target.id}`)).not.toBeInTheDocument();
   });
 });

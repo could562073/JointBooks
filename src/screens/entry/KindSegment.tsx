@@ -26,7 +26,9 @@ export function KindSegment({ kind, onChange }: Props) {
       value={kind}
       onChange={onChange}
       fill={FILL[kind]}
-      activeColor="#fff"
+      // 原型：選中字是深咖啡，不是白字——白字在淡紫滑塊上對比不夠
+      activeColor="var(--c-text)"
+      compact
       testId="kind"
     />
   );
