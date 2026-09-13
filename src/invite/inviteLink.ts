@@ -61,6 +61,22 @@ export async function checkInvite(
 }
 
 /**
+ * 邀請面板「預覽她點開後看到的畫面」要去的站內路徑：同一條連結加上 preview=1。
+ *
+ * 不加的話，這台裝置本來就在這本帳裡，接受邀請頁會走「你已在這本帳裡」那一支，
+ * 看不到她實際會看到的邀請卡。簽章只算 sid 與 t，多一個參數不影響驗證。
+ */
+export function previewHref(url: string): string {
+  const u = new URL(url);
+  u.searchParams.set('preview', '1');
+  return `${u.pathname}${u.search}`;
+}
+
+export function isPreview(search: string): boolean {
+  return new URLSearchParams(search.startsWith('?') ? search.slice(1) : search).get('preview') === '1';
+}
+
+/**
  * 面板上顯示用的短版連結：host + 路徑 + ?sid=前三…後三。
  *
  * 原型就是這樣縮的。只影響顯示——複製、分享、QR 一律用完整連結。拿掉 t 是因為

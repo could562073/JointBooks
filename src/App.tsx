@@ -4,7 +4,7 @@ import { TabBar } from './components/TabBar';
 import { useTabDirection } from './components/useTabDirection';
 import type { Txn } from './domain/types';
 import { InvitePanel } from './invite/InvitePanel';
-import { buildInviteUrl, checkInvite } from './invite/inviteLink';
+import { buildInviteUrl, checkInvite, isPreview, previewHref } from './invite/inviteLink';
 import { JoinPage } from './invite/JoinPage';
 import { joinStateOf, type JoinState } from './invite/joinFlow';
 import { LoginPage } from './invite/LoginPage';
@@ -137,7 +137,7 @@ function Join({ search, cloud }: { search: string; cloud: Cloud | null }) {
   useEffect(() => {
     let alive = true;
     void Promise.all([checkInvite(search), joinedSid()]).then(([check, sid]) => {
-      if (alive) setState(joinStateOf({ check, joinedSid: sid }));
+      if (alive) setState(joinStateOf({ check, joinedSid: sid, preview: isPreview(search) }));
     });
     cloud?.tokens.preload().catch(() => {});
     return () => { alive = false; };
@@ -153,7 +153,8 @@ function Join({ search, cloud }: { search: string; cloud: Cloud | null }) {
       busy={busy}
       error={error}
       onJoin={() => {
-        if (state.kind !== 'invite') { goHome(); return; }
+        // 預覽只是給邀請的人看畫面，按下去就回主程式，不加入任何東西
+        if (state.kind !== 'invite' || state.preview) { goHome(); return; }
         const sid = state.sid;
 
         // 純本機模式（沒設定 Google）：只記下帳本 id
@@ -340,9 +341,8 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
           {...(cloud ? { onShareEmail: shareWithHer } : {})}
           onClose={() => setInvite(null)}
           onPreview={() => {
-            if (!invite.url) return;
-            const u = new global.URL(invite.url);
-            location.href = u.pathname + u.search;
+            // 帶 preview=1：這台裝置本來就在帳本裡，不帶的話接受邀請頁會顯示「你已在這本帳裡」
+            if (invite.url) location.href = previewHref(invite.url);
           }}
         />
       )}

@@ -207,3 +207,17 @@
   line-height: 1.7;
   color: var(--c-expense);
 }
+
+/* 從邀請面板的預覽進來時，頂端提示這只是預覽 */
+.previewNote {
+  position: relative;
+  margin: 12px 0 0;
+  align-self: center;
+  padding: 5px 12px;
+  border-radius: var(--r-pill);
+  background: var(--c-tint);
+  font-family: var(--f-body);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--c-tint-ink);
+}

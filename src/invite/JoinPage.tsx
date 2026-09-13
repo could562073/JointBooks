@@ -54,10 +54,16 @@ export function JoinPage({ state, onJoin, onBrowse, onHome, busy = false, error 
   }
 
   const already = state.kind === 'already';
+  const preview = state.kind === 'invite' && state.preview === true;
 
   return (
     <div className={styles.page} data-testid="join-page" data-state={state.kind}>
       <span className={styles.decor} aria-hidden="true" />
+      {preview && (
+        <p className={styles.previewNote} data-testid="join-preview-note">
+          預覽 · 這是她點開邀請連結後看到的畫面
+        </p>
+      )}
       <div className={styles.main}>
         <div className={styles.card} data-testid="join-card">
           <div className={styles.pair} aria-hidden="true">
@@ -103,12 +109,12 @@ export function JoinPage({ state, onJoin, onBrowse, onHome, busy = false, error 
           type="button" className={styles.cta} onClick={onJoin} disabled={busy}
           data-testid="join-cta"
         >
-          {busy ? '連線中…' : already ? '進入帳本' : '用 Google 登入並加入'}
+          {busy ? '連線中…' : preview ? '結束預覽' : already ? '進入帳本' : '用 Google 登入並加入'}
         </button>
 
         {error && <p className={styles.error} role="alert" data-testid="join-error">{error}</p>}
 
-        {!already && (
+        {!already && !preview && (
           <button type="button" className={styles.ghost} onClick={onBrowse} data-testid="join-browse">
             先看看，暫不加入
           </button>
