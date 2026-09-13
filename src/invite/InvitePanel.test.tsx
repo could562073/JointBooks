@@ -44,10 +44,15 @@ describe('InvitePanel 的內容', () => {
     expect(screen.getByTestId('invite-panel')).toHaveTextContent('舊連結會一直有效到它自己的期限');
   });
 
-  it('明說任何拿到連結的人都能加入——沒有後端就沒有真正的簽章驗證', () => {
+  /*
+   * 連結本身不帶權限：她的帳號要先被分享，才讀得到那份試算表。舊說明寫「任何拿到
+   * 連結的人都能加入」，接上 Google 分享之後已經不是事實。
+   */
+  it('說明只有分享過的帳號能加入，不說任何人拿到連結都能加入', () => {
     withClipboard();
     render(<InvitePanel {...BASE} />);
-    expect(screen.getByTestId('invite-panel')).toHaveTextContent('任何拿到這條連結的人都能加入');
+    expect(screen.getByTestId('invite-panel')).toHaveTextContent('只有你分享過的 Google 帳號能用這條連結加入');
+    expect(screen.getByTestId('invite-panel')).not.toHaveTextContent('任何拿到這條連結的人都能加入');
   });
 
   it('關閉與預覽都會回報', () => {
