@@ -18,12 +18,12 @@ const BASE = {
 };
 
 describe('OverviewCard', () => {
-  it('顯示期間標籤與三個數字', () => {
+  it('顯示期間標籤與三個數字（原型的合計數字只到元，不顯示角分）', () => {
     render(<OverviewCard {...BASE} />);
     expect(screen.getByTestId('overview-period')).toHaveTextContent('2026年9月');
-    expect(screen.getByTestId('overview-net')).toHaveTextContent('$2,015.50');
-    expect(screen.getByTestId('overview-income')).toHaveTextContent('$5,200.00');
-    expect(screen.getByTestId('overview-expense')).toHaveTextContent('$3,184.50');
+    expect(screen.getByTestId('overview-net')).toHaveTextContent('$2,016');
+    expect(screen.getByTestId('overview-income')).toHaveTextContent('$5,200');
+    expect(screen.getByTestId('overview-expense')).toHaveTextContent('$3,185');
   });
 
   it('結餘為負時帶負號，收入支出不帶', () => {
@@ -33,8 +33,8 @@ describe('OverviewCard', () => {
         totals={{ incomeCents: 100, expenseCents: 500, netCents: -400 }}
       />
     );
-    expect(screen.getByTestId('overview-net')).toHaveTextContent('-$4.00');
-    expect(screen.getByTestId('overview-expense').textContent).toBe('$5.00');
+    expect(screen.getByTestId('overview-net')).toHaveTextContent('-$4');
+    expect(screen.getByTestId('overview-expense').textContent).toBe('$5');
   });
 
   it('有一隻會呼吸的饅頭（MOTION #30）', () => {
@@ -65,11 +65,20 @@ describe('OverviewCard 的增減 pill', () => {
 });
 
 describe('OverviewCard 的比例條', () => {
-  it('支出佔比決定寬度', () => {
+  // 原型改成兩欄各自一條：收入欄固定滿版（裝飾用），支出欄顯示「花掉了收入的幾成」，
+  // 不再是舊版「支出佔收支合計」的 expenseShare 公式。
+  it('支出條寬度＝支出佔收入的比例', () => {
+    render(
+      <OverviewCard {...BASE} totals={{ incomeCents: 100_000, expenseCents: 65_000, netCents: 35_000 }} />
+    );
+    expect(screen.getByTestId('overview-bar-expense')).toHaveStyle({ width: '65.00%' });
+  });
+
+  it('支出超過收入時灌滿，不超過 100%', () => {
     render(
       <OverviewCard {...BASE} totals={{ incomeCents: 100, expenseCents: 300, netCents: -200 }} />
     );
-    expect(screen.getByTestId('overview-bar-expense')).toHaveStyle({ width: '75.00%' });
+    expect(screen.getByTestId('overview-bar-expense')).toHaveStyle({ width: '100.00%' });
   });
 
   it('沒有任何紀錄時是空軌道，不是一半一半', () => {

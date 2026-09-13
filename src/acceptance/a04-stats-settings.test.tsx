@@ -2,7 +2,7 @@ import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { budgetMultiplier } from '../domain/aggregate';
 import { WEEK_START } from '../domain/constants';
-import { formatCad } from '../domain/money';
+import { formatCadWhole } from '../domain/money';
 import { useLedger } from '../store/useLedger';
 import { AT, addEntry, goTab, openApp, setupLedger, teardownLedger } from './harness';
 
@@ -51,7 +51,8 @@ describe('§15.1-16 統計頁週／月／年切換', () => {
     await goTab('stats');
 
     const shown = () => screen.getByTestId(`budget-${target.id}-numbers`).textContent ?? '';
-    const cad = (cents: number) => formatCad(Math.round(cents), 'none');
+    // 原型的合計數字只到元，不顯示角分（統計頁改版後 BudgetList 改用 formatCadWhole）
+    const cad = (cents: number) => formatCadWhole(Math.round(cents), 'none');
 
     expect(budgetMultiplier('month', anchor)).toBe(1);
     expect(shown()).toContain(cad(monthly));

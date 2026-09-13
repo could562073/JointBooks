@@ -22,9 +22,14 @@ function row(over: Partial<BudgetRow> = {}): BudgetRow {
 }
 
 describe('BudgetList', () => {
-  it('每個分類一條，顯示「已花 / 預算」', () => {
+  it('每個分類一條，顯示「已花 / 預算」（原型的合計數字只到元）', () => {
     render(<BudgetList rows={[row()]} fillKey="month" />);
-    expect(screen.getByTestId('budget-c1-numbers')).toHaveTextContent('$200.00 / $450.00');
+    expect(screen.getByTestId('budget-c1-numbers')).toHaveTextContent('$200 / $450');
+  });
+
+  it('沒超支時顯示還可以花多少', () => {
+    render(<BudgetList rows={[row()]} fillKey="month" />);
+    expect(screen.getByText('還可以花 $250')).toBeInTheDocument();
   });
 
   it('沒有設預算的分類時顯示空狀態', () => {
@@ -62,7 +67,7 @@ describe('BudgetList 的三種狀態（§6）', () => {
       />
     );
     expect(screen.getByTestId('budget-c1-bar')).toHaveStyle({ background: '#E08A72' });
-    expect(screen.getByTestId('budget-c1-over')).toHaveTextContent('超支 $135.00');
+    expect(screen.getByTestId('budget-c1-over')).toHaveTextContent('超支 $135');
   });
 
   it('超支時條滿格，不會畫出軌道外', () => {

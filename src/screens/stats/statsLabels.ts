@@ -50,3 +50,20 @@ export function trendAxisNote(dim: Dimension, weekStart: WeekStart = 'mon'): str
   if (dim === 'month') return '本月各週';
   return '1–12月';
 }
+
+/**
+ * 原型的總覽卡：支出欄下方那條進度條表示「這期花掉了收入的幾成」，
+ * 收入欄下方是固定滿版的裝飾色條（原型如此，不隨資料變動）。
+ *
+ * 跟 expenseShare（支出佔收支合計的比例）是不同的量——這裡刻意換成
+ * 「支出 / 收入」，收入為 0 但仍有支出時視覺上灌滿（能花的都花了）。
+ */
+export function expenseOfIncomeRatio(incomeCents: number, expenseCents: number): number {
+  if (incomeCents <= 0) return expenseCents > 0 ? 1 : 0;
+  return Math.min(1, expenseCents / incomeCents);
+}
+
+/** §6 預算區標題右邊「月額度」合計：每一列已依維度換算過的預算金額加總 */
+export function budgetTotal(rows: readonly BudgetRow[]): number {
+  return rows.reduce((sum, r) => sum + r.budgetCents, 0);
+}

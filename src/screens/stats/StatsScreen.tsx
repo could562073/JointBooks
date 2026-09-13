@@ -2,11 +2,12 @@ import { useMemo } from 'react';
 import { SegmentedControl, type Segment } from '../../components/SegmentedControl';
 import { budgetRows, comparePrevious, totalsIn, trendSeries } from '../../domain/aggregate';
 import { rangeOf } from '../../domain/date';
+import { formatCadWhole } from '../../domain/money';
 import type { Dimension } from '../../domain/types';
 import { selectedDate as selectedDateOf, useLedger } from '../../store/useLedger';
 import { BudgetList } from './BudgetList';
 import { OverviewCard } from './OverviewCard';
-import { periodLabel, trendAxisNote } from './statsLabels';
+import { budgetTotal, periodLabel } from './statsLabels';
 import { TrendChart } from './TrendChart';
 import styles from './StatsScreen.module.css';
 
@@ -46,20 +47,29 @@ export function StatsScreen() {
     () => budgetRows(txns, categories, dimension, anchor),
     [txns, categories, dimension, anchor]
   );
+  const quotaCents = useMemo(() => budgetTotal(budgets), [budgets]);
 
   return (
     <div className={styles.screen} data-testid="stats-screen">
-      <div className={styles.head}>
-        <SegmentedControl
-          segments={DIMENSIONS}
-          value={dimension}
-          onChange={setDimension}
-          testId="dimension"
-        />
-      </div>
-
-      {/* 統計頁整頁捲動，跟日常頁的「只有明細捲」不同 */}
+      {/*
+        整頁一起捲動（跟原型的單一捲動容器一致），不像日常頁只有明細那一段捲——
+        標題與週／月／年分段本來釘在頂端，但原型裡它們也是跟著內容一起捲走的。
+      */}
       <div className={styles.scroll} data-testid="stats-scroll">
+        <div className={styles.titleBlock}>
+          <h1 className={styles.pageTitle}>統計</h1>
+          <p className={styles.subtitle}>how we did</p>
+        </div>
+
+        <div className={styles.tabs}>
+          <SegmentedControl
+            segments={DIMENSIONS}
+            value={dimension}
+            onChange={setDimension}
+            testId="dimension"
+          />
+        </div>
+
         <OverviewCard
           totals={totals}
           periodLabel={periodLabel(dimension, range)}
@@ -69,14 +79,28 @@ export function StatsScreen() {
         <section className={styles.section}>
           <div className={styles.sectionHead}>
             <h2 className={styles.title}>趨勢</h2>
-            <span className={styles.note}>{trendAxisNote(dimension)}</span>
+            <span className={styles.rule} aria-hidden="true" />
+            <div className={styles.legend}>
+              <span className={styles.legendItem}>
+                支出
+                <span className={`${styles.swatch} ${styles.swatchExpense}`} aria-hidden="true" />
+              </span>
+              <span className={styles.legendItem}>
+                收入
+                <span className={`${styles.swatch} ${styles.swatchIncome}`} aria-hidden="true" />
+              </span>
+            </div>
           </div>
           {/* 換維度要重播描線與填充，key 帶著維度 */}
           <TrendChart points={trend} drawKey={dimension} />
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.title}>預算使用</h2>
+          <div className={styles.sectionHead}>
+            <h2 className={styles.title}>預算</h2>
+            <span className={styles.rule} aria-hidden="true" />
+            <span className={styles.quota}>月額度 {formatCadWhole(quotaCents, 'none')}</span>
+          </div>
           <BudgetList rows={budgets} fillKey={dimension} />
         </section>
       </div>

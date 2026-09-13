@@ -4,38 +4,37 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .row {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 10px 12px;
+  flex-direction: column;
+  padding: 11px 13px;
   border-radius: var(--r-md);
   background: var(--c-card);
   box-shadow: var(--sh-card);
 }
 
-.mid {
-  flex: 1 1 auto;
-  /* ellipsis 的前提；少了它長分類名會把數字擠出去 */
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
 .head {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 8px;
 }
 
-.name {
+.nameGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 13px;
+  font-weight: 700;
   color: var(--c-text);
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.name {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -43,22 +42,25 @@
 
 .numbers {
   flex: none;
-  font-size: 11px;
-  color: var(--c-text-3);
+  font-family: var(--f-num);
+  font-weight: 600;
+  font-size: 12px;
+  color: rgba(74, 63, 54, .55);
   font-variant-numeric: tabular-nums;
 }
 
 .track {
-  height: 7px;
-  border-radius: var(--r-pill);
-  background: rgba(74, 63, 54, .07);
+  height: 8px;
+  border-radius: 6px;
+  background: rgba(74, 63, 54, .08);
+  margin-top: 8px;
   overflow: hidden;
 }
 
 .bar {
   display: block;
   height: 100%;
-  border-radius: var(--r-pill);
+  border-radius: 6px;
 }
 
 /* MOTION #12：scaleX 0→1，600ms，transform-origin:left；每條延遲 50ms */
@@ -86,9 +88,18 @@
 }
 
 .over {
+  font-family: var(--f-body);
   font-size: 11px;
   font-weight: 700;
-  color: #B4523F;
+  color: var(--c-expense);
+  margin-top: 5px;
+}
+
+.remaining {
+  font-family: var(--f-body);
+  font-size: 11px;
+  color: rgba(74, 63, 54, .48);
+  margin-top: 5px;
 }
 
 .empty {

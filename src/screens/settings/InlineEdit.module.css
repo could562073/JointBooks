@@ -1,19 +1,32 @@
-.text, .pill {
+/*
+ * §7.2 分類卡：這支元件只有兩處用途，樣式照原型分開寫死——
+ * .text 是分類名（Zen Maru Gothic 700 14.5px），.pill 是月預算（Baloo 2 700 13px + 副標）。
+ */
+.text {
   border: 0;
   background: none;
   padding: 0;
-  color: var(--c-text);
-  font-size: 13px;
   cursor: pointer;
   text-align: left;
+  font-family: var(--f-title);
+  font-weight: 700;
+  font-size: 14.5px;
+  color: var(--c-text);
 }
 
 .pill {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  border: 0;
   border-radius: var(--r-pill);
   background: rgba(74, 63, 54, .06);
-  padding: 4px 10px;
-  font-size: 11px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-family: var(--f-num);
+  font-size: 13px;
   font-weight: 700;
+  color: var(--c-text);
   font-variant-numeric: tabular-nums;
 }
 

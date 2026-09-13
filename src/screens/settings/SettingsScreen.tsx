@@ -5,7 +5,7 @@ import { Toggle } from '../../components/Toggle';
 import { DUR } from '../../lib/motion';
 import { CategoriesPage } from './CategoriesPage';
 import { colorSetOf } from '../../domain/palette';
-import { formatCad } from '../../domain/money';
+import { formatCadWhole } from '../../domain/money';
 import type { SyncState } from '../../sync/state';
 import { useLedger } from '../../store/useLedger';
 import { categorySummary, stackedIcons } from './settingsSummary';
@@ -60,34 +60,51 @@ export function SettingsScreen({ onInvite, syncState, lastSyncAt, onRetrySync }:
   return (
     <div className={styles.screen} data-testid="settings-screen">
       <div className={styles.scroll} data-testid="settings-scroll">
+        <div className={styles.pageTitle}>
+          <h1 className={styles.pageTitleMain}>配置</h1>
+          <p className={styles.pageTitleSub}>budgets &amp; categories</p>
+        </div>
+
         <section className={styles.section}>
-          <h2 className={styles.title}>帳本成員</h2>
+          <h2 className={styles.titleFirst}>帳本成員</h2>
 
           <div className={styles.card}>
             <div className={styles.member} data-testid="member-me">
-              <span className={styles.avatar} style={{ background: '#B7A6E5' }} aria-hidden="true">我</span>
+              <span className={styles.avatar} style={{ background: 'var(--c-primary)' }} aria-hidden="true">
+                <span className={styles.avatarHi} style={{ background: 'var(--c-hi)' }} />
+                <span className={styles.avatarEyeL} />
+                <span className={styles.avatarEyeR} />
+                <span className={styles.avatarMouth} />
+              </span>
               <div className={styles.memberText}>
                 <span className={styles.memberName}>我</span>
                 <span className={styles.memberSub}>擁有者</span>
               </div>
+              <span className={styles.freshness}>線上</span>
             </div>
 
             <div className={styles.member} data-testid="member-partner">
-              <span className={styles.avatar} style={{ background: '#DDA6D0' }} aria-hidden="true">妻</span>
+              <span className={styles.avatar} style={{ background: 'var(--c-partner)' }} aria-hidden="true">
+                <span className={styles.avatarHi} style={{ background: 'var(--c-partner-hi)' }} />
+                <span className={styles.avatarEyeL} />
+                <span className={styles.avatarEyeR} />
+                <span className={styles.avatarMouth} />
+              </span>
               <div className={styles.memberText}>
                 <span className={styles.memberName}>老婆</span>
-                <span className={styles.memberSub}>
-                  可編輯 · <SyncStatus state={syncState} lastSyncAt={lastSyncAt} onRetry={onRetrySync} />
-                </span>
+                <span className={styles.memberSub}>可編輯</span>
               </div>
+              <span className={styles.freshness}>
+                <SyncStatus state={syncState} lastSyncAt={lastSyncAt} onRetry={onRetrySync} />
+              </span>
             </div>
 
             <button
-              type="button" className={styles.row} onClick={onInvite}
+              type="button" className={styles.inviteRow} onClick={onInvite}
               data-testid="invite-member"
             >
-              <span className={styles.rowLabel}>邀請成員</span>
-              <span className={styles.chevron} aria-hidden="true">›</span>
+              <span className={styles.inviteLabel}>邀請成員</span>
+              <span className={styles.inviteHint}>分享連結 ›</span>
             </button>
           </div>
         </section>
@@ -103,15 +120,15 @@ export function SettingsScreen({ onInvite, syncState, lastSyncAt, onRetrySync }:
               <span className={styles.stack} aria-hidden="true">
                 {icons.map((c, i) => (
                   <span key={c.id} className={styles.stackItem} style={{ marginLeft: i === 0 ? 0 : -8 }}>
-                    <Icon name={c.icon} size={14} box={26} boxRadius={9} tint={colorSetOf(c.colorSet).tint} />
+                    <Icon name={c.icon} size={17} box={26} boxRadius={9} tint={colorSetOf(c.colorSet).tint} />
                   </span>
                 ))}
               </span>
 
               <div className={styles.summaryText}>
-                <span className={styles.rowLabel}>編輯分類與月預算</span>
+                <span className={styles.summaryLabel}>編輯分類與月預算</span>
                 <span className={styles.rowSub} data-testid="category-summary">
-                  {summary.count} 個分類 · 月額度 {formatCad(summary.budgetCents, 'none')}
+                  {summary.count} 個分類 · 月額度 {formatCadWhole(summary.budgetCents, 'none')}
                 </span>
               </div>
 
@@ -124,7 +141,7 @@ export function SettingsScreen({ onInvite, syncState, lastSyncAt, onRetrySync }:
           <h2 className={styles.title}>其他</h2>
 
           <div className={styles.card}>
-            <div className={styles.row}>
+            <div className={styles.otherRow}>
               <span className={styles.rowLabel}>對方記帳時通知我</span>
               <Toggle
                 checked={notifyOnPartnerEntry}
@@ -134,7 +151,7 @@ export function SettingsScreen({ onInvite, syncState, lastSyncAt, onRetrySync }:
               />
             </div>
 
-            <div className={styles.row}>
+            <div className={styles.otherRowLast}>
               <span className={styles.rowLabel}>每筆顯示記帳人</span>
               <Toggle
                 checked={showWhoTags}

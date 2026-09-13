@@ -1,7 +1,7 @@
 .wrap {
   position: relative;
   list-style: none;
-  border-radius: var(--r-md);
+  border-radius: 22px;
   /* 刪除鍵墊在底下，卡片滑開時不能溢出圓角外 */
   overflow: hidden;
 }
@@ -13,8 +13,10 @@
   bottom: 0;
   width: 84px;
   border: 0;
-  background: rgba(217, 112, 92, .12);
-  color: #B4523F;
+  /* 原型是實心紅底、白字；tokens.css 沒有這個紅，取原型色碼字面量
+     （InlineEdit 的 ok/cancel 鍵已有先例：小面積一次性色不進 tokens） */
+  background: #D9705C;
+  color: #fff;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
@@ -24,9 +26,8 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 10px 12px 12px;
-  border-radius: var(--r-md);
+  padding: 12px 14px;
+  border-radius: 22px;
   background: var(--c-card);
   box-shadow: var(--sh-card);
   will-change: transform;
@@ -35,41 +36,50 @@
 .head {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
+}
+
+/* 圖示鍵＋分類名一組，靠左貼齊；跟金額 pill 之間的距離由 .head 的
+   justify-content: space-between 撐開，不是靠 flex:1 的占位元素 */
+.nameGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-weight: 700;
+  font-size: 14.5px;
 }
 
 .iconBtn {
   flex: none;
+  width: 32px;
+  height: 32px;
   border: 0;
   background: none;
   padding: 0;
   cursor: pointer;
-  /* §0：可點元素 ≥44px */
-  min-width: 44px;
-  min-height: 44px;
-  display: grid;
-  place-items: center;
-}
-
-.spacer {
-  flex: 1 1 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .subs {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
+  gap: 5px;
+  margin-top: 9px;
 }
 
 .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   border: 0;
   border-radius: var(--r-pill);
-  background: rgba(74, 63, 54, .06);
-  padding: 5px 11px;
-  min-height: 30px;
-  font-size: 12px;
-  color: var(--c-text-2);
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -80,12 +90,19 @@
 }
 
 .add {
-  border: 1px dashed rgba(74, 63, 54, .28);
+  border: 2px dashed rgba(74, 63, 54, .18);
   border-radius: var(--r-pill);
   background: none;
-  padding: 5px 11px;
-  min-height: 30px;
-  font-size: 12px;
-  color: var(--c-text-3);
+  padding: 5px 10px;
+  font-size: 11px;
+  color: var(--c-text-2);
   cursor: pointer;
+}
+
+/* 月預算 pill 的「／月」副標（InlineEdit 的 display 當 ReactNode 傳進去） */
+.perMonth {
+  font-family: var(--f-body);
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--c-text-3);
 }

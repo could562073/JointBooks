@@ -2,7 +2,7 @@ import type { TrendPoint } from '../../domain/aggregate';
 import { DUR, EASE } from '../../lib/motion';
 import { useReducedMotion } from '../../lib/useReducedMotion';
 import {
-  areaPath, chartPoints, pathLength, polyline, seriesMax, VIEW,
+  areaPath, chartPoints, gridLines, pathLength, polyline, seriesMax, VIEW,
 } from './trendGeometry';
 import styles from './TrendChart.module.css';
 
@@ -25,7 +25,7 @@ export function TrendChart({ points, drawKey }: Props) {
   const max = seriesMax(expense, income);
   const ePts = chartPoints(expense, max);
   const iPts = chartPoints(income, max);
-  const last = ePts[ePts.length - 1];
+  const lines = gridLines();
 
   // MOTION #11：stroke-dashoffset 100%→0。長度自己算，不必碰 DOM
   const len = pathLength(ePts);
@@ -40,6 +40,15 @@ export function TrendChart({ points, drawKey }: Props) {
         aria-label="收支趨勢"
         preserveAspectRatio="none"
       >
+        {/* 背後的水平淡色格線，純裝飾，跟資料無關所以不用帶 drawKey */}
+        {lines.map((y) => (
+          <line
+            key={y}
+            x1={VIEW.padX} x2={VIEW.w - VIEW.padX} y1={y} y2={y}
+            className={styles.grid}
+          />
+        ))}
+
         {/* key 帶著維度，換維度就重掛一次讓描線動畫重播 */}
         <g key={drawKey}>
           {/* §6：支出下方淡色面積 */}
@@ -68,10 +77,18 @@ export function TrendChart({ points, drawKey }: Props) {
             />
           )}
 
-          {/* §6：最後一點加大 */}
-          {last && (
-            <circle cx={last.x} cy={last.y} r={4} className={styles.lastDot} data-testid="trend-last" />
-          )}
+          {/* §6：每個資料點一個圓點標記，最後一點加大 */}
+          {ePts.map((p, i) => {
+            const isLast = i === ePts.length - 1;
+            return (
+              <circle
+                key={i}
+                cx={p.x} cy={p.y} r={isLast ? 4 : 3}
+                className={isLast ? styles.lastDot : styles.dot}
+                {...(isLast ? { 'data-testid': 'trend-last' } : {})}
+              />
+            );
+          })}
         </g>
       </svg>
 

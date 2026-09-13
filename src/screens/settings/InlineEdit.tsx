@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { DUR, EASE } from '../../lib/motion';
 import { useReducedMotion } from '../../lib/useReducedMotion';
 import styles from './InlineEdit.module.css';
 
 type Props = {
-  /** 未編輯時顯示的文字 */
-  display: string;
+  /** 未編輯時顯示的內容（分類名是純文字；月預算 pill 帶「／月」副標，需要 ReactNode） */
+  display: ReactNode;
   /** 進入編輯時輸入欄的初值 */
   initial: string;
   onCommit(next: string): void;

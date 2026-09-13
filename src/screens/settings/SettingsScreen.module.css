@@ -11,22 +11,49 @@
   min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 12px 16px 96px;
+  /* 左右留白由外殼（App.module.css 的 .page）給，這裡不再加 */
+  padding: 0 0 110px;
+}
+
+/* §7 頁面標題區，樣式比照日常頁 MonthNav 的大標＋英文副標 */
+.pageTitle {
+  margin: 6px 0 15px;
+}
+
+.pageTitleMain {
+  margin: 0;
+  font-family: var(--f-title);
+  font-weight: 700;
+  font-size: 23px;
+  line-height: 1.15;
+  color: var(--c-text);
+}
+
+.pageTitleSub {
+  margin: 0;
+  font-family: var(--f-num);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--c-tint-ink);
 }
 
 .section {
   display: flex;
   flex-direction: column;
-  gap: 8px;
 }
 
 .title {
-  margin: 0;
-  font-size: 12px;
-  font-weight: 700;
+  margin: 17px 0 7px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-text-3);
+}
+
+/* 第一個區塊（帳本成員）上面已經是頁面標題區的留白，不用再加 17px */
+.titleFirst {
+  margin: 0 0 7px;
+  font-size: 11px;
+  font-weight: 600;
   color: var(--c-text-3);
 }
 
@@ -35,43 +62,69 @@
   flex-direction: column;
   width: 100%;
   border: 0;
-  border-radius: var(--r-md);
+  border-radius: 22px;
   background: var(--c-card);
   box-shadow: var(--sh-card);
-  padding: 4px 12px;
+  padding: 4px 14px;
   text-align: left;
   color: inherit;
 }
 
-.member, .row, .summaryRow {
+.member {
   display: flex;
   align-items: center;
-  gap: 10px;
-  width: 100%;
-  /* §0：可點元素 ≥44px */
-  min-height: 48px;
-  border: 0;
-  background: none;
-  padding: 0;
-  text-align: left;
-  color: inherit;
+  gap: 11px;
+  padding: 11px 0;
+  border-bottom: 2px dashed rgba(74, 63, 54, .1);
 }
 
-/* 卡片內的分隔線：最後一列不畫 */
-.member:not(:last-child), .row:not(:last-child) {
-  box-shadow: inset 0 -1px 0 rgba(74, 63, 54, .07);
-}
-
+/* §7 帳本成員的饅頭頭像：固定 36×30，臉是四個絕對定位的小色塊 */
 .avatar {
+  position: relative;
   flex: none;
-  width: 30px;
+  width: 36px;
   height: 30px;
-  display: grid;
-  place-items: center;
-  border-radius: var(--r-pill);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
+  border-radius: 50% 50% 34% 34% / 64% 64% 36% 36%;
+}
+
+.avatarHi {
+  position: absolute;
+  top: 4px;
+  left: 8px;
+  width: 17px;
+  height: 6px;
+  border-radius: 50%;
+  opacity: .85;
+}
+
+.avatarEyeL {
+  position: absolute;
+  top: 13px;
+  left: 9px;
+  width: 4px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--c-face);
+}
+
+.avatarEyeR {
+  position: absolute;
+  top: 13px;
+  right: 9px;
+  width: 4px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--c-face);
+}
+
+.avatarMouth {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  width: 7px;
+  height: 3px;
+  border-radius: 0 0 7px 7px;
+  background: var(--c-face);
 }
 
 .memberText, .summaryText {
@@ -82,21 +135,82 @@
   gap: 1px;
 }
 
-.memberName, .rowLabel {
-  flex: 1 1 auto;
-  font-size: 13px;
+.memberName {
+  font-size: 13.5px;
+  font-weight: 700;
   color: var(--c-text);
 }
 
 .memberSub, .rowSub {
   font-size: 11px;
-  color: var(--c-text-4);
+  color: var(--c-text-2);
+}
+
+/* 「我」列的「線上」字樣、「老婆」列的同步狀態徽章，靠右、同一套字體樣式 */
+.freshness {
+  flex: none;
+  font-family: var(--f-num);
+  font-weight: 600;
+  font-size: 11.5px;
+  color: var(--c-income);
+}
+
+/* SyncStatus 是共用元件（components/**），這裡只能用屬性選擇器從外面覆寫，
+   不能改它自己的 CSS Module —— 原型這裡只有文字沒有圓點，圓點藏起來 */
+.freshness [data-testid='sync-text'] {
+  font: inherit;
+  color: inherit;
+}
+
+.freshness [data-testid='sync-dot'] {
+  display: none;
+}
+
+.inviteRow {
+  width: 100%;
+  border: 0;
+  background: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 0;
+  text-align: left;
+  color: inherit;
+}
+
+.inviteLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--c-tint-ink);
+}
+
+.inviteHint {
+  flex: none;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-text-3);
+}
+
+.summaryRow {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 13px 0;
+}
+
+.summaryLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--c-text);
 }
 
 .chevron {
   flex: none;
+  font-family: var(--f-num);
   font-size: 15px;
-  color: var(--c-text-4);
+  color: rgba(74, 63, 54, .3);
 }
 
 /* §7.2：五個分類圖示疊在一起 */
@@ -111,6 +225,32 @@
   /* 疊起來時後面的要壓在前面上方，邊緣才切得乾淨 */
   border-radius: 9px;
   box-shadow: 0 0 0 2px var(--c-card);
+}
+
+.otherRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 2px dashed rgba(74, 63, 54, .1);
+}
+
+/* 最後一列不畫分隔線；用透明色保留同樣的高度，不用 :last-child 決定樣式 */
+.otherRowLast {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 2px dashed transparent;
+}
+
+.rowLabel {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--c-text);
 }
 
 /* MOTION #14：分類子頁自右側 38px 滑入 */

@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { areaPath, chartPoints, pathLength, polyline, seriesMax, VIEW } from './trendGeometry';
+import {
+  areaPath, chartPoints, gridLines, pathLength, polyline, seriesMax, VIEW,
+} from './trendGeometry';
 
 const BASELINE = VIEW.h - VIEW.padBottom;
 
@@ -55,6 +57,16 @@ describe('chartPoints', () => {
       expect(pts[0]!.x).toBe(VIEW.padX);
       expect(pts[n - 1]!.x).toBe(VIEW.w - VIEW.padX);
     }
+  });
+});
+
+describe('gridLines', () => {
+  it('均分繪圖區的可用高度，含頂線與底線', () => {
+    expect(gridLines(3)).toEqual([VIEW.padTop, VIEW.padTop + (BASELINE - VIEW.padTop) / 2, BASELINE]);
+  });
+
+  it('數量可調整', () => {
+    expect(gridLines(2)).toEqual([VIEW.padTop, BASELINE]);
   });
 });
 

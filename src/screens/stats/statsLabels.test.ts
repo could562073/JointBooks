@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { rangeOf } from '../../domain/date';
-import { deltaLabel, expenseShare, periodLabel, trendAxisNote } from './statsLabels';
+import type { BudgetRow } from '../../domain/aggregate';
+import {
+  budgetTotal, deltaLabel, expenseOfIncomeRatio, expenseShare, periodLabel, trendAxisNote,
+} from './statsLabels';
 
 describe('periodLabel', () => {
   it('年維度只寫年份', () => {
@@ -68,6 +71,39 @@ describe('expenseShare', () => {
   it('只有一邊有數字時是 0 或 1', () => {
     expect(expenseShare(0, 500)).toBe(1);
     expect(expenseShare(500, 0)).toBe(0);
+  });
+});
+
+describe('expenseOfIncomeRatio', () => {
+  it('支出佔收入的比例（原型的支出條寬度）', () => {
+    expect(expenseOfIncomeRatio(100_000, 65_000)).toBeCloseTo(0.65);
+  });
+
+  it('支出超過收入時灌滿，不超過 1', () => {
+    expect(expenseOfIncomeRatio(100, 300)).toBe(1);
+  });
+
+  it('收入為 0 但有支出時灌滿', () => {
+    expect(expenseOfIncomeRatio(0, 500)).toBe(1);
+  });
+
+  it('都是 0 時是 0，不是一半一半', () => {
+    expect(expenseOfIncomeRatio(0, 0)).toBe(0);
+  });
+});
+
+describe('budgetTotal', () => {
+  const row = (budgetCents: number): BudgetRow => ({
+    categoryId: 'c', name: '', icon: 'coin', colorSet: 0,
+    spentCents: 0, budgetCents, ratio: 0, state: 'normal', overCents: 0,
+  });
+
+  it('加總每一列的預算金額', () => {
+    expect(budgetTotal([row(210_000), row(26_000)])).toBe(236_000);
+  });
+
+  it('沒有任何預算列時是 0', () => {
+    expect(budgetTotal([])).toBe(0);
   });
 });
 

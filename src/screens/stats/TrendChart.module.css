@@ -1,6 +1,6 @@
 .wrap {
-  padding: 12px 12px 8px;
-  border-radius: var(--r-md);
+  padding: 13px 13px 9px;
+  border-radius: var(--r-lg);
   background: var(--c-card);
   box-shadow: var(--sh-card);
 }
@@ -8,30 +8,44 @@
 .svg {
   display: block;
   width: 100%;
-  height: 120px;
+  height: auto;
 }
 
-/* §6：支出下方淡色面積 */
+/* 背後的水平淡色格線 */
+.grid {
+  stroke: rgba(74, 63, 54, .1);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+}
+
+/* §6：支出下方淡色面積。是 --c-shade 的 14% 透明版，token 沒有內建帶透明度的變體 */
 .area {
   fill: rgba(148, 132, 206, .14);
 }
 
-/* §6：支出實線 #9484CE */
+/* §6：支出實線 */
 .expense {
   fill: none;
-  stroke: #9484CE;
+  stroke: var(--c-shade);
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
-/* §6：收入虛線 #DDA6D0 */
+/* §6：收入虛線 */
 .income {
   fill: none;
-  stroke: #DDA6D0;
+  stroke: var(--c-income-bar-a);
   stroke-width: 2;
   stroke-dasharray: 4 4;
   stroke-linecap: round;
+}
+
+/* 每個資料點的圓點標記：白底圓圈描一圈支出色 */
+.dot {
+  fill: var(--c-card);
+  stroke: var(--c-shade);
+  stroke-width: 1.5;
 }
 
 /* MOTION #11：stroke-dashoffset 100%→0，600ms */
@@ -45,17 +59,19 @@
 }
 
 .lastDot {
-  fill: #9484CE;
+  fill: var(--c-shade);
 }
 
 .axis {
   display: flex;
   justify-content: space-between;
-  padding: 0 2px;
+  margin-top: 2px;
 }
 
 .tick {
-  font-size: 9px;
+  font-family: var(--f-num);
+  font-weight: 600;
+  font-size: 10px;
   color: var(--c-text-4);
   /* 標籤多的時候（年維度 12 個）不要換行把高度撐開 */
   white-space: nowrap;

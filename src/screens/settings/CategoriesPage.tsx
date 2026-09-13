@@ -68,7 +68,10 @@ export function CategoriesPage({ categories, txns, onSave, onDelete, onBack }: P
           type="button" className={styles.back} onClick={onBack}
           aria-label="返回" data-testid="categories-back"
         >‹</button>
-        <h1 className={styles.title}>分類與月預算</h1>
+        <div className={styles.titleWrap}>
+          <h1 className={styles.title}>分類與月預算</h1>
+          <p className={styles.subtitle}>點圖示換、點金額改預算</p>
+        </div>
         <button
           type="button" className={styles.add} onClick={add}
           aria-label="新增分類" data-testid="categories-add"
@@ -79,7 +82,7 @@ export function CategoriesPage({ categories, txns, onSave, onDelete, onBack }: P
         <SegmentedControl segments={KINDS} value={kind} onChange={switchKind} testId="catkind" />
       </div>
 
-      <p className={styles.hint}>左滑分類卡可以刪除；刪除後已記的帳不會被改動。</p>
+      <p className={styles.hint}>左滑可刪除 · 點名稱改名 · 點圖示換圖</p>
 
       {/* §7.2：標題列與提示行固定，只有分類卡清單捲動 */}
       <div className={styles.scroll} data-testid="categories-scroll">

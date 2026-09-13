@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Icon } from '../../components/Icon';
 import { addSub, removeSub } from '../../domain/categories';
-import { formatCad, toCents } from '../../domain/money';
+import { formatCadWhole, toCents } from '../../domain/money';
 import { colorSetOf } from '../../domain/palette';
 import type { Category } from '../../domain/types';
 import { IconPicker } from './IconPicker';
@@ -56,33 +56,38 @@ export function CategoryCard({
         {...swipe.handlers}
       >
         <div className={styles.head}>
-          <button
-            type="button"
-            className={styles.iconBtn}
-            onClick={() => setPickingIcon((v) => !v)}
-            aria-expanded={pickingIcon}
-            aria-label={`更換 ${c.name} 的圖示`}
-            data-testid={`cat-${c.id}-icon`}
-          >
-            <Icon name={c.icon} size={18} box={34} boxRadius={11} tint={set.tint} />
-          </button>
+          <span className={styles.nameGroup}>
+            <button
+              type="button"
+              className={styles.iconBtn}
+              onClick={() => setPickingIcon((v) => !v)}
+              aria-expanded={pickingIcon}
+              aria-label={`更換 ${c.name} 的圖示`}
+              data-testid={`cat-${c.id}-icon`}
+            >
+              <Icon name={c.icon} size={22} box={32} boxRadius={11} tint={set.tint} />
+            </button>
 
-          <InlineEdit
-            display={c.name}
-            initial={c.name}
-            startEditing={autoEditName}
-            onCancel={onEditedName}
-            onCommit={(name) => { onChange({ ...c, name }); onEditedName?.(); }}
-            label={`分類名稱：${c.name}`}
-            testId={`cat-${c.id}-name`}
-          />
-
-          <span className={styles.spacer} />
+            <InlineEdit
+              display={c.name}
+              initial={c.name}
+              startEditing={autoEditName}
+              onCancel={onEditedName}
+              onCommit={(name) => { onChange({ ...c, name }); onEditedName?.(); }}
+              label={`分類名稱：${c.name}`}
+              testId={`cat-${c.id}-name`}
+            />
+          </span>
 
           {/* 增補檔 B-2：收入分類沒有預算，不顯示金額 pill */}
           {c.kind === 'expense' && (
             <InlineEdit
-              display={formatCad(c.budgetCents ?? 0, 'none')}
+              display={(
+                <>
+                  {formatCadWhole(c.budgetCents ?? 0, 'none')}
+                  <span className={styles.perMonth}>／月</span>
+                </>
+              )}
               initial={String((c.budgetCents ?? 0) / 100)}
               onCommit={(v) => onChange({ ...c, budgetCents: toCents(v) })}
               label={`${c.name} 的月預算`}
@@ -107,13 +112,17 @@ export function CategoryCard({
               key={s.id}
               type="button"
               className={styles.chip}
+              style={{ background: set.tint, color: set.color }}
               // §11-6：至少留一個，剩一個時不給刪
               disabled={c.subs.length <= 1}
               // §11-6 的「至少留一個」判定在 domain 的 removeSub 裡，這裡不重寫一次
               onClick={() => onChange(removeSub(c, s.id))}
               aria-label={`刪除子分類 ${s.name}`}
               data-testid={`sub-${s.id}`}
-            >{s.name}</button>
+            >
+              <span>{s.name}</span>
+              <span aria-hidden="true">✕</span>
+            </button>
           ))}
 
           {addingSub ? (

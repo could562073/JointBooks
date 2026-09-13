@@ -32,6 +32,16 @@ export function seriesMax(...series: readonly (readonly number[])[]): number {
   return Math.max(0, ...series.flatMap((s) => [...s]));
 }
 
+/**
+ * §6 趨勢卡背後的水平淡色格線。純裝飾、與資料無關，均分繪圖區的可用高度。
+ * 預設 3 條：頂、中、底線（底線與折線的基線疊在一起）。
+ */
+export function gridLines(count = 3): number[] {
+  if (count <= 1) return [VIEW.padTop];
+  const usableH = VIEW.h - VIEW.padTop - VIEW.padBottom;
+  return Array.from({ length: count }, (_, i) => round(VIEW.padTop + (usableH * i) / (count - 1)));
+}
+
 /** polyline 的 points 屬性 */
 export function polyline(pts: readonly Pt[]): string {
   return pts.map((p) => `${round(p.x)},${round(p.y)}`).join(' ');

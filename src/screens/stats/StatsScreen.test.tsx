@@ -91,15 +91,12 @@ describe('StatsScreen 的維度切換（MOTION #32）', () => {
     expect(screen.getByTestId('trend-axis').children).toHaveLength(12);
   });
 
-  it('X 軸說明跟著維度變', () => {
-    render(<StatsScreen />);
-    fireEvent.click(screen.getByTestId('dimension-year'));
-    expect(screen.getByTestId('stats-screen')).toHaveTextContent('1–12月');
-  });
+  // 原型的「趨勢」標題右邊是支出／收入圖例，不是文字說明（trendAxisNote），
+  // 已移除畫面上的顯示；trendAxisNote 本身仍是純函式，測試留在 statsLabels.test.ts。
 });
 
 describe('StatsScreen 的數字', () => {
-  it('總覽卡算的是該期間的合計', () => {
+  it('總覽卡算的是該期間的合計（原型的合計數字只到元）', () => {
     useLedger.setState({
       txns: [
         txn({ actualCadCents: 30_000 }),
@@ -108,15 +105,15 @@ describe('StatsScreen 的數字', () => {
       ],
     });
     render(<StatsScreen />);
-    expect(screen.getByTestId('overview-expense')).toHaveTextContent('$500.00');
-    expect(screen.getByTestId('overview-income')).toHaveTextContent('$2,000.00');
-    expect(screen.getByTestId('overview-net')).toHaveTextContent('$1,500.00');
+    expect(screen.getByTestId('overview-expense')).toHaveTextContent('$500');
+    expect(screen.getByTestId('overview-income')).toHaveTextContent('$2,000');
+    expect(screen.getByTestId('overview-net')).toHaveTextContent('$1,500');
   });
 
   it('期間外的紀錄不算進來', () => {
     useLedger.setState({ txns: [txn({ date: '2026-08-15', actualCadCents: 99_900 })] });
     render(<StatsScreen />);
-    expect(screen.getByTestId('overview-expense')).toHaveTextContent('$0.00');
+    expect(screen.getByTestId('overview-expense')).toHaveTextContent('$0');
   });
 
   it('預算的分母跟著維度換算（增補檔 D-1：年 = 12 倍）', () => {
@@ -128,6 +125,6 @@ describe('StatsScreen 的數字', () => {
 
     expect(yearly).not.toBe(monthly);
     // 月預算 $2,100 → 年 $25,200
-    expect(yearly).toContain('$25,200.00');
+    expect(yearly).toContain('$25,200');
   });
 });
