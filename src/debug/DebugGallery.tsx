@@ -15,10 +15,13 @@ const GALLERIES: Record<string, ReactNode> = {
     </div>
   ),
   mantou: (
-    <div style={{ padding: 40, display: 'flex', gap: 24, alignItems: 'flex-end' }}>
-      <Mantou data-testid="mantou-breathing" variant="full" width={72} breathing />
+    // 原型出現過的尺寸：登入頁 104、統計總覽 38、頁籤 22（選中／沒選中）、空狀態 58
+    <div style={{ padding: 40, display: 'flex', flexWrap: 'wrap', gap: 24, alignItems: 'flex-end' }}>
+      <Mantou data-testid="mantou-breathing" variant="full" width={104} breathing />
+      <Mantou variant="full" width={38} />
       <Mantou variant="tab" width={22} />
-      <Mantou variant="empty" width={64} />
+      <Mantou variant="muted" width={22} />
+      <Mantou variant="empty" width={58} />
     </div>
   ),
   gesture: <GestureHarness />,

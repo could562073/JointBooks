@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import styles from './Mantou.module.css';
 
 export type MantouVariant = 'full' | 'tab' | 'partner' | 'muted' | 'empty';
@@ -8,13 +9,42 @@ const PALETTE = {
   tab:   { body: 'var(--c-primary)', hi: 'var(--c-hi)', eye: 'var(--c-face)', foot: 'var(--c-shade)' },
   // 老婆那顆：原型外殼左上的頭像對是紫＋粉各一顆
   partner: { body: 'var(--c-partner)', hi: 'var(--c-partner-hi)', eye: 'var(--c-face)', foot: 'var(--c-partner-shade)' },
-  // 分頁列未選中的那兩顆：原型是灰的，選中才轉紫
-  muted: { body: 'var(--c-muted-body)', hi: 'var(--c-muted-hi)', eye: 'var(--c-muted-eye)', foot: 'var(--c-muted-hi)' },
-  empty: { body: 'var(--c-muted-body)', hi: 'var(--c-muted-hi)', eye: 'var(--c-muted-eye)', foot: 'var(--c-muted-hi)' },
+  // 分頁列未選中的那兩顆：原型是疊在分頁列底色上的半透明暖灰，不是空狀態的冷灰
+  muted: { body: 'var(--c-tab-idle-body)', hi: 'var(--c-tab-idle-hi)', eye: 'var(--c-tab-idle-eye)', foot: 'var(--c-tab-idle-body)' },
+  // 空狀態（原型「這天還沒有紀錄」）
+  empty: { body: 'var(--c-muted-body)', hi: 'var(--c-muted-gloss)', eye: 'var(--c-muted-eye)', foot: 'var(--c-muted-hi)' },
 } as const;
 
-// 寬 > 高：高度是寬度的 0.82
-const ASPECT = 0.82;
+/** 高度÷寬度。完整饅頭：原型 104×84、78×62、38×30、58×46；頭像與頁籤：30×25、36×30、44×37、22×18 */
+const ASPECT = 0.8;
+const ASPECT_SIMPLE = 0.835;
+
+/** 這個寬度以上才畫腮紅與底部內陰影：原型 78、104 的有，38、58 的沒有 */
+const BIG = 60;
+
+const BODY_RADIUS = '50% 50% 34% 34% / 64% 64% 36% 36%';
+/** 頁籤饅頭的下緣圓角小一點（原型 32%） */
+const ICON_RADIUS = '50% 50% 32% 32% / 64% 64% 36% 36%';
+
+/*
+ * 五官位置照原型量出來的比例：top／height 是本體高度的百分比，left／width 是本體寬度的
+ * 百分比，眼睛寬度是本體寬度的倍數。原型每個尺寸是各自手調的像素，這裡取中間值，
+ * 換算回原型那幾個尺寸誤差都在 1px 內。
+ */
+const FACES = {
+  /** 頁籤 22×18 */
+  icon:   { hi: [14, 18, 36, 17],     hiOpacity: 1,   eyeTop: 42,   eyeSide: 20.5, eyeW: 0.136 },
+  /** 頭像 30×25、36×30、44×37 */
+  avatar: { hi: [12, 21, 45, 19.5],   hiOpacity: .85, eyeTop: 46,   eyeSide: 24,   eyeW: 0.12 },
+  /** 空狀態 58×46 */
+  empty:  { hi: [11, 20.7, 43, 19.6], hiOpacity: 1,   eyeTop: 45.7, eyeSide: 25.9, eyeW: 0.087 },
+  /** 小顆完整饅頭 38×30（統計頁總覽） */
+  small:  { hi: [13, 21, 42, 20],     hiOpacity: .8,  eyeTop: 46.7, eyeSide: 26.3, eyeW: 0.105 },
+  /** 大顆完整饅頭 78×62、104×84（登入頁） */
+  big:    { hi: [11, 21, 44, 20.5],   hiOpacity: .8,  eyeTop: 46.5, eyeSide: 26,   eyeW: 0.087 },
+} as const;
+
+const pct = (n: number) => `${n}%`;
 
 type Props = {
   variant: MantouVariant;
@@ -43,8 +73,49 @@ export function Mantou({
   className, 'data-testid': testId,
 }: Props) {
   const c = PALETTE[variant];
-  const h = Math.round(width * ASPECT);
-  const eye = Math.max(2, Math.round(width * 0.1));
+  // 頁籤饅頭一律是簡化版（原型 22×18 只有高光與眼睛）
+  const icon = variant === 'tab' || variant === 'muted';
+  const simple = minimal || icon;
+  const empty = variant === 'empty';
+  const big = !simple && !empty && width >= BIG;
+  const f = FACES[icon ? 'icon' : simple ? 'avatar' : empty ? 'empty' : big ? 'big' : 'small'];
+  const h = Math.round(width * (simple ? ASPECT_SIMPLE : ASPECT));
+
+  const eyeW = Math.max(3, Math.round(width * f.eyeW));
+  const eye: CSSProperties = {
+    top: pct(f.eyeTop),
+    width: eyeW,
+    height: simple ? eyeW + 1 : Math.round(eyeW * 1.2),
+    background: c.eye,
+  };
+
+  // 完整饅頭的嘴是實心的下半圓（笑）；空狀態是一條平線
+  let mouth: CSSProperties | null = null;
+  if (!simple && empty) {
+    mouth = {
+      top: '65.2%', width: Math.round(width * 0.172), height: Math.max(2, Math.round(width / 29)),
+      borderRadius: 2, background: c.eye,
+    };
+  } else if (!simple) {
+    const w = Math.round(width * (big ? 0.115 : 0.16));
+    mouth = {
+      top: big ? '61%' : '66.5%', width: w, height: Math.max(2, Math.round(w / 2)),
+      borderRadius: `0 0 ${w}px ${w}px`, background: c.eye,
+    };
+  }
+
+  const footW = Math.round(width * 0.21);
+  const footR = Math.round(footW * 0.55);
+  const foot: CSSProperties = {
+    width: footW, height: Math.round(h * 0.17), borderRadius: `0 0 ${footR}px ${footR}px`, background: c.foot,
+  };
+  const footSide = empty ? '12%' : '11.8%';
+
+  const shadows = [
+    big ? `inset 0 -${Math.round(width * 0.087)}px 0 var(--c-mantou-shade)` : '',
+    // true＝描頁面底色；給色碼字串時描那個色（例如疊在白卡上要描白）
+    ring ? `0 0 0 ${ringWidth}px ${ring === true ? 'var(--c-bg)' : ring}` : '',
+  ].filter(Boolean);
 
   return (
     <span
@@ -54,6 +125,14 @@ export function Mantou({
       style={{ width: `${width}px`, height: `${h}px` }}
       aria-hidden="true"
     >
+      {/* 腳先畫、本體蓋在上面：只從本體底部的圓角露出一點（原型） */}
+      {!simple && (
+        <>
+          <span data-part="foot" className={styles.foot} style={{ ...foot, left: footSide }} />
+          <span data-part="foot" className={styles.foot} style={{ ...foot, right: footSide }} />
+        </>
+      )}
+
       <span
         data-part="body"
         className={styles.body}
@@ -61,55 +140,37 @@ export function Mantou({
           width: `${width}px`,
           height: `${h}px`,
           background: c.body,
-          borderRadius: '50% 50% 34% 34% / 64% 64% 36% 36%',
-          // true＝描頁面底色；給色碼字串時描那個色（例如疊在白卡上要描白）
-          ...(ring ? { boxShadow: `0 0 0 ${ringWidth}px ${ring === true ? 'var(--c-bg)' : ring}` } : {}),
+          borderRadius: icon ? ICON_RADIUS : BODY_RADIUS,
+          ...(shadows.length > 0 ? { boxShadow: shadows.join(', ') } : {}),
         }}
       >
         <span
           data-part="hi"
           className={styles.hi}
-          style={{ width: '46%', background: c.hi }}
+          style={{
+            top: pct(f.hi[0]), left: pct(f.hi[1]), width: pct(f.hi[2]), height: pct(f.hi[3]),
+            background: c.hi, opacity: f.hiOpacity,
+          }}
         />
-        <span data-part="eye" className={styles.eye}
-              style={{ width: eye, height: eye * 1.25, background: c.eye, left: '32%' }} />
-        <span data-part="eye" className={styles.eye}
-              style={{ width: eye, height: eye * 1.25, background: c.eye, right: '32%' }} />
+        <span data-part="eye" className={styles.eye} style={{ ...eye, left: pct(f.eyeSide) }} />
+        <span data-part="eye" className={styles.eye} style={{ ...eye, right: pct(f.eyeSide) }} />
 
-        {variant !== 'tab' && !minimal && (
-          <span
-            data-part="mouth"
-            data-dir={variant === 'empty' ? 'up' : 'down'}
-            className={styles.mouth}
-            style={{
-              width: `${width * 0.16}px`,
-              height: `${width * 0.09}px`,
-              borderColor: c.eye,
-              // 空狀態的嘴是向上弧線
-              borderRadius: variant === 'empty'
-                ? '100% 100% 0 0 / 100% 100% 0 0'
-                : '0 0 100% 100% / 0 0 100% 100%',
-              borderWidth: variant === 'empty' ? '1.5px 1.5px 0 1.5px' : '0 1.5px 1.5px 1.5px',
-            }}
-          />
-        )}
-
-        {variant === 'full' && !minimal && (
+        {big && (
           <>
-            <span data-part="blush" className={styles.blush} style={{ left: '8%' }} />
-            <span data-part="blush" className={styles.blush} style={{ right: '8%' }} />
+            <span data-part="blush" className={styles.blush} style={{ left: '14.3%' }} />
+            <span data-part="blush" className={styles.blush} style={{ right: '14.3%' }} />
           </>
         )}
-      </span>
 
-      {variant === 'full' && !minimal && (
-        <>
-          <span data-part="foot" className={styles.foot}
-                style={{ background: c.foot, left: '20%' }} />
-          <span data-part="foot" className={styles.foot}
-                style={{ background: c.foot, right: '20%' }} />
-        </>
-      )}
+        {mouth && (
+          <span
+            data-part="mouth"
+            data-shape={empty ? 'flat' : 'smile'}
+            className={styles.mouth}
+            style={mouth}
+          />
+        )}
+      </span>
     </span>
   );
 }

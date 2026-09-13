@@ -46,6 +46,15 @@
   --c-muted-body: #DEDCE6;
   --c-muted-hi: #CDCBD6;
   --c-muted-eye: #8D89A1;
+  --c-muted-gloss: #E9E7F0;
+
+  /* 分頁列沒選中的饅頭：原型是疊在分頁列底色上的半透明暖灰 */
+  --c-tab-idle-body: rgba(74, 63, 54, .16);
+  --c-tab-idle-hi: rgba(74, 63, 54, .07);
+  --c-tab-idle-eye: rgba(74, 63, 54, .42);
+
+  /* 大饅頭底部那一圈內陰影 */
+  --c-mantou-shade: rgba(74, 63, 54, .06);
 
   /* 圓角 */
   --r-lg: 24px;   /* 大卡 */

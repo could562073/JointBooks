@@ -61,7 +61,7 @@ describe('TabBar', () => {
     const body = (id: string) =>
       screen.getByTestId(id).querySelector('[data-part="body"]') as HTMLElement;
     expect(body('tab-stats').style.background).toBe('var(--c-primary)');
-    expect(body('tab-daily').style.background).toBe('var(--c-muted-body)');
+    expect(body('tab-daily').style.background).toBe('var(--c-tab-idle-body)');
     expect(container.querySelectorAll('[data-part="body"]')).toHaveLength(3);
   });
 

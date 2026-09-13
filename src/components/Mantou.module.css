@@ -1,44 +1,33 @@
 .root { position: relative; display: inline-block; flex: none; }
 
-.body { position: relative; display: block; }
+/* 本體與外框同大小；五官都以本體為定位基準 */
+.body { position: absolute; top: 0; left: 0; display: block; }
 
-.hi {
-  position: absolute;
-  top: 12%;
-  left: 14%;
-  height: 22%;
-  border-radius: 50%;
-  opacity: .8;
-}
+.hi,
+.eye,
+.blush,
+.mouth,
+.foot { position: absolute; display: block; }
 
-.eye { position: absolute; top: 46%; border-radius: 50%; }
+.hi,
+.eye { border-radius: 50%; }
 
-.mouth {
-  position: absolute;
-  bottom: 20%;
-  left: 50%;
-  transform: translateX(-50%);
-  border-style: solid;
-  background: transparent;
-}
-
+/* 原型 104×84 的腮紅是 16×8 的扁橢圓 */
 .blush {
-  position: absolute;
-  bottom: 24%;
-  width: 16%;
-  aspect-ratio: 1;
+  top: 62%;
+  width: 15.4%;
+  height: 9.6%;
   border-radius: 50%;
   background: var(--c-blush);
   opacity: .55;
 }
 
-.foot {
-  position: absolute;
-  bottom: -6%;
-  width: 22%;
-  height: 12%;
-  border-radius: var(--r-pill);
+.mouth {
+  left: 50%;
+  transform: translateX(-50%);
 }
+
+.foot { bottom: 0; }
 
 /* MOTION 30：呆滯呼吸 */
 .breathing {
