@@ -52,9 +52,9 @@ Pages，或用 `npx localtunnel --port 5173` 之類的工具開一條 HTTPS 通�
 
 ### 3. Google 登入與同步（G 組、I 組）
 
-先到 Google Cloud Console → API 和服務 → 憑證 → 建立 OAuth 用戶端 ID（網頁應用
-程式），「已授權的重新導向 URI」填 `<你的網址>/auth/callback`，**必須與 App 的
-origin 完全一致**。然後：
+Google Cloud Console 的完整設定步驟寫在 `.env.example` 開頭。重點是：建立 OAuth
+用戶端 ID（網頁應用程式），「已授權的 JavaScript 來源」加入 `http://localhost` 與
+`http://localhost:5173`。不需要重新導向 URI，也不需要用戶端密碼。然後：
 
 ```bash
 cp .env.example .env.local
@@ -62,8 +62,10 @@ cp .env.example .env.local
 npm run dev
 ```
 
-設定之後 App 會先停在登入頁。範圍只要 `drive.file`，授權畫面上應該只看到
-「建立與編輯這一份試算表」，不是整個雲端硬碟（G1 驗的就是這件事）。
+瀏覽器要開 `http://localhost:5173`，不要開 `127.0.0.1`，否則 Google 會回
+`401 invalid_client`（no registered origin）。設定之後 App 會先停在登入頁，按登入
+會跳出 Google 授權視窗，要求讀寫 Google 試算表的權限（G1 驗的就是這件事）。
+同意畫面還在「測試中」時，只有列在「測試使用者」裡的帳號能登入，而且每 7 天要重新同意一次。
 
 **I 組的邀請流程需要第二支手機或另一個 Google 帳號**：第一支登入後從配置頁開
 邀請面板拿連結，第二支開那條連結。QR 直接用第二支手機的相機掃。
@@ -71,7 +73,7 @@ npm run dev
 ### 4. 已經自動化、不用手動再驗的
 
 ```bash
-npx vitest run              # 948 條，含 src/acceptance 的 §15 驗收套件
+npx vitest run              # 996 條，含 src/acceptance 的 §15 驗收套件
 npx vitest run src/acceptance   # 只跑驗收套件，58 條
 npx playwright test         # 手勢引擎的真實瀏覽器測試
 ```
@@ -276,6 +278,6 @@ http://localhost:5173/?debug=mantou    # 饅頭三種變體與呼吸動畫
 | R3 | 分類卡左滑 | 同上 | §15.3-33 | 待驗 |
 | R4 | 明細垂直捲動時稍微帶點橫向 | 不會誤觸左右換月 | §15.3-35 | 待驗 |
 | R5 | iOS Safari 加到主畫面後開 | 底部安全區正確、鍵盤彈出時面板不被遮、整頁沒有橡皮筋 | §15.3-36 | 待驗 |
-| R6 | standalone 模式下走一次 Google 登入 | redirect 回程正確回到 App，不會開到 Safari 另一個分頁 | §15.3-37 | 待驗 |
+| R6 | standalone 模式下走一次 Google 登入 | 授權視窗關掉後回到同一個 App 畫面，同步狀態變成已同步，不會停在 Safari 另一個分頁 | §15.3-37 | 待驗 |
 | R7 | 真機看底部分頁列與面板的毛玻璃 | 觀感與原型一致 | §15.3-38 | 待驗 |
 | R8 | 記一筆、切分頁、刪除各觸發一次觸覺回饋 | 強度不過重 | §15.3-39 | 待驗 |
