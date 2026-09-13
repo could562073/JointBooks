@@ -17,6 +17,13 @@
   background: var(--c-income);
 }
 
+/* 外殼膠囊裡的小圓點（原型 6px #4E9B7A）。放在狀態色之前，離線／失敗的顏色才蓋得過它 */
+.dotPill {
+  width: 6px;
+  height: 6px;
+  background: var(--c-sync);
+}
+
 .dot[data-state="offline"] { background: var(--c-text-4); }
 .dot[data-state="error"]   { background: var(--c-expense); }
 
@@ -38,3 +45,20 @@
   font-size: 11px;
   color: var(--c-text-3);
 }
+
+/*
+ * 外殼膠囊（原型：Noto Sans TC 10.5px、600、#3E7F63）。字型只打包了 400／500／700，
+ * 600 會落到 700 那一套，跟原型看起來一樣粗。
+ */
+.rowPill { gap: 5px; }
+
+.textPill {
+  font-family: var(--f-body);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--c-income);
+  white-space: nowrap;
+}
+
+.textPill[data-state="offline"],
+.textPill[data-state="error"] { color: var(--c-text-3); }

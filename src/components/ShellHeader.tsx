@@ -31,7 +31,7 @@ export function ShellHeader({ syncState, lastSyncAt, onRetrySync }: Props) {
           </span>
 
           <span className={styles.pill}>
-            <SyncStatus state={syncState} lastSyncAt={lastSyncAt} {...(onRetrySync ? { onRetry: onRetrySync } : {})} />
+            <SyncStatus tone="pill" state={syncState} lastSyncAt={lastSyncAt} {...(onRetrySync ? { onRetry: onRetrySync } : {})} />
           </span>
         </div>
 
