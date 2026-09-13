@@ -80,6 +80,15 @@ describe('Mantou', () => {
     expect([eye.style.width, eye.style.height]).toEqual(['3px', '4px']);
   });
 
+  it('給了顏色就換成那組 token；灰階的空狀態不受影響', () => {
+    const { container } = render(<Mantou variant="partner" width={30} minimal color="mint" />);
+    expect(container.querySelector<HTMLElement>('[data-part="body"]')!.style.background).toBe('var(--c-mantou-mint)');
+    expect(container.querySelector<HTMLElement>('[data-part="hi"]')!.style.background).toBe('var(--c-mantou-mint-hi)');
+
+    const { container: empty } = render(<Mantou variant="empty" width={58} color="mint" />);
+    expect(empty.querySelector<HTMLElement>('[data-part="body"]')!.style.background).toBe('var(--c-muted-body)');
+  });
+
   // 嘴和眼睛共用 PALETTE 的 eye 欄位。只能用變數，不可用色碼字面量：斷言比對變數名稱。
   it('嘴／眼共用的顏色欄位套用 token 變數，不是色碼字面量', () => {
     expect(parts('full', 64, 'mouth')[0]!.style.background).toBe('var(--c-face)');

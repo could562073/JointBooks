@@ -2,6 +2,8 @@ import { NeedsConnectError, type TokenProvider } from '../auth/gis';
 import type { Txn } from '../domain/types';
 import type { SheetsClient } from '../sheets/client';
 import { REV_RANGE } from '../sheets/ledgerSheet';
+import { MEMBERS_RANGE, MEMBERS_READ_RANGE, membersToRows, rowsToMembers } from '../sheets/memberRows';
+import type { MembersSync } from './members';
 import type { SyncState } from './state';
 import { createSyncEngine } from './syncEngine';
 
@@ -24,6 +26,8 @@ export type SyncControllerDeps = {
   /** 含已刪除的紀錄（假刪也要推上去，對方那邊才會消失） */
   localTxns(): Promise<Txn[]>;
   saveTxns(ts: readonly Txn[]): Promise<void>;
+  /** 成員名稱與饅頭顏色（配置頁可改）；不給就不同步成員 */
+  members?: MembersSync;
   /** 同步完成後讓畫面重讀本機資料 */
   onPulled(): Promise<void> | void;
   onState(s: SyncState): void;
@@ -68,6 +72,26 @@ export function createSyncController(d: SyncControllerDeps): SyncController {
     return rows[0]?.[0] ?? '';
   }
 
+  /**
+   * 成員名稱與饅頭顏色：本機改過就推（最後寫入的贏）；沒改過、雲端有變才拉。
+   * 回傳有沒有推——推了要改版本戳記，對方才會來拉。
+   */
+  async function syncMembers(sid: string, localDirty: boolean, remoteChanged: boolean): Promise<boolean> {
+    const m = d.members;
+    if (!m) return false;
+    if (localDirty) {
+      const mine = await m.local();
+      await d.client.update(sid, MEMBERS_RANGE, membersToRows(mine));
+      await m.markPushed(mine);
+      return true;
+    }
+    if (remoteChanged) {
+      const pulled = rowsToMembers(await d.client.get(sid, MEMBERS_READ_RANGE));
+      if (pulled) await m.save(pulled);
+    }
+    return false;
+  }
+
   async function cycle(): Promise<void> {
     const sid = d.spreadsheetId();
     if (!sid) return;
@@ -79,14 +103,17 @@ export function createSyncController(d: SyncControllerDeps): SyncController {
       // 版本戳記要在同步「之前」讀：同步途中對方剛好也推了，若同步完才讀，
       // 會把對方那次的戳記當成已經拉過，下一輪就錯過它
       const revBefore = await readRev(sid);
-      if (!dirty && revBefore === lastRev) return;
+      const membersDirty = (await d.members?.dirty()) ?? false;
+      if (!dirty && !membersDirty && revBefore === lastRev) return;
 
       const r = await engine.syncOnce();
       if (r.state !== 'synced') return;   // offline／needs-auth／error：保留 dirty，下一輪再來
 
+      const pushedMembers = await syncMembers(sid, membersDirty, revBefore !== lastRev);
+
       dirty = false;
       lastRev = revBefore;
-      if (r.pushed > 0) {
+      if (r.pushed > 0 || pushedMembers) {
         // 通知對方有新東西。自己不記這個新戳記，下一輪會再完整同步一次，
         // 順便收到同步途中對方可能推上來的變更
         await d.client.update(sid, REV_RANGE, [[String(now())]]);

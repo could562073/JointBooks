@@ -22,7 +22,8 @@ import { connectErrorText, createCloud, ensureLedger, type Cloud } from './sync/
 import { isConfigured, readConfig } from './sync/config';
 import { createSyncController, type SyncController } from './sync/controller';
 import { joinLedger, joinOutcomeText } from './sync/joinLedger';
-import { joinedSid, setJoinedSid } from './sync/ledgerId';
+import { joinedSid, setJoinedSid, setSelfPerson } from './sync/ledgerId';
+import { membersSync } from './sync/members';
 import styles from './App.module.css';
 
 // 只在 dev 模式下才會走到這裡；production 建置時 import.meta.env.DEV 會被
@@ -158,7 +159,8 @@ function Join({ search, cloud }: { search: string; cloud: Cloud | null }) {
         const sid = state.sid;
 
         // 純本機模式（沒設定 Google）：只記下帳本 id
-        if (!cloud) { void setJoinedSid(sid).then(goHome); return; }
+        // 用邀請連結加入的人：這台裝置之後記帳都記成「妻」
+        if (!cloud) { void Promise.all([setJoinedSid(sid), setSelfPerson('妻')]).then(goHome); return; }
 
         setError(null);
         setBusy(true);
@@ -172,7 +174,7 @@ function Join({ search, cloud }: { search: string; cloud: Cloud | null }) {
           .then((r) => {
             const msg = joinOutcomeText(r);
             if (msg) setError(msg);
-            else goHome();
+            else void setSelfPerson('妻').then(goHome);
           })
           .catch((e) => setError(connectErrorText(e)))
           .finally(() => setBusy(false));
@@ -186,6 +188,7 @@ function Join({ search, cloud }: { search: string; cloud: Cloud | null }) {
 function Shell({ cloud }: { cloud: Cloud | null }) {
   const ready = useLedger((s) => s.ready);
   const tab = useLedger((s) => s.tab);
+  const members = useLedger((s) => s.members);
   const setTab = useLedger((s) => s.setTab);
   const load = useLedger((s) => s.load);
   const categories = useLedger((s) => s.categories);
@@ -251,6 +254,8 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
       onPulled: () => useLedger.getState().load(),
       onState: (s) => useLedger.getState().setSyncState(s),
       onSynced: (at) => useLedger.getState().markSynced(at),
+      // 成員名稱與饅頭顏色：配置頁改了就推，對方改了就拉
+      members: membersSync,
     });
     syncRef.current = ctl;
 
@@ -292,7 +297,7 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
 
   return (
     <div className={styles.shell} data-testid="app-root">
-      <ShellHeader syncState={syncState} lastSyncAt={lastSyncAt} onRetrySync={retrySync} />
+      <ShellHeader syncState={syncState} lastSyncAt={lastSyncAt} onRetrySync={retrySync} members={members} />
 
       {/* key 帶著 tab：換頁就重掛，CSS 進場動畫才會重播（MOTION #8） */}
       <div
@@ -323,6 +328,7 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
             syncState={syncState}
             lastSyncAt={lastSyncAt}
             onRetrySync={retrySync}
+            onMembersChanged={pushSoon}
           />
         )}
       </div>

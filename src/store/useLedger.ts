@@ -1,7 +1,10 @@
 import { create } from 'zustand';
 import { ledgerRepo, type NewTxnInput } from '../repo/ledgerRepo';
 import { addMonths, clampDay, todayLocal, parseDate } from '../domain/date';
-import type { Category, Dimension, Txn } from '../domain/types';
+import { DEFAULT_MEMBERS, normalizeMembers, type Member, type Members } from '../domain/members';
+import type { Category, Dimension, Person, Txn } from '../domain/types';
+import { SELF_KEY } from '../sync/ledgerId';
+import { MEMBERS_DIRTY_KEY, MEMBERS_KEY } from '../sync/members';
 import type { SyncState } from '../sync/state';
 
 export type Tab = 'daily' | 'stats' | 'settings';
@@ -21,6 +24,10 @@ export type LedgerState = {
   txns: Txn[];
   showWhoTags: boolean;
   notifyOnPartnerEntry: boolean;
+  /** 這台裝置的人是帳本裡的哪一位：記帳一律記成他（使用者要求，不再手動切換） */
+  self: Person;
+  /** 兩位成員的名稱與饅頭顏色（配置頁可改，會同步到雲端） */
+  members: Members;
   /** §14.6 的同步狀態機，直接餵給 MOTION #26 的狀態點 */
   syncState: SyncState;
   lastSyncAt: number | null;
@@ -40,6 +47,8 @@ export type LedgerState = {
   deleteCategory(id: string): Promise<void>;
   toggleWhoTags(): Promise<void>;
   toggleNotify(): Promise<void>;
+  /** 改名或換色：存本機並標記待推；呼叫端接著要求同步 */
+  setMember(p: Person, patch: Partial<Member>): Promise<void>;
 };
 
 const now = parseDate(todayLocal());
@@ -55,6 +64,8 @@ export const useLedger = create<LedgerState>((set, get) => ({
   txns: [],
   showWhoTags: true,
   notifyOnPartnerEntry: true,
+  self: '我',
+  members: normalizeMembers(DEFAULT_MEMBERS),
   syncState: 'idle',
   lastSyncAt: null,
 
@@ -64,17 +75,22 @@ export const useLedger = create<LedgerState>((set, get) => ({
 
   async load() {
     await ledgerRepo.bootstrap();
-    const [categories, txns, showWhoTags, notifyOnPartnerEntry] = await Promise.all([
+    const [categories, txns, showWhoTags, notifyOnPartnerEntry, self, members] = await Promise.all([
       ledgerRepo.listCategories(),
       ledgerRepo.listTxns(),
       ledgerRepo.getMeta<boolean>(SHOW_WHO_TAGS_KEY),
       ledgerRepo.getMeta<boolean>(NOTIFY_ON_PARTNER_ENTRY_KEY),
+      ledgerRepo.getMeta<string>(SELF_KEY),
+      ledgerRepo.getMeta<unknown>(MEMBERS_KEY),
     ]);
     set({
       categories, txns, ready: true,
       // §7.3：兩個開關預設開啟；讀不到（第一次啟動）就維持預設值
       showWhoTags: showWhoTags ?? true,
       notifyOnPartnerEntry: notifyOnPartnerEntry ?? true,
+      // 只有加入流程成功時會寫成「妻」；其他情況都是建立帳本的人
+      self: self === '妻' ? '妻' : '我',
+      members: normalizeMembers(members),
     });
   },
 
@@ -126,6 +142,14 @@ export const useLedger = create<LedgerState>((set, get) => ({
   },
 
   /** §7.3：切換後立即反映在畫面，並持久化到 meta，下次啟動仍記得（I9） */
+  async setMember(p, patch) {
+    const cur = get().members;
+    const next = normalizeMembers({ ...cur, [p]: { ...cur[p], ...patch } });
+    set({ members: next });
+    await ledgerRepo.setMeta(MEMBERS_KEY, next);
+    await ledgerRepo.setMeta(MEMBERS_DIRTY_KEY, true);
+  },
+
   async toggleWhoTags() {
     const next = !get().showWhoTags;
     set({ showWhoTags: next });

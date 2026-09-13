@@ -284,35 +284,24 @@
   will-change: transform;
 }
 
-.people {
+/* 誰記的：這台裝置使用者的饅頭＋名稱，只顯示不切換（使用者要求） */
+.who {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
   margin-top: 3px;
+  min-width: 0;
 }
 
-/* 誰記的：兩顆 24px 小圓臉，沒選中的淡到 .35 */
-.face {
-  position: relative;
-  flex: none;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  opacity: .35;
-  cursor: pointer;
-}
-
-.face[data-selected] { opacity: 1; }
-
-.eye {
-  position: absolute;
-  top: 9px;
-  width: 3.5px;
-  height: 4.5px;
-  border-radius: 50%;
-  background: var(--c-text);
+.whoName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--f-body);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--c-text);
 }
 
 /*

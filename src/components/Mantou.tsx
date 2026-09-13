@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import type { MantouColor } from '../domain/mantouColors';
 import styles from './Mantou.module.css';
 
 export type MantouVariant = 'full' | 'tab' | 'partner' | 'muted' | 'empty';
@@ -64,15 +65,27 @@ type Props = {
    */
   minimal?: boolean;
   className?: string;
+  /** 使用者在配置頁幫這個人選的顏色；給了就蓋過 variant 的紫／粉（灰階的 muted、empty 不受影響） */
+  color?: MantouColor;
   /** 轉發給根元素，供 e2e 定位 */
   'data-testid'?: string;
 };
 
+/** 可選顏色對應的 token：身體、高光、腳；眼睛一律深咖啡 */
+export function mantouPalette(color: MantouColor) {
+  return {
+    body: `var(--c-mantou-${color})`,
+    hi: `var(--c-mantou-${color}-hi)`,
+    eye: 'var(--c-face)',
+    foot: `var(--c-mantou-${color}-shade)`,
+  };
+}
+
 export function Mantou({
   variant, width, breathing = false, ring = false, ringWidth = 2.5, minimal = false,
-  className, 'data-testid': testId,
+  color, className, 'data-testid': testId,
 }: Props) {
-  const c = PALETTE[variant];
+  const c = color && variant !== 'muted' && variant !== 'empty' ? mantouPalette(color) : PALETTE[variant];
   // 頁籤饅頭一律是簡化版（原型 22×18 只有高光與眼睛）
   const icon = variant === 'tab' || variant === 'muted';
   const simple = minimal || icon;

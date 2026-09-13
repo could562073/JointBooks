@@ -5,6 +5,7 @@ import { formatCents, formatOriginal } from '../../domain/money';
 import type { Category, Txn } from '../../domain/types';
 import { DUR } from '../../lib/motion';
 import { useReducedMotion } from '../../lib/useReducedMotion';
+import { useLedger } from '../../store/useLedger';
 import { avatarColor, riseDelay, txnTime } from './txnRow';
 import styles from './TxnList.module.css';
 
@@ -62,6 +63,8 @@ type RowProps = {
 };
 
 function TxnRow({ txn, category, showWhoTags, onEdit, delayMs, collapsing }: RowProps) {
+  // 記帳人頭像跟著配置頁幫兩人選的饅頭顏色
+  const members = useLedger((s) => s.members);
   const isIncome = category?.kind === 'income';
   const set = colorSetOf(category?.colorSet ?? 0);
 
@@ -115,7 +118,7 @@ function TxnRow({ txn, category, showWhoTags, onEdit, delayMs, collapsing }: Row
             aria-hidden={!showWhoTags}
           >
             {/* 原型的頭像是一顆 22px 的小饅頭臉，不是「我／妻」兩個字 */}
-            <span className={styles.face} style={{ background: avatarColor(txn.by) }}>
+            <span className={styles.face} style={{ background: avatarColor(members[txn.by].color) }}>
               <span className={styles.eye} style={{ left: '5.5px' }} />
               <span className={styles.eye} style={{ right: '5.5px' }} />
             </span>

@@ -1,4 +1,4 @@
-import type { Person } from '../../domain/types';
+import type { MantouColor } from '../../domain/mantouColors';
 
 /**
  * §4 明細列的時間。createdAt 是 ISO 8601，這裡取本地時間的時:分。
@@ -11,9 +11,9 @@ export function txnTime(createdAt: string): string {
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
-/** §4：記帳人頭像底色。我 = 主色紫，老婆 = 收入條的粉 */
-export function avatarColor(by: Person): string {
-  return by === '我' ? '#B7A6E5' : '#DDA6D0';
+/** §4：記帳人頭像底色，跟著配置頁幫這個人選的饅頭顏色 */
+export function avatarColor(color: MantouColor): string {
+  return `var(--c-mantou-${color})`;
 }
 
 /**

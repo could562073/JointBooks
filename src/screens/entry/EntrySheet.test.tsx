@@ -3,6 +3,8 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { defaultCategories } from '../../domain/categories';
 import { DUR } from '../../lib/motion';
 import type { Category, Txn } from '../../domain/types';
+import { DEFAULT_MEMBERS } from '../../domain/members';
+import { useLedger } from '../../store/useLedger';
 import { EntrySheet } from './EntrySheet';
 
 let n = 0;
@@ -65,7 +67,8 @@ describe('EntrySheet 的兩種模式', () => {
     render(<EntrySheet {...BASE} txn={txn()} />);
     expect(screen.getByTestId('field-amount')).toHaveTextContent('12.50');
     expect(screen.getByTestId('entry-note')).toHaveValue('原本的備註');
-    expect(screen.getByTestId('by-妻')).toHaveAttribute('aria-pressed', 'true');
+    // 編輯別人記的帳：保留原本記帳的人（預設名稱雪雪大人）
+    expect(screen.getByTestId('who')).toHaveTextContent('雪雪大人');
     // 日期卡照原型顯示 ISO 日期
     expect(screen.getByTestId('date-row')).toHaveTextContent('2026-08-20');
   });
@@ -188,14 +191,24 @@ describe('EntrySheet 的分類與日期（使用者裁決：分類一直展開�
   });
 });
 
-describe('EntrySheet 的誰記的', () => {
-  it('是兩顆小圓臉而不是「我」「妻」文字，選中的那顆 aria-pressed', () => {
+describe('EntrySheet 的誰記的（跟著這台裝置的使用者）', () => {
+  afterEach(() => useLedger.setState({ self: '我', members: DEFAULT_MEMBERS }));
+
+  it('建立帳本的人的手機：顯示他的名稱，沒有切換鈕', () => {
     render(<EntrySheet {...BASE} />);
-    expect(screen.getByTestId('by-我').textContent).toBe('');
-    expect(screen.getByTestId('by-我')).toHaveAccessibleName('我');
-    fireEvent.click(screen.getByTestId('by-妻'));
-    expect(screen.getByTestId('by-妻')).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByTestId('by-我')).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByTestId('who')).toHaveTextContent('老公');
+    expect(screen.queryByTestId('by-妻')).not.toBeInTheDocument();
+  });
+
+  it('加入的人的手機：新的一筆記成她，名稱照配置頁設定', () => {
+    useLedger.setState({ self: '妻', members: { ...DEFAULT_MEMBERS, 妻: { name: '小雪', color: 'mint' } } });
+    const onSave = vi.fn();
+    render(<EntrySheet {...BASE} onSave={onSave} />);
+    expect(screen.getByTestId('who')).toHaveTextContent('小雪');
+
+    typeAmount('5');
+    fireEvent.click(screen.getByTestId('key-save'));
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ by: '妻' }));
   });
 });
 

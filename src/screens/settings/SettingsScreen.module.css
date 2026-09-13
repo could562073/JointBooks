@@ -274,3 +274,81 @@
   from { opacity: .35; transform: translate3d(-38px, 0, 0); }
   to   { opacity: 1; transform: none; }
 }
+
+/* 帳本成員：點頭像或名稱展開編輯。整列可換行，編輯區落在同一格虛線裡 */
+.member { flex-wrap: wrap; }
+
+.memberMain {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  border: 0;
+  background: none;
+  padding: 0;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+
+.memberEdit {
+  flex: 1 0 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 2px 0 4px;
+  animation: memberEditIn var(--pop) var(--ease-enter) both;
+}
+
+@keyframes memberEditIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.editLabel {
+  font-family: var(--f-body);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-text-3);
+}
+
+.nameInput {
+  width: 100%;
+  border: 2px solid rgba(74, 63, 54, .12);
+  border-radius: var(--r-pill);
+  padding: 8px 14px;
+  background: var(--c-card);
+  font-family: var(--f-body);
+  /* §12.3：輸入欄位 ≥16px，Safari 才不會自動放大整頁 */
+  font-size: 16px;
+  color: var(--c-text);
+}
+
+.nameInput:focus-visible {
+  outline: none;
+  border-color: var(--c-primary);
+}
+
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* 可選的饅頭：44px 寬的格子，選中的描一圈主色 */
+.swatch {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 40px;
+  border: 0;
+  border-radius: 14px;
+  background: rgba(74, 63, 54, .04);
+  cursor: pointer;
+}
+
+.swatch[data-selected] {
+  background: var(--c-tint);
+  box-shadow: inset 0 0 0 2px var(--c-primary);
+}

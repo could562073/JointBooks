@@ -1,5 +1,6 @@
 import { Mantou } from './Mantou';
 import { SyncStatus } from './SyncStatus';
+import { DEFAULT_MEMBERS, type Members } from '../domain/members';
 import type { SyncState } from '../sync/state';
 import styles from './ShellHeader.module.css';
 
@@ -7,6 +8,8 @@ type Props = {
   syncState: SyncState;
   lastSyncAt: number | null;
   onRetrySync?(): void;
+  /** 兩顆頭像跟著配置頁幫兩人選的饅頭顏色 */
+  members?: Members;
 };
 
 /**
@@ -16,7 +19,7 @@ type Props = {
  * 裝飾圓放在這裡（而不是各畫面）是因為它們要被外殼的 overflow: hidden 切掉，
  * 且不能跟著分頁的進場動畫一起位移——原型裡它們是靜止的背景。
  */
-export function ShellHeader({ syncState, lastSyncAt, onRetrySync }: Props) {
+export function ShellHeader({ syncState, lastSyncAt, onRetrySync, members = DEFAULT_MEMBERS }: Props) {
   return (
     <>
       <span className={`${styles.decor} ${styles.decorA}`} aria-hidden="true" />
@@ -25,9 +28,9 @@ export function ShellHeader({ syncState, lastSyncAt, onRetrySync }: Props) {
       <header className={styles.bar} data-testid="shell-header">
         <div className={styles.left}>
           <span className={styles.avatars}>
-            <Mantou variant="full" width={30} minimal />
+            <Mantou variant="full" width={30} minimal color={members.我.color} />
             {/* 第二顆往左疊，靠底色沿輪廓描一圈把兩顆分開 */}
-            <Mantou variant="partner" width={30} ring minimal className={styles.second} />
+            <Mantou variant="partner" width={30} ring minimal color={members.妻.color} className={styles.second} />
           </span>
 
           <span className={styles.pill}>

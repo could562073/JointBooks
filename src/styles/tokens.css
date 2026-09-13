@@ -56,6 +56,26 @@
   /* 大饅頭底部那一圈內陰影 */
   --c-mantou-shade: rgba(74, 63, 54, .06);
 
+  /* 饅頭可選的顏色（配置頁挑選）：身體／高光／腳。紫與粉是原型的兩顆 */
+  --c-mantou-purple: #B7A6E5;
+  --c-mantou-purple-hi: #CDC0F0;
+  --c-mantou-purple-shade: #9484CE;
+  --c-mantou-pink: #DDA6D0;
+  --c-mantou-pink-hi: #EDC2E2;
+  --c-mantou-pink-shade: #C98FBC;
+  --c-mantou-blue: #A9C3E8;
+  --c-mantou-blue-hi: #C8DAF3;
+  --c-mantou-blue-shade: #7E9FCF;
+  --c-mantou-mint: #A9D9C4;
+  --c-mantou-mint-hi: #CBEADC;
+  --c-mantou-mint-shade: #7DB89D;
+  --c-mantou-peach: #F2BFA3;
+  --c-mantou-peach-hi: #F8D8C6;
+  --c-mantou-peach-shade: #D99B7A;
+  --c-mantou-butter: #EFD48F;
+  --c-mantou-butter-hi: #F6E6BA;
+  --c-mantou-butter-shade: #CFAF5F;
+
   /* 圓角 */
   --r-lg: 24px;   /* 大卡 */
   --r-md: 20px;   /* 列表卡 */

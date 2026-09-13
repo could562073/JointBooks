@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { formatCad, pushDigit } from '../../domain/money';
-import type { Category, Currency, Person, Txn } from '../../domain/types';
+import type { Category, Currency, Txn } from '../../domain/types';
 import { DUR, EASE } from '../../lib/motion';
 import { usePresence } from '../../lib/usePresence';
+import { Mantou } from '../../components/Mantou';
+import { useLedger } from '../../store/useLedger';
 import { useReducedMotion } from '../../lib/useReducedMotion';
 import type { NewTxnInput } from '../../repo/ledgerRepo';
 import { keyChar, type KeypadKey } from './amountInput';
@@ -19,10 +21,6 @@ import { useSheetDismiss } from './useSheetDismiss';
 import styles from './EntrySheet.module.css';
 
 const CURRENCIES: Currency[] = ['CAD', 'TWD', 'USD'];
-const PEOPLE: Person[] = ['我', '妻'];
-
-/** 「誰記的」兩顆小圓臉的底色，與明細列的頭像同一組 */
-const FACE: Record<Person, string> = { 我: 'var(--c-primary)', 妻: 'var(--c-partner)' };
 
 /** 金額還是 0（或只打了 0.）時用淡色字，跟原型的空狀態一樣 */
 function isBlank(v: string): boolean {
@@ -56,9 +54,12 @@ export function EntrySheet({
 }: Props) {
   const editing = txn !== undefined;
   const reduced = useReducedMotion();
+  // 誰記的跟著這台裝置的使用者（使用者要求，不再手動切換）；名稱與饅頭顏色照配置頁
+  const self = useLedger((s) => s.self);
+  const members = useLedger((s) => s.members);
 
   const [draft, setDraft] = useState<EntryDraft>(() =>
-    txn ? draftFromTxn(categories, txn) : draftForNew(categories, defaultDate)
+    txn ? draftFromTxn(categories, txn) : draftForNew(categories, defaultDate, self)
   );
   const [dateOpen, setDateOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
@@ -292,25 +293,12 @@ export function EntrySheet({
             </span>
           </button>
 
-          <div className={styles.card}>
+          {/* 只顯示、不切換：新的一筆記成這台裝置的使用者，編輯時保留原本記帳的人 */}
+          <div className={styles.card} data-testid="who-card">
             <span className={styles.cardLabel}>誰記的</span>
-            <span className={styles.people} data-testid="people">
-              {PEOPLE.map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  className={styles.face}
-                  style={{ background: FACE[p] }}
-                  data-selected={draft.by === p ? '' : undefined}
-                  aria-pressed={draft.by === p}
-                  aria-label={p}
-                  onClick={() => setDraft((d) => ({ ...d, by: p }))}
-                  data-testid={`by-${p}`}
-                >
-                  <span className={styles.eye} style={{ left: 6 }} />
-                  <span className={styles.eye} style={{ right: 6 }} />
-                </button>
-              ))}
+            <span className={styles.who} data-testid="who">
+              <Mantou variant="full" width={26} minimal color={members[draft.by].color} />
+              <span className={styles.whoName}>{members[draft.by].name}</span>
             </span>
           </div>
         </div>

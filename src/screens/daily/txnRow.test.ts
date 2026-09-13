@@ -18,8 +18,8 @@ describe('txnTime', () => {
 
 describe('avatarColor', () => {
   it('兩個人各有固定顏色', () => {
-    expect(avatarColor('我')).toBe('#B7A6E5');
-    expect(avatarColor('妻')).toBe('#DDA6D0');
+    expect(avatarColor('purple')).toBe('var(--c-mantou-purple)');
+    expect(avatarColor('mint')).toBe('var(--c-mantou-mint)');
   });
 });
 

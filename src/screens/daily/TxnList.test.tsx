@@ -90,12 +90,12 @@ describe('TxnList 的每一列', () => {
 });
 
 describe('TxnList 的記帳人頭像', () => {
-  it('兩個人各自的底色', () => {
+  it('兩個人各自的底色，跟著配置頁選的饅頭顏色（預設紫與粉）', () => {
     render(<TxnList {...BASE} txns={[txn(), txn({ id: 't2', by: '妻' })]} />);
     // 底色掛在圓臉上（頭像是小饅頭臉，不是「我／妻」兩個字），外層只管顯隱
-    const face = (id: string) => screen.getByTestId(id).firstElementChild!;
-    expect(face('by-t1')).toHaveStyle({ background: '#B7A6E5' });
-    expect(face('by-t2')).toHaveStyle({ background: '#DDA6D0' });
+    const face = (id: string) => screen.getByTestId(id).firstElementChild as HTMLElement;
+    expect(face('by-t1').style.background).toBe('var(--c-mantou-purple)');
+    expect(face('by-t2').style.background).toBe('var(--c-mantou-pink)');
   });
 
   it('頭像是兩顆眼睛的小圓臉，不寫「我」「妻」兩個字', () => {
