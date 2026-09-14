@@ -6,9 +6,10 @@ import type { InviteCheck } from './inviteLink';
 export type JoinState =
   /**
    * 連結有效、還沒登入：先看到邀請卡與權限說明，尚未寫入任何東西。
-   * preview：邀請的人自己按「預覽她點開後看到的畫面」進來的，按鈕不做任何加入動作
+   * preview：邀請的人自己按「預覽她點開後看到的畫面」進來的，按鈕不做任何加入動作。
+   * switching：這台裝置原本記的是另一本帳，加入後會改記這一本（原本的紀錄不會搬進來）
    */
-  | { kind: 'invite'; sid: string; preview?: true }
+  | { kind: 'invite'; sid: string; preview?: true; switching?: true }
   /** 已經是這本帳的成員：不重複加入，直接進主程式 */
   | { kind: 'already'; sid: string }
   /** 連結過期或簽章不符 */
@@ -39,6 +40,7 @@ export function joinStateOf(ctx: JoinContext): JoinState {
   const sid = ctx.check.sid;
   if (ctx.preview) return { kind: 'invite', sid, preview: true };
   if (ctx.joinedSid === sid) return { kind: 'already', sid };
+  if (ctx.joinedSid) return { kind: 'invite', sid, switching: true };
   return { kind: 'invite', sid };
 }
 

@@ -26,10 +26,12 @@ describe('LoginPage（§8.3）', () => {
     expect(screen.getByTestId('login-scope')).not.toHaveTextContent('這一份試算表');
   });
 
-  it('點了會回報', () => {
+  it('點了先確認，確認後才回報', () => {
     const onSignIn = vi.fn();
     render(<LoginPage onSignIn={onSignIn} />);
     fireEvent.click(screen.getByTestId('login-google'));
+    expect(onSignIn).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId('login-create-go'));
     expect(onSignIn).toHaveBeenCalledTimes(1);
   });
 

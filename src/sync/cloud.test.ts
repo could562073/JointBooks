@@ -2,39 +2,71 @@ import { describe, it, expect, vi } from 'vitest';
 import { NeedsConnectError, type TokenProvider } from '../auth/gis';
 import { defaultCategories } from '../domain/categories';
 import type { SheetsClient } from '../sheets/client';
-import { connectErrorText, createCloud, ensureLedger } from './cloud';
+import { ENV_RANGE } from '../sheets/ledgerSheet';
+import { categoryToRows } from '../sheets/rows';
+import { connectErrorText, createCloud, ensureLedger, type EnsureLedgerDeps } from './cloud';
 
-function fakeLedgerClient() {
+function fakeLedgerClient(
+  found: { id: string; ownedByMe: boolean }[] = [],
+  remote: { env?: string; rows?: string[][] } = {}
+) {
   return {
     createSpreadsheet: vi.fn(async () => 'NEW-SID'),
     update: vi.fn(async () => ({})),
-  } as unknown as SheetsClient;
+    findLedgers: vi.fn(async (_title: string) => found),
+    get: vi.fn(async (_s: string, range: string) =>
+      range === ENV_RANGE ? (remote.env ? [[remote.env]] : []) : (remote.rows ?? [])),
+  } as unknown as SheetsClient & { findLedgers: ReturnType<typeof vi.fn> };
+}
+
+function deps(over: Partial<EnsureLedgerDeps> = {}) {
+  return {
+    joinedSid: async () => null,
+    setJoinedSid: vi.fn(async (_sid: string) => {}),
+    categories: async () => [],
+    replaceCategories: vi.fn(async () => {}),
+    year: 2026,
+    env: 'dev' as const,
+    ...over,
+  };
 }
 
 describe('ensureLedger', () => {
-  it('已經有帳本就沿用，不在硬碟再建一本', async () => {
+  it('這台已經記著帳本就沿用，連雲端都不用找', async () => {
     const client = fakeLedgerClient();
-    const setJoinedSid = vi.fn(async () => {});
-    const id = await ensureLedger(client, {
-      joinedSid: async () => 'EXISTING', setJoinedSid, categories: async () => [], year: 2026, env: 'prod',
-    });
-    expect(id).toBe('EXISTING');
+    expect(await ensureLedger(client, deps({ joinedSid: async () => 'EXISTING', env: 'prod' }))).toBe('EXISTING');
+    expect(client.findLedgers).not.toHaveBeenCalled();
     expect(client.createSpreadsheet).not.toHaveBeenCalled();
-    expect(setJoinedSid).not.toHaveBeenCalled();
   });
 
-  it('還沒有帳本：建一本、寫入分類，並記下它的 id', async () => {
-    const client = fakeLedgerClient();
-    const setJoinedSid = vi.fn(async () => {});
+  it('換了手機：找到自己之前用這個 App 建的帳本就接回去、換成那本的分類，不再建一本', async () => {
+    let n = 0;
+    const old = defaultCategories(() => `old-${n++}`);
+    const client = fakeLedgerClient([{ id: 'MINE', ownedByMe: true }], { env: 'dev', rows: old.flatMap(categoryToRows) });
+    const d = deps();
+    expect(await ensureLedger(client, d)).toBe('MINE');
+    expect(client.findLedgers).toHaveBeenCalledWith('加拿大共用記帳（開發）');
+    expect(client.createSpreadsheet).not.toHaveBeenCalled();
+    expect(d.setJoinedSid).toHaveBeenCalledWith('MINE');
+    expect(d.replaceCategories).toHaveBeenCalled();
+  });
+
+  it('只找到別人分享給我的帳本：不自動加入（使用者選了自己建），照樣建一本自己的', async () => {
+    const client = fakeLedgerClient([{ id: 'THEIRS', ownedByMe: false }]);
+    const d = deps();
+    expect(await ensureLedger(client, d)).toBe('NEW-SID');
+    expect(d.setJoinedSid).toHaveBeenCalledWith('NEW-SID');
+  });
+
+  it('什麼都沒找到：建一本、寫入分類，並記下它的 id', async () => {
     let n = 0;
     const cats = defaultCategories(() => `c-${n++}`);
-    const id = await ensureLedger(client, {
-      joinedSid: async () => null, setJoinedSid, categories: async () => cats, year: 2026, env: 'dev',
-    });
-    expect(id).toBe('NEW-SID');
+    const client = fakeLedgerClient();
+    const d = deps({ categories: async () => cats });
+    expect(await ensureLedger(client, d)).toBe('NEW-SID');
     expect(client.createSpreadsheet).toHaveBeenCalledTimes(1);
     expect(client.createSpreadsheet).toHaveBeenCalledWith('加拿大共用記帳（開發）', expect.anything());
-    expect(setJoinedSid).toHaveBeenCalledWith('NEW-SID');
+    expect(d.setJoinedSid).toHaveBeenCalledWith('NEW-SID');
   });
 });
 

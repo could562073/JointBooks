@@ -221,3 +221,17 @@
   font-weight: 700;
   color: var(--c-tint-ink);
 }
+
+/* 這台原本記的是另一本帳：加入前提醒會改記這一本、原本的紀錄不會搬進來 */
+.switchNote {
+  position: relative;
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border-radius: var(--r-sm);
+  background: var(--c-card);
+  box-shadow: var(--sh-card);
+  font-family: var(--f-body);
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--c-text-2);
+}

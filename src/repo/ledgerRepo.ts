@@ -110,6 +110,18 @@ export const ledgerRepo = {
     await db.txns.bulkPut([...ts]);
   },
 
+  /**
+   * 這台裝置改記另一本帳：清掉原本那本的紀錄與待推項目。
+   * 不清的話，下一輪同步會把舊帳本的紀錄當成本機新增的，推進新的帳本裡。
+   * 原本的紀錄還在它自己的試算表，沒有遺失。
+   */
+  async clearTxns(): Promise<void> {
+    await db.transaction('rw', db.txns, db.outbox, async () => {
+      await db.txns.clear();
+      await db.outbox.clear();
+    });
+  },
+
   /** §7.3 的持久化偏好設定（開關等），存在 meta key-value 表（I9） */
   async getMeta<T>(key: string): Promise<T | undefined> {
     const row = await db.meta.get(key);

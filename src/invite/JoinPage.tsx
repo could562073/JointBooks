@@ -104,6 +104,12 @@ export function JoinPage({ state, onJoin, onBrowse, onHome, busy = false, error 
         )}
       </div>
 
+      {state.kind === 'invite' && state.switching && (
+        <p className={styles.switchNote} role="note" data-testid="join-switch-note">
+          這台裝置目前記的是另一本帳。加入後會改記這一本；你原本的紀錄還在你自己的 Google 試算表裡，不會搬進來。
+        </p>
+      )}
+
       <div className={styles.actions}>
         <button
           type="button" className={styles.cta} onClick={onJoin} disabled={busy}

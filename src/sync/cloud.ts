@@ -1,7 +1,8 @@
 import { browserTokenStore, createTokenProvider, type TokenProvider } from '../auth/gis';
 import type { Category } from '../domain/types';
 import { createSheetsClient, type SheetsClient } from '../sheets/client';
-import { createLedger, type LedgerEnv } from '../sheets/ledgerSheet';
+import { createLedger, ledgerTitle, type LedgerEnv } from '../sheets/ledgerSheet';
+import { joinLedger, joinOutcomeText } from './joinLedger';
 
 /** 雲端＝Google 登入（token 只放記憶體）＋讀寫試算表的客戶端 */
 export type Cloud = {
@@ -24,6 +25,8 @@ export type EnsureLedgerDeps = {
   joinedSid(): Promise<string | null>;
   setJoinedSid(sid: string): Promise<void>;
   categories(): Promise<readonly Category[]>;
+  /** 接回之前建的帳本時，用那一本的分類取代本機預設 */
+  replaceCategories(cs: readonly Category[]): Promise<void>;
   year: number;
   env: LedgerEnv;
 };
@@ -41,6 +44,19 @@ export type EnsureLedgerDeps = {
 export async function ensureLedger(client: SheetsClient, d: EnsureLedgerDeps): Promise<string> {
   const existing = await d.joinedSid();
   if (existing) return existing;
+
+  // 換了手機、清過資料：先找自己之前用這個 App 建的帳本接回去，不要再建一本。
+  // 只接自己擁有的——別人分享過來的不自動加入，使用者選的是「建立自己的帳本」
+  const own = (await client.findLedgers(ledgerTitle(d.env))).find((f) => f.ownedByMe);
+  if (own) {
+    const r = await joinLedger(client, own.id, d.env, {
+      replaceCategories: d.replaceCategories,
+      setJoinedSid: d.setJoinedSid,
+    });
+    if (r.kind === 'ok') return own.id;
+    throw new Error(joinOutcomeText(r) ?? r.kind);
+  }
+
   const id = await createLedger(client, await d.categories(), d.year, d.env);
   await d.setJoinedSid(id);
   return id;

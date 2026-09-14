@@ -10,6 +10,12 @@ export async function localMembers(): Promise<Members> {
   return normalizeMembers(await ledgerRepo.getMeta<unknown>(MEMBERS_KEY));
 }
 
+/** 這台裝置改記另一本帳：成員回到預設、沒有待推，等新帳本同步時再拉對方的設定 */
+export async function resetLocalMembers(): Promise<void> {
+  await ledgerRepo.setMeta(MEMBERS_KEY, null);
+  await ledgerRepo.setMeta(MEMBERS_DIRTY_KEY, false);
+}
+
 /** 同步控制器用：推之前讀本機、推完標記、拉回來存 */
 export type MembersSync = {
   dirty(): Promise<boolean>;

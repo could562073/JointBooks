@@ -14,9 +14,9 @@ describe('joinStateOf（§8.1 的分支）', () => {
       .toEqual({ kind: 'already', sid: 'SID' });
   });
 
-  it('加入的是別本帳時仍然顯示邀請卡', () => {
+  it('加入的是別本帳時仍然顯示邀請卡，並標出這台會改記這一本', () => {
     expect(joinStateOf({ check: OK, joinedSid: 'OTHER' }))
-      .toEqual({ kind: 'invite', sid: 'SID' });
+      .toEqual({ kind: 'invite', sid: 'SID', switching: true });
   });
 
   it('連結過期 → expired', () => {

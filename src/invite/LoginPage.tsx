@@ -15,9 +15,17 @@ type Props = {
   onJoinLink?(link: string): void;
 };
 
-/** §8.3 登入頁：大饅頭（有腳）+ 標語 + Google 登入按鈕 + 權限說明小字 */
+/**
+ * §8.3 登入頁：大饅頭（有腳）+ 標語 + 兩條路。
+ *
+ * 沒有後端，App 不知道「是不是已經有人建過帳本」，所以讓使用者自己選（使用者裁決）：
+ *   - 建立自己的帳本：成為主帳號，之後可以在配置頁邀請別人。按下去先確認一次，
+ *     免得對方已經建好、自己又建一本，變成兩本分開的帳。
+ *   - 我收到了邀請連結：貼上連結加入別人的帳本。
+ */
 export function LoginPage({ onSignIn, disabled = false, busy = false, error = null, onJoinLink }: Props) {
   const [joining, setJoining] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const [link, setLink] = useState('');
 
   return (
@@ -38,13 +46,49 @@ export function LoginPage({ onSignIn, disabled = false, busy = false, error = nu
       </div>
 
       <div className={styles.actions}>
-        <button
-          type="button" className={styles.google} onClick={onSignIn}
-          disabled={disabled || busy} data-testid="login-google"
-        >
-          <span className={styles.googleIcon} aria-hidden="true" />
-          <span>{busy ? '連線中…' : '使用 Google 登入'}</span>
-        </button>
+        {confirming && !busy ? (
+          <div className={styles.confirm} role="group" aria-label="建立帳本" data-testid="login-create-confirm">
+            <p className={styles.confirmTitle}>建立你自己的帳本？</p>
+            <p className={styles.confirmBody}>
+              你會是這本帳的主帳號，可以自己記，之後也能在配置頁邀請別人一起記。
+              這個 Google 帳號之前建過的話，會直接接回那一本。
+            </p>
+            <p className={styles.confirmBody}>
+              <strong>對方已經建好帳本的話</strong>，請改用他傳給你的邀請連結加入，不然會變成兩本分開的帳。
+            </p>
+            {/* connect 必須在這個點擊事件裡同步呼叫，瀏覽器才不會擋掉 Google 視窗 */}
+            <button
+              type="button" className={styles.google}
+              onClick={() => { setConfirming(false); onSignIn(); }}
+              data-testid="login-create-go"
+            >
+              <span className={styles.googleIcon} aria-hidden="true" />
+              <span>用 Google 建立帳本</span>
+            </button>
+            <div className={styles.confirmRow}>
+              {onJoinLink && (
+                <button
+                  type="button" className={styles.textBtn}
+                  onClick={() => { setConfirming(false); setJoining(true); }}
+                  data-testid="login-create-has-link"
+                >我有邀請連結</button>
+              )}
+              <button
+                type="button" className={styles.textBtn}
+                onClick={() => setConfirming(false)}
+                data-testid="login-create-cancel"
+              >取消</button>
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button" className={styles.google} onClick={() => setConfirming(true)}
+            disabled={disabled || busy} data-testid="login-google"
+          >
+            <span className={styles.googleIcon} aria-hidden="true" />
+            <span>{busy ? '連線中…' : '用 Google 建立我的帳本'}</span>
+          </button>
+        )}
 
         {/* §8.3：權限說明小字。要跟實際請求的範圍一致（使用者裁決：試算表＋本 App 建立的檔案） */}
         <p className={styles.scope} data-testid="login-scope">
@@ -53,11 +97,11 @@ export function LoginPage({ onSignIn, disabled = false, busy = false, error = nu
 
         {error && <p className={styles.error} role="alert" data-testid="login-error">{error}</p>}
 
-        {onJoinLink && !joining && (
+        {onJoinLink && !joining && !confirming && (
           <button
             type="button" className={styles.joinToggle} onClick={() => setJoining(true)}
             disabled={busy} data-testid="login-join-toggle"
-          >我收到了邀請連結</button>
+          >我收到了邀請連結，要加入別人的帳本</button>
         )}
 
         {onJoinLink && joining && (

@@ -93,6 +93,22 @@ export function createSheetsClient(deps: SheetsClientDeps) {
       return call<unknown>(url, { method: 'PUT', body: JSON.stringify({ values: rows }) });
     },
 
+    /**
+     * 找這個使用者雲端硬碟裡、這個 App 建過的帳本（同名的試算表），最近改過的在前。
+     * drive.file 權限只看得到這個 App 自己建或開過的檔案，剛好就是要找的範圍。
+     */
+    async findLedgers(title: string): Promise<{ id: string; ownedByMe: boolean }[]> {
+      const name = title.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+      const params = new URLSearchParams({
+        q: `name = '${name}' and mimeType = 'application/vnd.google-apps.spreadsheet' and trashed = false`,
+        fields: 'files(id,ownedByMe)',
+        orderBy: 'modifiedTime desc',
+        pageSize: '10',
+      });
+      const r = await call<{ files?: { id: string; ownedByMe?: boolean }[] }>(`${DRIVE}/files?${params}`);
+      return (r.files ?? []).map((f) => ({ id: f.id, ownedByMe: f.ownedByMe === true }));
+    },
+
     /** §8.1-7：加入時 drive.permissions.create（role writer、type user） */
     async shareWith(spreadsheetId: string, email: string) {
       return call<unknown>(`${DRIVE}/files/${spreadsheetId}/permissions`, {

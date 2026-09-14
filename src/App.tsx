@@ -23,7 +23,7 @@ import { isConfigured, readConfig } from './sync/config';
 import { createSyncController, type SyncController } from './sync/controller';
 import { joinLedger, joinOutcomeText } from './sync/joinLedger';
 import { joinedSid, setJoinedSid, setSelfPerson } from './sync/ledgerId';
-import { membersSync } from './sync/members';
+import { membersSync, resetLocalMembers } from './sync/members';
 import styles from './App.module.css';
 
 // 只在 dev 模式下才會走到這裡；production 建置時 import.meta.env.DEV 會被
@@ -105,6 +105,7 @@ function Gate({ cloud }: { cloud: Cloud | null }) {
             joinedSid,
             setJoinedSid,
             categories: async () => { await ledgerRepo.bootstrap(); return ledgerRepo.listCategories(); },
+            replaceCategories: (cs) => ledgerRepo.replaceCategories(cs),
             year: new Date().getFullYear(),
             env: cloud.env,
           }))
@@ -157,10 +158,22 @@ function Join({ search, cloud }: { search: string; cloud: Cloud | null }) {
         // 預覽只是給邀請的人看畫面，按下去就回主程式，不加入任何東西
         if (state.kind !== 'invite' || state.preview) { goHome(); return; }
         const sid = state.sid;
+        // 這台原本記的是另一本帳：加入成功才清掉那本的紀錄，免得被推進對方的帳本
+        const switching = state.switching === true;
+        const forgetOldLedger = async () => {
+          if (!switching) return;
+          await ledgerRepo.clearTxns();
+          await resetLocalMembers();
+        };
 
         // 純本機模式（沒設定 Google）：只記下帳本 id
         // 用邀請連結加入的人：這台裝置之後記帳都記成「妻」
-        if (!cloud) { void Promise.all([setJoinedSid(sid), setSelfPerson('妻')]).then(goHome); return; }
+        if (!cloud) {
+          void forgetOldLedger()
+            .then(() => Promise.all([setJoinedSid(sid), setSelfPerson('妻')]))
+            .then(goHome);
+          return;
+        }
 
         setError(null);
         setBusy(true);
@@ -169,7 +182,7 @@ function Join({ search, cloud }: { search: string; cloud: Cloud | null }) {
         ready
           .then(() => joinLedger(cloud.client, sid, cloud.env, {
             replaceCategories: (cs) => ledgerRepo.replaceCategories(cs),
-            setJoinedSid,
+            setJoinedSid: async (id) => { await forgetOldLedger(); await setJoinedSid(id); },
           }))
           .then((r) => {
             const msg = joinOutcomeText(r);
