@@ -92,7 +92,8 @@
   display: block;
   height: 7px;
   border-radius: 5px;
-  background: var(--c-income-bar-a);
+  /* 收入一律綠色（使用者要求，原型是粉色） */
+  background: var(--c-income-mark);
   margin-top: 6px;
 }
 

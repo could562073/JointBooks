@@ -35,10 +35,10 @@
   stroke-linejoin: round;
 }
 
-/* §6：收入虛線（原型 3、6 5） */
+/* §6：收入虛線（原型 3、6 5）。顏色改成綠色，跟整個 App 的收入一致（使用者要求） */
 .income {
   fill: none;
-  stroke: var(--c-income-bar-a);
+  stroke: var(--c-income-mark);
   stroke-width: 3;
   stroke-dasharray: 6 5;
   stroke-linecap: round;

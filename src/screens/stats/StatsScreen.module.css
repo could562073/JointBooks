@@ -88,7 +88,7 @@
 }
 
 .swatchExpense { background: var(--c-shade); }
-.swatchIncome  { background: var(--c-income-bar-a); }
+.swatchIncome  { background: var(--c-income-mark); }
 
 .quota {
   font-family: var(--f-num);
