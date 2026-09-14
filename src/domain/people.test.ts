@@ -12,7 +12,8 @@ describe('帳本裡的兩位', () => {
 });
 
 describe('normalizeMembers', () => {
-  it('沒存過：老公紫、雪雪大人粉（使用者指定的預設名稱）', () => {
+  it('沒存過：「我」紫、「雪雪大人」粉（使用者指定的預設名稱）', () => {
+    expect(DEFAULT_MEMBERS.我.name).toBe('我');
     expect(normalizeMembers(undefined)).toEqual(DEFAULT_MEMBERS);
     expect(DEFAULT_MEMBERS.妻.name).toBe('雪雪大人');
   });

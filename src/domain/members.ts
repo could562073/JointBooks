@@ -13,9 +13,9 @@ export type Members = Record<Person, Member>;
 /** 名稱最多幾個字：成員列、記一筆面板都要放得下 */
 export const MEMBER_NAME_MAX = 12;
 
-/** 使用者指定加入的那位預設叫「雪雪大人」；建立的那位沿用接受邀請頁的「老公」 */
+/** 使用者指定的預設名稱：建立帳本的那位叫「我」、加入的那位叫「雪雪大人」 */
 export const DEFAULT_MEMBERS: Readonly<Members> = {
-  我: { name: '老公', color: 'purple' },
+  我: { name: '我', color: 'purple' },
   妻: { name: '雪雪大人', color: 'pink' },
 };
 

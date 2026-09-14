@@ -15,7 +15,7 @@ beforeEach(async () => {
 });
 
 describe('這台裝置是誰、成員名稱與饅頭顏色', () => {
-  it('沒記過就是建立帳本的「我」；成員是預設的老公與雪雪大人', async () => {
+  it('沒記過就是建立帳本的「我」；成員是預設的「我」與「雪雪大人」', async () => {
     await s().load();
     expect(s().self).toBe('我');
     expect(s().members).toEqual(DEFAULT_MEMBERS);
@@ -42,6 +42,6 @@ describe('這台裝置是誰、成員名稱與饅頭顏色', () => {
   it('名稱清成空白就回到預設，不會存成空的', async () => {
     await s().load();
     await s().setMember('我', { name: '   ' });
-    expect(s().members.我.name).toBe('老公');
+    expect(s().members.我.name).toBe('我');
   });
 });

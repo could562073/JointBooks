@@ -26,9 +26,9 @@ const BASE = {
 };
 
 describe('帳本成員：名稱與饅頭顏色', () => {
-  it('顯示名稱，不寫死「我／老婆」：預設老公與雪雪大人，並標出哪一位是這台裝置', () => {
+  it('顯示名稱，不寫死「老婆」：預設「我」與「雪雪大人」，並標出哪一位是這台裝置', () => {
     render(<SettingsScreen {...BASE} />);
-    expect(screen.getByTestId('member-me')).toHaveTextContent('老公');
+    expect(screen.getByTestId('member-me')).toHaveTextContent('我');
     expect(screen.getByTestId('member-me')).toHaveTextContent('這台裝置');
     expect(screen.getByTestId('member-partner')).toHaveTextContent('雪雪大人');
     expect(screen.getByTestId('member-partner')).not.toHaveTextContent('這台裝置');

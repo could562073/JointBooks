@@ -196,7 +196,7 @@ describe('EntrySheet 的誰記的（跟著這台裝置的使用者）', () => {
 
   it('建立帳本的人的手機：顯示他的名稱，沒有切換鈕', () => {
     render(<EntrySheet {...BASE} />);
-    expect(screen.getByTestId('who')).toHaveTextContent('老公');
+    expect(screen.getByTestId('who')).toHaveTextContent('我');
     expect(screen.queryByTestId('by-妻')).not.toBeInTheDocument();
   });
 
