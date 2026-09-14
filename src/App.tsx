@@ -25,7 +25,7 @@ import { createSyncController, type SyncController } from './sync/controller';
 import { joinLedger, joinOutcomeText } from './sync/joinLedger';
 import { joinedSid, setJoinedSid, setSelfPerson } from './sync/ledgerId';
 import { membersSync, resetLocalMembers } from './sync/members';
-import { categoriesSync } from './sync/categoriesSync';
+import { categoriesSync, migrateCategorySync } from './sync/categoriesSync';
 import { findInvitee, removeInvitees } from './sync/invitee';
 import { DEFAULT_MEMBERS } from './domain/members';
 import styles from './App.module.css';
@@ -285,9 +285,12 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
     });
     syncRef.current = ctl;
 
-    void joinedSid().then((v) => {
+    void joinedSid().then(async (v) => {
       if (!alive) return;
       sidNow = v;
+      // 升到會同步分類的版本時跑一次：受邀者之前改的分類先標成待推，才不會被雲端舊的蓋掉
+      await migrateCategorySync();
+      if (!alive) return;
       stop = ctl.start();
     });
     // 使用者點「連線 Google」成功後立刻補同步，不必等下一次輪詢

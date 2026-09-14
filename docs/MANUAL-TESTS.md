@@ -73,7 +73,7 @@ npm run dev
 ### 4. 已經自動化、不用手動再驗的
 
 ```bash
-npx vitest run              # 1116 條，含 src/acceptance 的 §15 驗收套件
+npx vitest run              #  條，含 src/acceptance 的 §15 驗收套件
 npx vitest run src/acceptance   # 只跑驗收套件，58 條
 npx playwright test         # 手勢引擎的真實瀏覽器測試
 ```

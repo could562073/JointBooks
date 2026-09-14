@@ -24,7 +24,7 @@ Repo：`git@github.com:could562073/JointBooks.git`（公開）；網站 https://
 **九份計畫全部完成。** 接下來是 `docs/MANUAL-TESTS.md` 的人工驗證，以及下方
 「延後給後續計畫的事」列的技術債。
 
-目前測試：**Vitest 1116（116 檔）、Playwright 56（ip13）**，typecheck 兩個 project 都乾淨，
+目前測試：**Vitest （ 檔）、Playwright 56（ip13）**，typecheck 兩個 project 都乾淨，
 `npm run build` 通過。
 
 `docs/MOTION.md` 的 **37 條全部標為「已實作」**；「已驗收」要等擁有者跑完

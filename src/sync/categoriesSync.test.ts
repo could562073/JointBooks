@@ -3,7 +3,8 @@ import { resetDb } from '../db/schema';
 import { defaultCategories } from '../domain/categories';
 import { ledgerRepo } from '../repo/ledgerRepo';
 import { useLedger } from '../store/useLedger';
-import { CATEGORIES_DIRTY_KEY, categoriesSync } from './categoriesSync';
+import { CATEGORIES_DIRTY_KEY, categoriesSync, migrateCategorySync } from './categoriesSync';
+import { setSelfPerson } from './ledgerId';
 
 const initial = useLedger.getState();
 let n = 0;
@@ -51,6 +52,27 @@ describe('分類的同步標記', () => {
     expect(await categoriesSync.dirty()).toBe(true);
 
     await categoriesSync.markPushed(await ledgerRepo.listCategories());
+    expect(await categoriesSync.dirty()).toBe(false);
+  });
+});
+
+describe('升到會同步分類的版本（只跑一次）', () => {
+  it('受邀者的手機：把本機分類標成待推，第一輪同步推上去，不被雲端舊的蓋掉', async () => {
+    await setSelfPerson('妻');
+    await migrateCategorySync();
+    expect(await categoriesSync.dirty()).toBe(true);
+  });
+
+  it('建立帳本的那台：不標，照常從雲端拉', async () => {
+    await migrateCategorySync();
+    expect(await categoriesSync.dirty()).toBe(false);
+  });
+
+  it('只跑一次：之後推完清掉的標記不會再被設回來', async () => {
+    await setSelfPerson('妻');
+    await migrateCategorySync();
+    await ledgerRepo.setMeta(CATEGORIES_DIRTY_KEY, false);
+    await migrateCategorySync();
     expect(await categoriesSync.dirty()).toBe(false);
   });
 });
