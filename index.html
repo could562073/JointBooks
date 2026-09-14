@@ -2,7 +2,11 @@
 <html lang="zh-Hant">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!--
+      像原生 App 一樣整頁不縮放（使用者要求）：iPhone 在輸入框字小於 16px 時會自動放大、之後不縮回，
+      maximum-scale=1 擋掉這個自動放大；user-scalable=no 讓主畫面 App 不能雙指縮放
+    -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="color-scheme" content="light" />
     <meta name="theme-color" content="#FFF6EC" />
     <meta name="apple-mobile-web-app-capable" content="yes" />

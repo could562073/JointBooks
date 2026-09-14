@@ -36,6 +36,9 @@ html, body, #root {
   overflow: hidden;              /* §11-12：外層不可出現第二條 scrollbar */
 }
 
+/* 擋掉雙擊放大（使用者要求像原生 App）；捲動與各元件自己的手勢不受影響 */
+html { touch-action: manipulation; }
+
 body {
   background: var(--c-bg);
   color: var(--c-text);
