@@ -26,6 +26,8 @@
   --c-income-bg: #E6F4EE;
   --c-income-bar-a: #DDA6D0;
   --c-income-bar-b: #88CFC6;
+  /* 月曆上「這天有收入」的短槓（使用者要求：原型的粉色改成綠色，收入一看就懂） */
+  --c-income-mark: #7DB89D;
   --c-expense: #B85F42;
   --c-expense-bg: #FBEBE4;
 
