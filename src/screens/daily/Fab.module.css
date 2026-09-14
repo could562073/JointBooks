@@ -1,7 +1,11 @@
 .fab {
   position: fixed;
   right: 18px;
-  bottom: 102px;
+  /*
+   * 跟著分頁列的位置走：分頁列底邊（--dock-bottom）＋ 列高 59px ＋ 間距 15px。
+   * 寫死數字的話，在有 Home 指示條的 iPhone 上會跟分頁列重疊
+   */
+  bottom: calc(var(--dock-bottom) + 74px);
   width: 54px;
   height: 54px;
   border: 0;

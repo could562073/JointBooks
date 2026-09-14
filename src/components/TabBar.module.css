@@ -7,7 +7,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 8px 22px calc(28px + env(safe-area-inset-bottom));
+  padding: 8px 22px var(--dock-bottom);
   background: linear-gradient(
     180deg,
     rgba(255, 246, 236, 0) 0%,

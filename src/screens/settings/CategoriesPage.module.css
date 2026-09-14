@@ -89,7 +89,7 @@
   min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 0 0 110px;
+  padding: 0 0 calc(var(--dock-bottom) + 82px);
 }
 
 .list {

@@ -12,7 +12,7 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   /* 左右留白由外殼（App.module.css 的 .page）給，這裡不再加 */
-  padding: 0 0 110px;
+  padding: 0 0 calc(var(--dock-bottom) + 82px);
 }
 
 /* §7 頁面標題區，樣式比照日常頁 MonthNav 的大標＋英文副標 */

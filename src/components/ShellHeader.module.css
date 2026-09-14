@@ -28,7 +28,7 @@
    * 原型是 56px，對應的是瀏海機的狀態列高度。真機用 env() 才不會被瀏海壓到，
    * 但 env() 在桌機瀏覽器是 0，所以取兩者較大的——桌機對得上原型，真機夠高。
    */
-  padding: max(56px, calc(env(safe-area-inset-top) + 8px)) 16px 8px;
+  padding: max(56px, calc(var(--sat) + 8px)) 16px 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -69,4 +69,13 @@
   font-size: 17px;
   color: rgba(74, 63, 54, .4);
   flex: none;
+}
+
+/*
+ * 手機上不留原型的 56px：那 56px 是原型在畫一支手機的狀態列，真機的狀態列由系統處理。
+ * 內容延伸到狀態列底下時 --sat 是狀態列高度，否則是 0，再加一點間距就好——多留 56px
+ * 會把月曆和明細整個往下擠。桌機（滑鼠）維持 56px，開發時畫面才對得上原型。
+ */
+@media (pointer: coarse) {
+  .bar { padding-top: calc(var(--sat) + 10px); }
 }

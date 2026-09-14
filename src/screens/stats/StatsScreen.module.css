@@ -13,7 +13,7 @@
   -webkit-overflow-scrolling: touch;
   /* 左右留白外殼已經給了（App.module.css 的 .page），這裡不再加；
      底部留給浮動分頁列的空間 */
-  padding: 0 0 110px;
+  padding: 0 0 calc(var(--dock-bottom) + 82px);
 }
 
 .titleBlock {

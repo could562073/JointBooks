@@ -8,6 +8,25 @@
   --safe-bottom: max(30px, env(safe-area-inset-bottom, 0px));
   --safe-left: env(safe-area-inset-left, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
+  /*
+   * 原始的安全區域（不加最小值）。浮動元件與捲動區的留白一律用這兩個：
+   * 有 Home 指示條的 iPhone 底部多 34pt，少算就會被分頁列蓋住。測試時也能直接覆寫模擬真機
+   */
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  /*
+   * 分頁列底邊離螢幕底部多遠。＋ 按鈕與各頁捲動區底部的留白都跟著它算，不各自寫死。
+   * 桌機維持原型的 28px。
+   */
+  --dock-bottom: 28px;
+}
+
+/*
+ * 手機上照一般 iPhone App（LINE、Instagram）的位置：分頁列貼在 Home 指示條正上方，
+ * 離底部約 24pt（34pt 的安全區域扣掉 10pt），沒有 Home 指示條的機型留 16px
+ */
+@media (pointer: coarse) {
+  :root { --dock-bottom: max(16px, calc(var(--sab) - 10px)); }
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }

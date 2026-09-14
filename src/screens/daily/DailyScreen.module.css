@@ -37,5 +37,6 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   /* 懸浮 ＋ 與分頁列會蓋住最後幾列，留出讓得開的空間 */
-  padding-bottom: 96px;
+  /* 跟著分頁列的位置留白，最後一列才不會躲在分頁列後面 */
+  padding-bottom: calc(var(--dock-bottom) + 68px);
 }
