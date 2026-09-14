@@ -123,7 +123,7 @@ export function InvitePanel({ url, onClose, onPreview, onShareEmail, sharedWith 
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
-        aria-label="邀請老婆加入"
+        aria-label="邀請加入"
         data-testid="invite-panel"
       >
         <div
@@ -136,7 +136,7 @@ export function InvitePanel({ url, onClose, onPreview, onShareEmail, sharedWith 
         </div>
 
         <div className={styles.header}>
-          <h2 className={styles.title}>邀請老婆加入</h2>
+          <h2 className={styles.title}>邀請加入</h2>
           <button type="button" className={styles.close} onClick={onClose} data-testid="invite-close">
             關閉
           </button>
