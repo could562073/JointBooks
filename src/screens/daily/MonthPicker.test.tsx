@@ -70,7 +70,7 @@ describe('MonthPicker 的年份列', () => {
     render(<MonthPicker {...BASE} />);
     fireEvent.click(screen.getByRole('button', { name: '2024年' }));
     // 錨點變 2024，整排跟著重算
-    expect(years()).toEqual(['2022年', '2023年', '2024年', '2025年']);
+    expect(years()).toEqual(['2022', '2023', '2024', '2025']);
   });
 });
 
