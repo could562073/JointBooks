@@ -25,6 +25,7 @@ import { createSyncController, type SyncController } from './sync/controller';
 import { joinLedger, joinOutcomeText } from './sync/joinLedger';
 import { joinedSid, setJoinedSid, setSelfPerson } from './sync/ledgerId';
 import { membersSync, resetLocalMembers } from './sync/members';
+import { categoriesSync } from './sync/categoriesSync';
 import { findInvitee, removeInvitees } from './sync/invitee';
 import { DEFAULT_MEMBERS } from './domain/members';
 import styles from './App.module.css';
@@ -150,7 +151,8 @@ function Join({ search, cloud }: { search: string; cloud: Cloud | null }) {
 
   if (!state) return null;
 
-  const goHome = () => { location.href = appPath(); };
+  // 用 replace 不用 href：接受邀請頁不留在歷史紀錄裡，iPhone 右滑（上一頁）才不會跳回邀請頁
+  const goHome = () => { location.replace(appPath()); };
 
   return (
     <JoinPage
@@ -239,15 +241,19 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
     const r = createMain(categories, kind, name);
     if (!r) return '';
     await saveCategory(r.category);
+    // 記一筆面板就地新增的分類也要推上雲端
+    pushSoon();
     return r.id;
-  }, [categories, entry, saveCategory]);
+  }, [categories, entry, saveCategory, pushSoon]);
 
   const addSubTo = useCallback(async (mainId: string, name: string) => {
     const r = createSub(categories, mainId, name);
     if (!r) return '';
     await saveCategory(r.category);
+    // 記一筆面板就地新增的分類也要推上雲端
+    pushSoon();
     return r.id;
-  }, [categories, saveCategory]);
+  }, [categories, saveCategory, pushSoon]);
 
   // MOTION #8 的進場方向：只在換頁那次決定，之後的重繪沿用（見 useTabDirection）
   const dir = useTabDirection(tab);
@@ -274,6 +280,8 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
       onSynced: (at) => useLedger.getState().markSynced(at),
       // 成員名稱與饅頭顏色：配置頁改了就推，對方改了就拉
       members: membersSync,
+      // 分類與月預算：任一邊改了就推，對方改了就拉
+      categories: categoriesSync,
     });
     syncRef.current = ctl;
 
@@ -385,6 +393,7 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
             lastSyncAt={lastSyncAt}
             onRetrySync={retrySync}
             onMembersChanged={pushSoon}
+            onCategoriesChanged={pushSoon}
             invitee={invitee}
             {...(cloud ? { onRemoveInvitee: removeInvitee } : {})}
           />

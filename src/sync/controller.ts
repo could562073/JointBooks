@@ -1,7 +1,9 @@
 import { NeedsConnectError, type TokenProvider } from '../auth/gis';
 import type { Txn } from '../domain/types';
 import type { SheetsClient } from '../sheets/client';
-import { REV_RANGE } from '../sheets/ledgerSheet';
+import { CATEGORIES_RANGE, REV_RANGE, writeCategories } from '../sheets/ledgerSheet';
+import { rowsToCategories } from '../sheets/rows';
+import type { CategoriesSync } from './categoriesSync';
 import { MEMBERS_RANGE, MEMBERS_READ_RANGE, membersToRows, rowsToMembers } from '../sheets/memberRows';
 import type { MembersSync } from './members';
 import type { SyncState } from './state';
@@ -28,6 +30,8 @@ export type SyncControllerDeps = {
   saveTxns(ts: readonly Txn[]): Promise<void>;
   /** 成員名稱與饅頭顏色（配置頁可改）；不給就不同步成員 */
   members?: MembersSync;
+  /** 分類與月預算；不給就不同步分類 */
+  categories?: CategoriesSync;
   /** 同步完成後讓畫面重讀本機資料 */
   onPulled(): Promise<void> | void;
   onState(s: SyncState): void;
@@ -92,6 +96,26 @@ export function createSyncController(d: SyncControllerDeps): SyncController {
     return false;
   }
 
+  /**
+   * 分類與月預算：本機改過就整批推（最後寫入的贏，年報表跟著重寫）；沒改過、雲端有變才拉。
+   * 雲端的分類區是空的（被人手動清掉）時不拿空的蓋掉本機。回傳有沒有推。
+   */
+  async function syncCategories(sid: string, localDirty: boolean, remoteChanged: boolean): Promise<boolean> {
+    const c = d.categories;
+    if (!c) return false;
+    if (localDirty) {
+      const mine = await c.local();
+      await writeCategories(d.client, sid, mine, new Date(now()).getFullYear());
+      await c.markPushed(mine);
+      return true;
+    }
+    if (remoteChanged) {
+      const pulled = rowsToCategories(await d.client.get(sid, CATEGORIES_RANGE));
+      if (pulled.length > 0) await c.save(pulled);
+    }
+    return false;
+  }
+
   async function cycle(): Promise<void> {
     const sid = d.spreadsheetId();
     if (!sid) return;
@@ -104,16 +128,18 @@ export function createSyncController(d: SyncControllerDeps): SyncController {
       // 會把對方那次的戳記當成已經拉過，下一輪就錯過它
       const revBefore = await readRev(sid);
       const membersDirty = (await d.members?.dirty()) ?? false;
-      if (!dirty && !membersDirty && revBefore === lastRev) return;
+      const categoriesDirty = (await d.categories?.dirty()) ?? false;
+      if (!dirty && !membersDirty && !categoriesDirty && revBefore === lastRev) return;
 
       const r = await engine.syncOnce();
       if (r.state !== 'synced') return;   // offline／needs-auth／error：保留 dirty，下一輪再來
 
       const pushedMembers = await syncMembers(sid, membersDirty, revBefore !== lastRev);
+      const pushedCategories = await syncCategories(sid, categoriesDirty, revBefore !== lastRev);
 
       dirty = false;
       lastRev = revBefore;
-      if (r.pushed > 0 || pushedMembers) {
+      if (r.pushed > 0 || pushedMembers || pushedCategories) {
         // 通知對方有新東西。自己不記這個新戳記，下一輪會再完整同步一次，
         // 順便收到同步途中對方可能推上來的變更
         await d.client.update(sid, REV_RANGE, [[String(now())]]);

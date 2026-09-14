@@ -92,6 +92,12 @@ export function createSheetsClient(deps: SheetsClientDeps) {
       return r.values ?? [];
     },
 
+    /** 清掉一段範圍的值（格式不動）。整批重寫分類前要先清，不然變少時舊的列會留在表上 */
+    async clear(spreadsheetId: string, range: string) {
+      const url = `${API}/${spreadsheetId}/values/${encodeURIComponent(range)}:clear`;
+      return call<unknown>(url, { method: 'POST', body: '{}' });
+    },
+
     async update(spreadsheetId: string, range: string, rows: readonly (readonly string[])[]) {
       const url = `${API}/${spreadsheetId}/values/${encodeURIComponent(range)}?valueInputOption=RAW`;
       return call<unknown>(url, { method: 'PUT', body: JSON.stringify({ values: rows }) });

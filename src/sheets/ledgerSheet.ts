@@ -119,3 +119,30 @@ export const ENV_RANGE = `${SHEET.config}!M2`;
 export function ledgerEnvOf(cell: string | undefined): LedgerEnv {
   return cell?.trim() === 'prod' ? 'prod' : 'dev';
 }
+
+/** 配置頁放分類的範圍（第 1 列是標頭）；L 欄以後是版本戳記、環境標記與成員，不在範圍內 */
+export const CATEGORIES_RANGE = `${SHEET.config}!A2:J`;
+
+/**
+ * 把分類整批寫回配置頁，並照新的分類重寫年報表（改名、新增的分類在年報表才對得上）。
+ * 先清再寫：分類或子分類變少時，舊的列才不會留在表上。
+ */
+export async function writeCategories(
+  client: SheetsClient,
+  id: string,
+  categories: readonly Category[],
+  year: number
+): Promise<void> {
+  await client.clear(id, CATEGORIES_RANGE);
+  const configRows = categories.flatMap(categoryToRows);
+  if (configRows.length > 0) {
+    await client.update(id, `${SHEET.config}!A2:J${configRows.length + 1}`, configRows);
+  }
+
+  const expense = categories.filter((c) => c.kind === 'expense' && c.active);
+  await client.clear(id, `${SHEET.yearly}!A1:M`);
+  await client.update(id, `${SHEET.yearly}!A1:M${expense.length + 1}`, [
+    yearlyHeader(year),
+    ...expense.map((c) => yearlyFormulaRow(c.name, year)),
+  ]);
+}

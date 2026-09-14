@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Icon } from '../../components/Icon';
 import { Mantou } from '../../components/Mantou';
 import { ScrollThumb, TAB_BAR_INSET } from '../../components/ScrollThumb';
@@ -29,6 +29,8 @@ type Props = {
   invitee?: string | null;
   /** 移除受邀者（拿掉試算表權限），之後可以改邀請別人。只有接上雲端時才有 */
   onRemoveInvitee?(): Promise<void>;
+  /** 改了分類或預算：要求同步推上雲端，對方才看得到 */
+  onCategoriesChanged?(): void;
 };
 
 type MemberManageProps = {
@@ -196,8 +198,32 @@ function MemberManage({ email, onResendLink, onRemove, testId }: MemberManagePro
  */
 export function SettingsScreen({
   onInvite, syncState, lastSyncAt, onRetrySync, onMembersChanged, invitee = null, onRemoveInvitee,
+  onCategoriesChanged,
 }: Props) {
   const [categoriesOpen, setCategoriesOpen] = useState(false);
+  // 按 ‹ 返回時自己退掉那一格歷史紀錄，這次 popstate 不用再關一次
+  const skipPop = useRef(false);
+
+  /*
+   * 分類子頁要佔一格瀏覽器歷史紀錄：iPhone 從左緣往右滑＝上一頁，沒有這一格的話
+   * 會直接離開配置頁、跳回更早的頁面（使用者回報跳回邀請頁）。
+   */
+  const openCategories = () => {
+    skipPop.current = false;
+    history.pushState({ ...(history.state ?? {}), jbSubpage: 'categories' }, '');
+    setCategoriesOpen(true);
+  };
+
+  useEffect(() => {
+    if (!categoriesOpen) return;
+    const onPop = () => {
+      if (skipPop.current) { skipPop.current = false; return; }
+      setCategoriesOpen(false);
+      setReturned(true);
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, [categoriesOpen]);
   // 從分類子頁返回時，配置頁自左側滑回來（使用者要求）。切走再切回配置分頁會重掛、歸零
   const [returned, setReturned] = useState(false);
   const members = useLedger((s) => s.members);
@@ -236,9 +262,14 @@ export function SettingsScreen({
         <CategoriesPage
           categories={categories}
           txns={txns}
-          onSave={(c) => void saveCategory(c)}
-          onDelete={(id) => void deleteCategory(id)}
-          onBack={() => { setCategoriesOpen(false); setReturned(true); }}
+          onSave={(c) => void saveCategory(c).then(() => onCategoriesChanged?.())}
+          onDelete={(id) => void deleteCategory(id).then(() => onCategoriesChanged?.())}
+          onBack={() => {
+            setCategoriesOpen(false);
+            setReturned(true);
+            // 退掉開子頁時推進去的那一格，歷史紀錄才不會越按越長
+            if (history.state?.jbSubpage === 'categories') { skipPop.current = true; history.back(); }
+          }}
         />
       </div>
     );
@@ -306,7 +337,7 @@ export function SettingsScreen({
           <h2 className={styles.title}>分類與預算</h2>
 
           <button
-            type="button" className={styles.card} onClick={() => setCategoriesOpen(true)}
+            type="button" className={styles.card} onClick={openCategories}
             data-testid="open-categories"
           >
             <div className={styles.summaryRow}>

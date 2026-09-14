@@ -5,6 +5,7 @@ import { DEFAULT_MEMBERS, normalizeMembers, type Member, type Members } from '..
 import type { Category, Dimension, Person, Txn } from '../domain/types';
 import { SELF_KEY } from '../sync/ledgerId';
 import { MEMBERS_DIRTY_KEY, MEMBERS_KEY } from '../sync/members';
+import { CATEGORIES_DIRTY_KEY } from '../sync/categoriesSync';
 import type { SyncState } from '../sync/state';
 
 export type Tab = 'daily' | 'stats' | 'settings';
@@ -131,13 +132,16 @@ export const useLedger = create<LedgerState>((set, get) => ({
     set({ txns: get().txns.filter((x) => x.id !== id) });
   },
 
+  // 改分類都標成待推，同步控制器下一輪才會推上雲端，另一邊才看得到（使用者回報）
   async saveCategory(c) {
     await ledgerRepo.saveCategory(c);
+    await ledgerRepo.setMeta(CATEGORIES_DIRTY_KEY, true);
     set({ categories: await ledgerRepo.listCategories() });
   },
 
   async deleteCategory(id) {
     await ledgerRepo.deleteCategory(id);
+    await ledgerRepo.setMeta(CATEGORIES_DIRTY_KEY, true);
     set({ categories: await ledgerRepo.listCategories() });
   },
 
