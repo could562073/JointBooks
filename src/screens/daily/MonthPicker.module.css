@@ -1,6 +1,11 @@
+/* 原型：白卡、圓角 24、padding 13、淺實體陰影 */
 .panel {
-  padding: 4px 0 8px;
   flex: none;
+  margin: 10px 0 2px;
+  padding: 13px;
+  border-radius: 24px;
+  background: var(--c-card);
+  box-shadow: 0 3px 0 rgba(74, 63, 54, .06);
   animation: panelIn var(--panel-in) var(--ease-enter) both;
 }
 
@@ -10,7 +15,7 @@
   to   { opacity: 1; transform: none; }
 }
 
-/* MOTION #34：換年時整排年份從來的方向滑進來。
+/* MOTION #34：換年時整排月方格從來的方向滑進來。
    方向由 .fromRight／.fromLeft 決定，重播靠 React 的 key 重掛 DOM。 */
 .fromRight { animation: slideFromRight var(--slide) var(--ease-move) both; }
 .fromLeft  { animation: slideFromLeft  var(--slide) var(--ease-move) both; }
@@ -29,37 +34,43 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-bottom: 10px;
 }
 
+/* 原型：30px 灰底圓鍵，沒有陰影 */
 .yearArrow {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   flex: none;
   border: 0;
   border-radius: var(--r-pill);
-  background: var(--c-card);
-  box-shadow: var(--sh-card);
-  color: var(--c-text-2);
-  font-size: 15px;
+  background: rgba(74, 63, 54, .06);
+  color: rgba(74, 63, 54, .5);
+  font-size: 14px;
   line-height: 1;
   cursor: pointer;
 }
 
 .years {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
   flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
 }
 
+/* 原型：Baloo 2 13px 粗體數字，沒選中是淡灰底 */
 .yearPill {
+  flex: none;
   border: 0;
   border-radius: var(--r-pill);
   background: rgba(74, 63, 54, .06);
-  color: var(--c-text-3);
-  padding: 7px 0;
-  font-size: 12px;
+  color: rgba(74, 63, 54, .6);
+  padding: 7px 12px;
+  font-family: var(--f-num);
+  font-size: 13px;
   font-weight: 700;
+  white-space: nowrap;
   cursor: pointer;
 }
 
@@ -70,29 +81,32 @@
 
 .months {
   display: grid;
-  /* 滑入時的 ±38px 位移不該把版面撐出橫向捲軸 */
-  overflow: hidden;
-  will-change: transform, opacity;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  margin-top: 10px;
+  gap: 6px;
+  /* 滑入時的 ±38px 位移不該把版面撐出橫向捲軸；底下留 2px，最後一排的實體陰影才不會被切掉 */
+  overflow: hidden;
+  padding-bottom: 2px;
+  will-change: transform, opacity;
 }
 
+/* 原型：白底、圓角 14、Noto Sans TC 12.5px 粗體、淺實體陰影 */
 .monthCell {
   border: 0;
-  border-radius: var(--r-md);
+  border-radius: 14px;
   background: var(--c-card);
   box-shadow: 0 2px 0 rgba(74, 63, 54, .07);
   color: var(--c-text);
   padding: 11px 0;
-  font-size: 13px;
+  font-family: var(--f-body);
+  font-size: 12.5px;
+  font-weight: 700;
   cursor: pointer;
 }
 
+/* 原型：淡紫底、深紫字、2px 內描邊。用 inset 描邊而不是 border，格子尺寸才不會因為選中而位移 */
 .monthCell[data-current] {
   background: #EDE9FA;
   color: #5E4FA0;
-  /* 用 inset 描邊而不是 border，格子尺寸才不會因為選中而位移 */
   box-shadow: inset 0 0 0 2px var(--c-primary);
 }
 
@@ -101,8 +115,9 @@
   width: 100%;
   border: 0;
   background: none;
-  padding: 10px 0 2px;
+  padding: 8px 0 2px;
+  font-family: var(--f-body);
   font-size: 12px;
-  color: var(--c-text-4);
+  color: rgba(74, 63, 54, .45);
   cursor: pointer;
 }

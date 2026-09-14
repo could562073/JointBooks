@@ -9,9 +9,9 @@ function years() {
 }
 
 describe('MonthPicker 的年份列', () => {
-  it('四個年份 pill，錨點年排第三格', () => {
+  it('四個年份 pill，錨點年排第三格；照原型只寫數字（螢幕閱讀器念「2026年」）', () => {
     render(<MonthPicker {...BASE} />);
-    expect(years()).toEqual(['2024年', '2025年', '2026年', '2027年']);
+    expect(years()).toEqual(['2024', '2025', '2026', '2027']);
   });
 
   it('錨點年標成選中', () => {
@@ -23,13 +23,13 @@ describe('MonthPicker 的年份列', () => {
   it('› 往後翻一年，四格一起位移', () => {
     render(<MonthPicker {...BASE} />);
     fireEvent.click(screen.getByLabelText('後一年'));
-    expect(years()).toEqual(['2025年', '2026年', '2027年', '2028年']);
+    expect(years()).toEqual(['2025', '2026', '2027', '2028']);
   });
 
   it('‹ 往前翻一年', () => {
     render(<MonthPicker {...BASE} />);
     fireEvent.click(screen.getByLabelText('前一年'));
-    expect(years()).toEqual(['2023年', '2024年', '2025年', '2026年']);
+    expect(years()).toEqual(['2023', '2024', '2025', '2026']);
   });
 
   // MOTION #34：換年時滑動的是月方格整區，不是年份列

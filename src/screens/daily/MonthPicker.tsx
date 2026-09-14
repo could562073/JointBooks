@@ -55,9 +55,11 @@ export function MonthPicker({ year, month, onPick, onClose }: Props) {
               className={styles.yearPill}
               data-selected={y === anchor ? '' : undefined}
               aria-pressed={y === anchor}
+              // 原型的年份 pill 只寫數字；念給螢幕閱讀器時補上「年」
+              aria-label={`${y}年`}
               onClick={() => pickYear(y)}
             >
-              {y}年
+              {y}
             </button>
           ))}
         </div>
