@@ -121,6 +121,8 @@
   position: absolute;
   top: 20px;
   left: 50%;
+  /* 原型 translateX(-50%)：少了這個，嘴的左緣對齊中線，整個往右偏半個嘴寬 */
+  transform: translateX(-50%);
   width: 7px;
   height: 3px;
   border-radius: 0 0 7px 7px;
