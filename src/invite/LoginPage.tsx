@@ -38,7 +38,7 @@ export function LoginPage({ onSignIn, disabled = false, busy = false, error = nu
           <Mantou variant="full" width={104} breathing data-testid="login-mantou" />
         </span>
 
-        <h1 className={styles.tagline}>兩人一本，<br />加拿大生活記帳</h1>
+        <h1 className={styles.tagline}>饅頭共享，<br />生活記帳本</h1>
 
         <p className={styles.description}>
           用 Google 登入，帳本會建在你的雲端硬碟上；資料就是那份 Sheet，你隨時能自己打開看。

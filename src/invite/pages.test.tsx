@@ -14,7 +14,7 @@ afterEach(() => vi.unstubAllGlobals());
 describe('LoginPage（§8.3）', () => {
   it('標語、饅頭、Google 登入鍵、權限說明都在', () => {
     render(<LoginPage onSignIn={() => {}} />);
-    expect(screen.getByTestId('login-page')).toHaveTextContent('兩人一本，加拿大生活記帳');
+    expect(screen.getByTestId('login-page')).toHaveTextContent('饅頭共享，生活記帳本');
     expect(screen.getByTestId('login-mantou')).toBeInTheDocument();
     expect(screen.getByTestId('login-google')).toBeInTheDocument();
   });
