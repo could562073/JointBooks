@@ -3,7 +3,7 @@
 **這是唯一的入口文件。** 新 session 從這裡開始，不需要讀對話記錄。
 
 專案：加拿大共用生活記帳 — 繁體中文、手機優先的 PWA，兩人共用一本帳，資料存 Google Sheets。
-Repo：`git@github.com:could562073/JointBooks.git`（private）
+Repo：`git@github.com:could562073/JointBooks.git`（公開）；網站 https://could562073.github.io/JointBooks/
 
 ---
 
