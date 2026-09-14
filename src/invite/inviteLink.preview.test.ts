@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { buildInviteUrl, checkInvite, isPreview, previewHref } from './inviteLink';
 import { joinStateOf } from './joinFlow';
 
-describe('預覽她點開後看到的畫面', () => {
+describe('預覽對方點開後看到的畫面', () => {
   it('站內路徑，帶 preview=1，原本的 sid 與 t 都保留', async () => {
     const url = await buildInviteUrl('https://app.example', 'SID-1', 1_000);
     const href = previewHref(url);

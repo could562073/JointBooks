@@ -61,7 +61,7 @@ export function JoinPage({ state, onJoin, onBrowse, onHome, busy = false, error 
       <span className={styles.decor} aria-hidden="true" />
       {preview && (
         <p className={styles.previewNote} data-testid="join-preview-note">
-          預覽 · 這是她點開邀請連結後看到的畫面
+          預覽 · 這是對方點開邀請連結後看到的畫面
         </p>
       )}
       <div className={styles.main}>
@@ -73,7 +73,7 @@ export function JoinPage({ state, onJoin, onBrowse, onHome, busy = false, error 
               className={styles.partner}
             />
           </div>
-          <p className={styles.from}>老公 邀請你一起使用</p>
+          <p className={styles.from}>你受邀一起記帳</p>
           <p className={styles.ledger}>饅頭共享記帳</p>
           <span className={styles.role}>
             <span className={styles.roleDot} />
@@ -97,7 +97,7 @@ export function JoinPage({ state, onJoin, onBrowse, onHome, busy = false, error 
               </li>
               <li>
                 <span className={styles.factNumber}>3</span>
-                <span className={styles.factText}>兩支手機之後看到的都是同一份資料</span>
+                <span className={styles.factText}>加入之後，大家看到的都是同一份資料</span>
               </li>
             </ol>
           </div>

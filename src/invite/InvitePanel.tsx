@@ -146,14 +146,14 @@ export function InvitePanel({ url, onClose, onPreview, onShareEmail, sharedWith 
           // 還沒建帳本就不該給出連結：一條指向不存在帳本的邀請，對方點下去
           // 會「成功加入」一本不存在的帳，比什麼都不給更糟
           <p className={styles.lead} data-testid="invite-noledger">
-            這台裝置還沒有雲端帳本。先用 Google 登入建立帳本，才有連結可以邀請她。
+            這台裝置還沒有雲端帳本。先用 Google 登入建立帳本，才有連結可以邀請別人。
           </p>
         ) : (
           <>
             <p className={styles.lead}>
               {onShareEmail
-                ? '先把帳本分享給她的 Google 帳號，再把邀請連結傳給她；她點開、用那個帳號登入就會加入這本帳。'
-                : '把連結傳給她，她點開登入就會加入這本帳，之後兩人看到同一份資料。'}
+                ? '先把帳本分享給對方的 Google 帳號，再把邀請連結傳給對方；對方點開、用那個帳號登入就會加入這本帳。'
+                : '把連結傳給對方，對方點開登入就會加入這本帳，之後你們看到同一份資料。'}
             </p>
 
             {onShareEmail && (editing ? (
@@ -163,7 +163,7 @@ export function InvitePanel({ url, onClose, onPreview, onShareEmail, sharedWith 
                 data-testid="invite-share-form"
               >
                 <label className={styles.linkLabel} htmlFor="invite-email">
-                  {sharedTo === null ? '第一步 · 分享帳本給她的 Google 帳號' : '分享給其他 Google 帳號'}
+                  {sharedTo === null ? '第一步 · 分享帳本給對方的 Google 帳號' : '分享給其他 Google 帳號'}
                 </label>
                 <div className={styles.shareRow}>
                   <input
@@ -187,7 +187,7 @@ export function InvitePanel({ url, onClose, onPreview, onShareEmail, sharedWith 
               </form>
             ) : (
               <div className={styles.shareCard} data-testid="invite-shared">
-                <div className={styles.linkLabel}>第一步 · 分享帳本給她的 Google 帳號</div>
+                <div className={styles.linkLabel}>第一步 · 分享帳本給對方的 Google 帳號</div>
                 <div className={styles.sharedRow}>
                   <span className={styles.shared}>✓ 已分享給 {sharedTo}</span>
                   <button
@@ -219,7 +219,7 @@ export function InvitePanel({ url, onClose, onPreview, onShareEmail, sharedWith 
                   </span>
                   <div className={styles.linkText}>
                     <div className={styles.linkLabel}>
-                      {onShareEmail ? '第二步 · 把邀請連結傳給她' : '邀請連結'}
+                      {onShareEmail ? '第二步 · 把邀請連結傳給對方' : '邀請連結'}
                     </div>
                     {/* 顯示縮短版（原型如此）；完整連結放在 data-url，複製、分享、QR 都用它 */}
                     <div className={styles.linkUrl} title={url} data-url={url} data-testid="invite-link">
@@ -267,14 +267,14 @@ export function InvitePanel({ url, onClose, onPreview, onShareEmail, sharedWith 
               </div>
             ) : (
               <p className={styles.locked} data-testid="invite-link-locked">
-                第二步 · 分享完成後，這裡會出現要傳給她的邀請連結
+                第二步 · 分享完成後，這裡會出現要傳給對方的邀請連結
               </p>
             )}
 
             <button
               type="button" className={styles.preview}
               onClick={onPreview} data-testid="invite-preview"
-            >預覽她點開後看到的畫面 ›</button>
+            >預覽對方點開後看到的畫面 ›</button>
 
             <ol className={styles.steps}>
               {STEPS.map((step, i) => (
