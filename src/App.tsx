@@ -2,6 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { ShellHeader } from './components/ShellHeader';
 import { TabBar } from './components/TabBar';
 import { useTabDirection } from './components/useTabDirection';
+import { appPath, appRoot, BASE_URL } from './lib/basePath';
 import type { Txn } from './domain/types';
 import { InvitePanel } from './invite/InvitePanel';
 import { buildInviteUrl, checkInvite, isPreview, previewHref } from './invite/inviteLink';
@@ -64,7 +65,7 @@ export default function App() {
   }
 
   const cloud = getCloud();
-  const route = routeOf(location.pathname, location.search);
+  const route = routeOf(location.pathname, location.search, BASE_URL);
   if (route.kind === 'join') return <Join search={route.search} cloud={cloud} />;
 
   return <Gate cloud={cloud} />;
@@ -118,7 +119,7 @@ function Gate({ cloud }: { cloud: Cloud | null }) {
       onJoinLink={(link) => {
         try {
           const u = new URL(link);
-          location.assign(`/join${u.search}`);
+          location.assign(`${appPath('join')}${u.search}`);
         } catch {
           setError('這不是有效的邀請連結，請整條複製後再貼一次。');
         }
@@ -149,7 +150,7 @@ function Join({ search, cloud }: { search: string; cloud: Cloud | null }) {
 
   if (!state) return null;
 
-  const goHome = () => { location.href = '/'; };
+  const goHome = () => { location.href = appPath(); };
 
   return (
     <JoinPage
@@ -375,7 +376,7 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
               void Promise.all([joinedSid(), ledgerRepo.getMeta<string>(SHARED_WITH_KEY)])
                 .then(async ([sid, shared]) => {
                   setInvite({
-                    url: sid ? await buildInviteUrl(location.origin, sid) : null,
+                    url: sid ? await buildInviteUrl(appRoot(location.origin), sid) : null,
                     sharedWith: shared ?? null,
                   });
                 });

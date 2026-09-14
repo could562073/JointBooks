@@ -9,7 +9,14 @@ export type Route =
   | { kind: 'app' }
   | { kind: 'join'; search: string };
 
-export function routeOf(pathname: string, search: string): Route {
-  if (pathname === '/join') return { kind: 'join', search };
+/**
+ * base 是部署的子路徑（GitHub Pages 上是 /JointBooks/），先去掉再判斷。
+ * 沒去掉的話，部署後打開 /JointBooks/join 會被當成主程式，邀請連結等於失效。
+ */
+export function routeOf(pathname: string, search: string, base = '/'): Route {
+  // 不在子路徑底下的網址不是這個 App 的頁面（例如同網域別的專案的 /join），一律當主程式
+  if (base !== '/' && !pathname.startsWith(base)) return { kind: 'app' };
+  const rel = base === '/' ? pathname : `/${pathname.slice(base.length)}`;
+  if (rel === '/join') return { kind: 'join', search };
   return { kind: 'app' };
 }

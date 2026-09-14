@@ -1,4 +1,5 @@
-import { readFileSync } from 'node:fs';
+import { copyFileSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -13,9 +14,19 @@ function isWsl(): boolean {
 }
 
 export default defineConfig({
-  base: '/',
+  // GitHub Pages 的專案網站在 /JointBooks/ 底下：部署時用 BASE_PATH=/JointBooks/ 建置，開發維持 /
+  base: process.env.BASE_PATH ?? '/',
   plugins: [
     react(),
+    {
+      // GitHub Pages 沒有 SPA 路由：直接打開 /JointBooks/join?... 會回 404。
+      // 把 index.html 複製成 404.html，找不到頁面時 GitHub Pages 回這份，App 再自己判斷路由。
+      name: 'jointbooks:spa-404',
+      apply: 'build',
+      closeBundle() {
+        copyFileSync(resolve('dist/index.html'), resolve('dist/404.html'));
+      },
+    },
     {
       // Node 的 http server 預設 keepAliveTimeout 是 5 秒。實測這台機器上跑 e2e
       // 時，dev server 的 event loop 每輪都會卡住約 5.5 秒（workers 開 2 時量到

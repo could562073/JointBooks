@@ -267,7 +267,7 @@ inotify 事件，dev server 會一直服舊模組；`vite.config.ts` 已在偵�
 - **給更多人用之前要處理的事。** 使用者不需要自己開 Sheets／Drive API，那是開在開發者的 Cloud 專案上。但同意畫面要從「測試中」發布成正式版；`spreadsheets` 是敏感權限，要先通過 Google 驗證（隱私權政策、網域、示範影片），否則上限 100 人、會看到未驗證警告，而且每 7 天要重新同意。Sheets API 讀取配額是每個專案每分鐘 300 次，每位開著 App 的人每分鐘輪詢 12 次，約 25 人同時在線就會碰到，要申請提高配額或放慢輪詢。
 - **一本帳只有兩位成員（我／妻）**，三人以上共用還不支援。
 - **App 在「測試中」狀態時，Google 的同意授權每 7 天過期一次**，到時會再看到一次同意畫面。
-- **GitHub Pages 還沒處理。** `vite.config.ts` 的 `base` 仍是 `/`，`/join` 深層連結在 GitHub Pages 上也需要 404 回退，正式部署前要改。
+- **部署在 GitHub Pages**（2026-09-13）：網址 `https://could562073.github.io/JointBooks/`，repo 改為公開（使用者同意；部署前查過 git 歷史沒有 `.env` 與用戶端密碼）。`.github/workflows/deploy.yml` 在推到 main 時先跑單元測試，通過才用 `BASE_PATH=/JointBooks/` 建置並發布；用戶端 ID 放在 repo 的 Variables（`VITE_GOOGLE_CLIENT_ID`）。站內路徑一律經過 `lib/basePath`（路由判斷、回首頁、邀請連結），建置時把 `index.html` 複製成 `404.html`，直接打開 `/JointBooks/join?…` 才不會停在 GitHub 的 404 頁。Google Cloud Console 的「已授權的 JavaScript 來源」要加 `https://could562073.github.io`。正式建置是 `prod` 環境，會建一本新的「饅頭共享記帳」，不會碰開發帳本。
 - 以上全部還沒用真實 Google 帳號跑過，見 MANUAL-TESTS 的 G、I 組。
 
 ---

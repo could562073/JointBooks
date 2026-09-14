@@ -1,0 +1,55 @@
+name: Deploy to GitHub Pages
+
+# 推到 main 就部署：先跑單元測試，通過才建置並發布到 https://could562073.github.io/JointBooks/
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同一時間只跑一個部署，後來的排隊，不取消正在發布的那個
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Unit tests
+        run: npx vitest run
+
+      - name: Build for the /JointBooks/ subpath
+        run: npm run build
+        env:
+          # GitHub Pages 的專案網站在 /JointBooks/ 底下
+          BASE_PATH: /JointBooks/
+          # Google 用戶端 ID 本來就會出現在前端程式碼裡，不是機密；放在 repo 的 Variables
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

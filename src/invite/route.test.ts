@@ -13,3 +13,18 @@ describe('routeOf', () => {
     expect(routeOf('/auth/callback', '?code=c')).toEqual({ kind: 'app' });
   });
 });
+
+describe('routeOf 部署在子路徑（GitHub Pages）', () => {
+  it('/JointBooks/join 是接受邀請頁', () => {
+    expect(routeOf('/JointBooks/join', '?sid=S&t=1.a', '/JointBooks/')).toEqual({ kind: 'join', search: '?sid=S&t=1.a' });
+  });
+
+  it('/JointBooks/ 與沒有結尾斜線的 /JointBooks 都是主程式', () => {
+    expect(routeOf('/JointBooks/', '', '/JointBooks/')).toEqual({ kind: 'app' });
+    expect(routeOf('/JointBooks', '', '/JointBooks/')).toEqual({ kind: 'app' });
+  });
+
+  it('子路徑以外的 /join 不算（不是這個 App 的網址）', () => {
+    expect(routeOf('/join', '?sid=S', '/JointBooks/')).toEqual({ kind: 'app' });
+  });
+});
