@@ -39,8 +39,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       devOptions: { enabled: true },
       manifest: {
-        name: '加拿大共用記帳',
-        short_name: '共用記帳',
+        name: '饅頭共享記帳',
+        short_name: '饅頭共享記帳',
         lang: 'zh-Hant',
         start_url: '.',
         scope: '.',

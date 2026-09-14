@@ -45,10 +45,25 @@ describe('ensureLedger', () => {
     const client = fakeLedgerClient([{ id: 'MINE', ownedByMe: true }], { env: 'dev', rows: old.flatMap(categoryToRows) });
     const d = deps();
     expect(await ensureLedger(client, d)).toBe('MINE');
-    expect(client.findLedgers).toHaveBeenCalledWith('加拿大共用記帳（開發）');
+    // 連改名前的名稱一起找
+    expect(client.findLedgers).toHaveBeenCalledWith(['饅頭共享記帳（開發）', '加拿大共用記帳（開發）', '加拿大共用記帳']);
     expect(client.createSpreadsheet).not.toHaveBeenCalled();
     expect(d.setJoinedSid).toHaveBeenCalledWith('MINE');
     expect(d.replaceCategories).toHaveBeenCalled();
+  });
+
+  it('找到的同名帳本屬於另一個環境就跳過，接回下一本符合的', async () => {
+    const client = {
+      createSpreadsheet: vi.fn(async () => 'NEW-SID'),
+      update: vi.fn(async () => ({})),
+      findLedgers: vi.fn(async () => [{ id: 'PROD-ONE', ownedByMe: true }, { id: 'DEV-ONE', ownedByMe: true }]),
+      get: vi.fn(async (sid: string, range: string) =>
+        (range === ENV_RANGE ? [[sid === 'PROD-ONE' ? 'prod' : 'dev']] : [])),
+    } as unknown as SheetsClient;
+    const d = deps();
+    expect(await ensureLedger(client, d)).toBe('DEV-ONE');
+    expect(client.createSpreadsheet).not.toHaveBeenCalled();
+    expect(d.setJoinedSid).toHaveBeenCalledWith('DEV-ONE');
   });
 
   it('只找到別人分享給我的帳本：不自動加入（使用者選了自己建），照樣建一本自己的', async () => {
@@ -65,7 +80,7 @@ describe('ensureLedger', () => {
     const d = deps({ categories: async () => cats });
     expect(await ensureLedger(client, d)).toBe('NEW-SID');
     expect(client.createSpreadsheet).toHaveBeenCalledTimes(1);
-    expect(client.createSpreadsheet).toHaveBeenCalledWith('加拿大共用記帳（開發）', expect.anything());
+    expect(client.createSpreadsheet).toHaveBeenCalledWith('饅頭共享記帳（開發）', expect.anything());
     expect(d.setJoinedSid).toHaveBeenCalledWith('NEW-SID');
   });
 });

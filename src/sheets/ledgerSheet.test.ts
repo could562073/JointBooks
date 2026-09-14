@@ -3,7 +3,7 @@ import { defaultCategories } from '../domain/categories';
 import type { Category } from '../domain/types';
 import type { SheetsClient } from './client';
 import {
-  CHART_HEADER, createLedger, ENV_RANGE, LEDGER_TITLE, ledgerEnvOf, ledgerTitle, SHEET, SHEET_TITLES,
+  CHART_HEADER, createLedger, ENV_RANGE, LEDGER_TITLE, ledgerEnvOf, ledgerTitle, ledgerTitles, SHEET, SHEET_TITLES,
   yearlyFormulaRow, yearlyHeader,
 } from './ledgerSheet';
 
@@ -83,7 +83,7 @@ describe('createLedger', () => {
     expect(prod.client.createSpreadsheet).toHaveBeenCalledWith(LEDGER_TITLE, SHEET_TITLES);
     const dev = fakeClient();
     await createLedger(dev.client, CATS, 2026, 'dev');
-    expect(dev.client.createSpreadsheet).toHaveBeenCalledWith('加拿大共用記帳（開發）', SHEET_TITLES);
+    expect(dev.client.createSpreadsheet).toHaveBeenCalledWith('饅頭共享記帳（開發）', SHEET_TITLES);
   });
 
   it('配置頁寫下環境標記，就在版本戳記旁邊', async () => {
@@ -92,6 +92,14 @@ describe('createLedger', () => {
     const marker = f.updates.find((u) => u.range === `${SHEET.config}!L1:M2`)!;
     expect(marker.rows).toEqual([['版本', '環境'], ['', 'prod']]);
     expect(ENV_RANGE).toBe(`${SHEET.config}!M2`);
+  });
+});
+
+describe('ledgerTitles', () => {
+  it('找舊帳本時也認得改名前的名稱；開發版多認沒有「（開發）」的最早那批', () => {
+    expect(LEDGER_TITLE).toBe('饅頭共享記帳');
+    expect(ledgerTitles('prod')).toEqual(['饅頭共享記帳']);
+    expect(ledgerTitles('dev')).toEqual(['饅頭共享記帳（開發）', '加拿大共用記帳（開發）', '加拿大共用記帳']);
   });
 });
 

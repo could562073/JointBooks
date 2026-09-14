@@ -94,13 +94,16 @@ export function createSheetsClient(deps: SheetsClientDeps) {
     },
 
     /**
-     * 找這個使用者雲端硬碟裡、這個 App 建過的帳本（同名的試算表），最近改過的在前。
+     * 找這個使用者雲端硬碟裡、這個 App 建過的帳本（名稱是其中之一的試算表），最近改過的在前。
+     * 傳多個名稱是為了連改名前建的帳本一起找到。
      * drive.file 權限只看得到這個 App 自己建或開過的檔案，剛好就是要找的範圍。
      */
-    async findLedgers(title: string): Promise<{ id: string; ownedByMe: boolean }[]> {
-      const name = title.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    async findLedgers(titles: readonly string[]): Promise<{ id: string; ownedByMe: boolean }[]> {
+      const names = titles
+        .map((t) => `name = '${t.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`)
+        .join(' or ');
       const params = new URLSearchParams({
-        q: `name = '${name}' and mimeType = 'application/vnd.google-apps.spreadsheet' and trashed = false`,
+        q: `(${names}) and mimeType = 'application/vnd.google-apps.spreadsheet' and trashed = false`,
         fields: 'files(id,ownedByMe)',
         orderBy: 'modifiedTime desc',
         pageSize: '10',

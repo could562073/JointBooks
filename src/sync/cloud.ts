@@ -1,7 +1,7 @@
 import { browserTokenStore, createTokenProvider, type TokenProvider } from '../auth/gis';
 import type { Category } from '../domain/types';
 import { createSheetsClient, type SheetsClient } from '../sheets/client';
-import { createLedger, ledgerTitle, type LedgerEnv } from '../sheets/ledgerSheet';
+import { createLedger, ledgerTitles, type LedgerEnv } from '../sheets/ledgerSheet';
 import { joinLedger, joinOutcomeText } from './joinLedger';
 
 /** 雲端＝Google 登入（token 只放記憶體）＋讀寫試算表的客戶端 */
@@ -35,7 +35,7 @@ export type EnsureLedgerDeps = {
  * 登入後確保這台裝置有一本帳：已經有（自己建過、或加入過對方的）就沿用，
  * 沒有才在自己的雲端硬碟建一本並記下來。
  *
- * 不能每次登入都建：那會在硬碟裡堆出一串同名的「加拿大共用記帳」，而且兩台
+ * 不能每次登入都建：那會在硬碟裡堆出一串同名的「饅頭共享記帳」，而且兩台
  * 手機會各自同步到不同的那一本。
  *
  * 沿用時不再檢查環境：本機資料依網址分開，開發版（localhost）與正式版讀不到
@@ -47,13 +47,15 @@ export async function ensureLedger(client: SheetsClient, d: EnsureLedgerDeps): P
 
   // 換了手機、清過資料：先找自己之前用這個 App 建的帳本接回去，不要再建一本。
   // 只接自己擁有的——別人分享過來的不自動加入，使用者選的是「建立自己的帳本」
-  const own = (await client.findLedgers(ledgerTitle(d.env))).find((f) => f.ownedByMe);
-  if (own) {
-    const r = await joinLedger(client, own.id, d.env, {
+  const own = (await client.findLedgers(ledgerTitles(d.env))).filter((f) => f.ownedByMe);
+  for (const f of own) {
+    const r = await joinLedger(client, f.id, d.env, {
       replaceCategories: d.replaceCategories,
       setJoinedSid: d.setJoinedSid,
     });
-    if (r.kind === 'ok') return own.id;
+    if (r.kind === 'ok') return f.id;
+    // 同名但屬於另一個環境（例如改名前沒有環境標記的開發帳本）：不是這一本，看下一個
+    if (r.kind === 'wrong-env') continue;
     throw new Error(joinOutcomeText(r) ?? r.kind);
   }
 

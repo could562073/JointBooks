@@ -74,7 +74,7 @@ export function JoinPage({ state, onJoin, onBrowse, onHome, busy = false, error 
             />
           </div>
           <p className={styles.from}>老公 邀請你一起使用</p>
-          <p className={styles.ledger}>加拿大共用記帳</p>
+          <p className={styles.ledger}>饅頭共享記帳</p>
           <span className={styles.role}>
             <span className={styles.roleDot} />
             加入後可新增與編輯所有紀錄

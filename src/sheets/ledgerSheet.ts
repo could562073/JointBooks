@@ -12,7 +12,10 @@ export const SHEET = {
 
 export const SHEET_TITLES = [SHEET.txns, SHEET.config, SHEET.yearly, SHEET.chart] as const;
 
-export const LEDGER_TITLE = '加拿大共用記帳';
+export const LEDGER_TITLE = '饅頭共享記帳';
+
+/** 改名前的帳本名稱（2026-09-13 使用者改名）。找自己之前建的帳本時一併認得 */
+const LEGACY_TITLE = '加拿大共用記帳';
 
 /**
  * 帳本屬於哪個環境。開發版（npm run dev）建的是測試帳本，部署出去的正式版建的
@@ -23,6 +26,17 @@ export type LedgerEnv = 'dev' | 'prod';
 /** 雲端硬碟裡一眼分得出來：開發版的檔名多一個「（開發）」 */
 export function ledgerTitle(env: LedgerEnv): string {
   return env === 'prod' ? LEDGER_TITLE : `${LEDGER_TITLE}（開發）`;
+}
+
+/**
+ * 找自己之前建的帳本時要認得的名稱：現在的、改名前的。
+ * 加上環境標記之前建的帳本全是開發時建的，當時檔名還沒有「（開發）」，所以開發版多認一個。
+ * 正式版從來沒用過舊名稱，不必認。
+ */
+export function ledgerTitles(env: LedgerEnv): string[] {
+  return env === 'prod'
+    ? [LEDGER_TITLE]
+    : [ledgerTitle('dev'), `${LEGACY_TITLE}（開發）`, LEGACY_TITLE];
 }
 
 /** §9 圖表頁：月份 | 支出 | 收入 | 結餘 */
