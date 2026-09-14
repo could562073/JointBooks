@@ -210,6 +210,9 @@ export function SettingsScreen({ onInvite, syncState, lastSyncAt, onRetrySync, o
               <span className={styles.inviteHint}>分享連結 ›</span>
             </button>
           </div>
+          <p className={styles.memberNote} data-testid="member-limit-note">
+            一本帳本最多兩位成員：建立帳本的人，加上一位受邀的人。
+          </p>
         </section>
 
         <section className={styles.section}>

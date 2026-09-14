@@ -155,6 +155,7 @@ export function InvitePanel({ url, onClose, onPreview, onShareEmail, sharedWith 
                 ? '先把帳本分享給對方的 Google 帳號，再把邀請連結傳給對方；對方點開、用那個帳號登入就會加入這本帳。'
                 : '把連結傳給對方，對方點開登入就會加入這本帳，之後你們看到同一份資料。'}
             </p>
+            <p className={styles.limit} data-testid="invite-limit">一本帳本最多兩個人：你和一位受邀的人。</p>
 
             {onShareEmail && (editing ? (
               <form
@@ -163,7 +164,7 @@ export function InvitePanel({ url, onClose, onPreview, onShareEmail, sharedWith 
                 data-testid="invite-share-form"
               >
                 <label className={styles.linkLabel} htmlFor="invite-email">
-                  {sharedTo === null ? '第一步 · 分享帳本給對方的 Google 帳號' : '分享給其他 Google 帳號'}
+                  {sharedTo === null ? '第一步 · 分享帳本給對方的 Google 帳號' : '改邀請其他 Google 帳號'}
                 </label>
                 <div className={styles.shareRow}>
                   <input
@@ -183,6 +184,11 @@ export function InvitePanel({ url, onClose, onPreview, onShareEmail, sharedWith 
                     data-testid="invite-email-submit"
                   >{sharing ? '分享中…' : '分享帳本'}</button>
                 </div>
+                {sharedTo !== null && (
+                  <p className={styles.reshareNote} data-testid="invite-reshare-note">
+                    一本帳本只能有一位受邀的人。{sharedTo} 仍保有這份試算表的權限；要移除，請到 Google 試算表右上角的「共用」設定。
+                  </p>
+                )}
                 {shareError && <p className={styles.note} data-testid="invite-email-error">{shareError}</p>}
               </form>
             ) : (
@@ -193,7 +199,7 @@ export function InvitePanel({ url, onClose, onPreview, onShareEmail, sharedWith 
                   <button
                     type="button" className={styles.change}
                     onClick={() => setEditing(true)} data-testid="invite-email-change"
-                  >分享給其他帳號</button>
+                  >改邀請其他人</button>
                 </div>
               </div>
             ))}

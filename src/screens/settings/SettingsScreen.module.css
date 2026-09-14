@@ -354,3 +354,12 @@
   background: var(--c-tint);
   box-shadow: inset 0 0 0 2px var(--c-primary);
 }
+
+/* 帳本成員卡片下方的說明：一本帳本最多兩位成員 */
+.memberNote {
+  margin: 7px 4px 0;
+  font-family: var(--f-body);
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: var(--c-text-3);
+}

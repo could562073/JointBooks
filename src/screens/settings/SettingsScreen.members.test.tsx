@@ -34,6 +34,11 @@ describe('帳本成員：名稱與饅頭顏色', () => {
     expect(screen.getByTestId('member-partner')).not.toHaveTextContent('這台裝置');
   });
 
+  it('成員卡片下方說明一本帳本最多兩位成員', () => {
+    render(<SettingsScreen {...BASE} />);
+    expect(screen.getByTestId('member-limit-note')).toHaveTextContent('最多兩位成員');
+  });
+
   it('點成員展開編輯；改名後存起來並要求同步到雲端', async () => {
     const onMembersChanged = vi.fn();
     render(<SettingsScreen {...BASE} onMembersChanged={onMembersChanged} />);

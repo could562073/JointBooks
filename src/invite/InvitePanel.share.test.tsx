@@ -93,11 +93,13 @@ describe('邀請面板：先分享帳本、再傳連結', () => {
     expect(screen.getByTestId('invite-link')).toBeInTheDocument();
   });
 
-  it('分享給其他帳號：展開輸入欄時連結照樣留著，送出後改顯示新帳號', async () => {
+  it('改邀請其他人：提醒一本帳只能有一位受邀者、原本的帳號仍有權限；連結照樣留著，送出後改顯示新帳號', async () => {
     const onShareEmail = vi.fn(async () => {});
     render(<InvitePanel {...BASE} onShareEmail={onShareEmail} sharedWith="wife@gmail.com" />);
+    expect(screen.getByTestId('invite-email-change')).toHaveTextContent('改邀請其他人');
     fireEvent.click(screen.getByTestId('invite-email-change'));
     expect(screen.getByTestId('invite-email')).toBeInTheDocument();
+    expect(screen.getByTestId('invite-reshare-note')).toHaveTextContent('wife@gmail.com 仍保有');
     expect(screen.getByTestId('invite-link')).toBeInTheDocument();
 
     await submit('wife.work@gmail.com');

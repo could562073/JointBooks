@@ -22,6 +22,12 @@ function withClipboard() {
 const BASE = { url: URL_, onClose: () => {}, onPreview: () => {} };
 
 describe('InvitePanel 的內容', () => {
+  it('說明一本帳本最多兩個人', () => {
+    withClipboard();
+    render(<InvitePanel {...BASE} />);
+    expect(screen.getByTestId('invite-limit')).toHaveTextContent('最多兩個人');
+  });
+
   it('顯示邀請連結與三條說明', () => {
     withClipboard();
     render(<InvitePanel {...BASE} />);

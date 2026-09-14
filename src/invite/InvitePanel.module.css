@@ -360,3 +360,21 @@
 
 /* 分享完、連結第一次出現：沿用 MOTION #24 的上浮淡入 */
 .reveal { animation: qrIn var(--pop) var(--ease-enter) both; }
+
+/* 一本帳本最多兩個人：放在開頭說明下面，邀請之前就看得到 */
+.limit {
+  margin: 2px 0 0;
+  font-family: var(--f-body);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--c-tint-ink);
+}
+
+/* 改邀請其他人時的提醒：原本分享的帳號不會自動失去權限 */
+.reshareNote {
+  margin: 8px 0 0;
+  font-family: var(--f-body);
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--c-text-3);
+}
