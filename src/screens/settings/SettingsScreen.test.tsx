@@ -26,8 +26,8 @@ const BASE = {
 };
 
 describe('SettingsScreen 的帳本成員', () => {
-  it('列出我與老婆', () => {
-    render(<SettingsScreen {...BASE} />);
+  it('邀請過後列出兩位成員', () => {
+    render(<SettingsScreen {...BASE} invitee="wife@gmail.com" />);
     expect(screen.getByTestId('member-me')).toHaveTextContent('擁有者');
     expect(screen.getByTestId('member-partner')).toHaveTextContent('可編輯');
   });

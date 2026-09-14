@@ -26,10 +26,18 @@ const BASE = {
 };
 
 describe('邀請過後的帳本成員', () => {
-  it('還沒邀請：有「邀請成員」，受邀那一列寫尚未邀請', () => {
+  it('還沒邀請：有「邀請成員」，受邀者那一列還沒長出來', () => {
     render(<SettingsScreen {...BASE} />);
     expect(screen.getByTestId('invite-member')).toBeInTheDocument();
-    expect(screen.getByTestId('member-partner')).toHaveTextContent('尚未邀請');
+    expect(screen.getByTestId('member-me')).toBeInTheDocument();
+    expect(screen.queryByTestId('member-partner')).not.toBeInTheDocument();
+  });
+
+  it('受邀那一方的手機：本來就在帳本裡，兩列都在', () => {
+    useLedger.setState({ self: '妻' });
+    render(<SettingsScreen {...BASE} />);
+    expect(screen.getByTestId('member-me')).toBeInTheDocument();
+    expect(screen.getByTestId('member-partner')).toHaveTextContent('這台裝置');
   });
 
   it('已經分享給某個帳號：「邀請成員」消失，受邀那一列顯示對方的帳號', () => {

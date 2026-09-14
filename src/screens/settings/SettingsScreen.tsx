@@ -211,7 +211,7 @@ export function SettingsScreen({
   // 一本帳本最多兩個人：只有建立帳本的人、而且還沒邀請過時，才顯示「邀請成員」
   const canInvite = self === '我' && invitee === null;
   const memberDetail = (p: Person): string =>
-    p === self ? '這台裝置' : self === '我' ? (invitee ?? '尚未邀請') : '';
+    p === self ? '這台裝置' : self === '我' ? (invitee ?? '') : '';
   // 只在捲動時出現的捲動條要跟著這個捲動區（hook 要在下面的提早 return 之前）
   const scrollRef = useRef<HTMLDivElement>(null);
   const categories = useLedger((s) => s.categories);
@@ -262,7 +262,11 @@ export function SettingsScreen({
           <h2 className={styles.titleFirst}>帳本成員</h2>
 
           <div className={styles.card}>
-            {(['我', '妻'] as const).map((p) => (
+            {/*
+              受邀者那一列要等真的邀請了才長出來（使用者要求）：建立帳本的人的手機上，
+              分享給某個帳號之前只有自己一列；受邀那一方本來就在帳本裡，兩列都顯示
+            */}
+            {(['我', '妻'] as const).filter((p) => p === '我' || self === '妻' || invitee !== null).map((p) => (
               <MemberRow
                 key={p}
                 person={p}

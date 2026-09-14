@@ -23,6 +23,8 @@ const BASE = {
   syncState: 'synced' as const,
   lastSyncAt: null,
   onRetrySync: () => {},
+  // 這些測試要看得到受邀者那一列：假設已經分享給對方（沒邀請時那一列不會長出來）
+  invitee: 'wife@gmail.com',
 };
 
 describe('帳本成員：名稱與饅頭顏色', () => {
