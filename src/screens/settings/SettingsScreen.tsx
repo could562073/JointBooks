@@ -25,13 +25,25 @@ type Props = {
   onRetrySync(): void;
   /** 改了成員名稱或饅頭顏色：要求同步推上雲端 */
   onMembersChanged?(): void;
+  /** 帳本已經分享給的 Google 帳號（受邀者）；null＝還沒邀請 */
+  invitee?: string | null;
+  /** 移除受邀者（拿掉試算表權限），之後可以改邀請別人。只有接上雲端時才有 */
+  onRemoveInvitee?(): Promise<void>;
+};
+
+type MemberManageProps = {
+  email: string;
+  onResendLink(): void;
+  onRemove(): Promise<void>;
 };
 
 type MemberRowProps = {
   person: Person;
   member: Member;
-  /** 這台裝置的使用者 */
-  isSelf: boolean;
+  /** 身分後面的補充：「這台裝置」、受邀者的帳號、「尚未邀請」 */
+  detail: string;
+  /** 建立帳本的人管理受邀者：重新傳邀請連結、移除 */
+  manage?: MemberManageProps;
   open: boolean;
   onToggle(): void;
   onChange(patch: Partial<Member>): void;
@@ -43,7 +55,7 @@ type MemberRowProps = {
  * 帳本成員的一列。點頭像或名稱展開編輯：改名稱、換饅頭顏色（使用者要求；會同步到
  * 雲端，兩支手機看到的一樣）。稱謂不寫死「我／老婆」——兩個人都是使用者。
  */
-function MemberRow({ person, member, isSelf, open, onToggle, onChange, status, testId }: MemberRowProps) {
+function MemberRow({ person, member, detail, manage, open, onToggle, onChange, status, testId }: MemberRowProps) {
   return (
     <div className={styles.member} data-testid={testId}>
       <button
@@ -58,17 +70,19 @@ function MemberRow({ person, member, isSelf, open, onToggle, onChange, status, t
         </span>
         <span className={styles.memberText}>
           <span className={styles.memberName}>{member.name}</span>
-          <span className={styles.memberSub}>{roleLabel(person)}{isSelf ? ' · 這台裝置' : ''}</span>
+          <span className={styles.memberSub}>{roleLabel(person)}{detail ? ` · ${detail}` : ''}</span>
         </span>
       </button>
       <span className={styles.freshness}>{status}</span>
-      {open && <MemberEditor member={member} onChange={onChange} testId={testId} />}
+      {open && <MemberEditor member={member} onChange={onChange} testId={testId} {...(manage ? { manage } : {})} />}
     </div>
   );
 }
 
 /** 展開後的編輯區。每次打開都從目前的名稱開始，不沿用上次沒存的草稿 */
-function MemberEditor({ member, onChange, testId }: Pick<MemberRowProps, 'member' | 'onChange' | 'testId'>) {
+function MemberEditor({
+  member, onChange, testId, manage,
+}: Pick<MemberRowProps, 'member' | 'onChange' | 'testId' | 'manage'>) {
   const [draft, setDraft] = useState(member.name);
 
   function commitName() {
@@ -113,6 +127,63 @@ function MemberEditor({ member, onChange, testId }: Pick<MemberRowProps, 'member
           </button>
         ))}
       </div>
+      {manage && <MemberManage {...manage} testId={testId} />}
+    </div>
+  );
+}
+
+/**
+ * 建立帳本的人管理受邀者（使用者要求：邀請過後怎麼換成別人）。
+ * 移除＝拿掉試算表的共用權限，對方就讀不到這本帳；之後「邀請成員」會回來，可以改邀請別人。
+ */
+function MemberManage({ email, onResendLink, onRemove, testId }: MemberManageProps & { testId: string }) {
+  const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  function remove() {
+    setBusy(true);
+    setError(null);
+    // 不先 await 任何東西：需要重新連線 Google 時，要在這個點擊事件裡叫出視窗
+    onRemove().catch(() => {
+      setError('移除失敗，請確認已連線 Google 後再試一次。');
+      setBusy(false);
+    });
+  }
+
+  return (
+    <div className={styles.manage} data-testid={`${testId}-manage`}>
+      <span className={styles.editLabel}>成員</span>
+      {confirming ? (
+        <div className={styles.confirmBox} role="group" aria-label="移除成員" data-testid={`${testId}-remove-confirm`}>
+          <p className={styles.confirmText}>
+            移除後 {email} 就讀不到這本帳，「邀請成員」會回來，可以改邀請別人。
+            對方之前記的帳會留著，之後會顯示成下一位成員的名稱。
+          </p>
+          <div className={styles.manageRow}>
+            <button
+              type="button" className={`${styles.manageBtn} ${styles.danger}`}
+              onClick={remove} disabled={busy} data-testid={`${testId}-remove-go`}
+            >{busy ? '移除中…' : '確定移除'}</button>
+            <button
+              type="button" className={styles.manageBtn}
+              onClick={() => setConfirming(false)} disabled={busy} data-testid={`${testId}-remove-cancel`}
+            >取消</button>
+          </div>
+        </div>
+      ) : (
+        <div className={styles.manageRow}>
+          <button
+            type="button" className={styles.manageBtn}
+            onClick={onResendLink} data-testid={`${testId}-resend`}
+          >重新傳邀請連結</button>
+          <button
+            type="button" className={`${styles.manageBtn} ${styles.danger}`}
+            onClick={() => setConfirming(true)} data-testid={`${testId}-remove`}
+          >移除這位成員</button>
+        </div>
+      )}
+      {error && <p className={styles.manageError} role="alert" data-testid={`${testId}-remove-error`}>{error}</p>}
     </div>
   );
 }
@@ -123,7 +194,9 @@ function MemberEditor({ member, onChange, testId }: Pick<MemberRowProps, 'member
  * 增補檔 A 已移除「月結日」與「週起始」兩列（固定 1 號／週一，常數在
  * domain/constants），所以「其他」區只剩兩個開關。
  */
-export function SettingsScreen({ onInvite, syncState, lastSyncAt, onRetrySync, onMembersChanged }: Props) {
+export function SettingsScreen({
+  onInvite, syncState, lastSyncAt, onRetrySync, onMembersChanged, invitee = null, onRemoveInvitee,
+}: Props) {
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   // 從分類子頁返回時，配置頁自左側滑回來（使用者要求）。切走再切回配置分頁會重掛、歸零
   const [returned, setReturned] = useState(false);
@@ -135,6 +208,10 @@ export function SettingsScreen({ onInvite, syncState, lastSyncAt, onRetrySync, o
   const changeMember = (p: Person, patch: Partial<Member>) => {
     void setMember(p, patch).then(() => onMembersChanged?.());
   };
+  // 一本帳本最多兩個人：只有建立帳本的人、而且還沒邀請過時，才顯示「邀請成員」
+  const canInvite = self === '我' && invitee === null;
+  const memberDetail = (p: Person): string =>
+    p === self ? '這台裝置' : self === '我' ? (invitee ?? '尚未邀請') : '';
   // 只在捲動時出現的捲動條要跟著這個捲動區（hook 要在下面的提早 return 之前）
   const scrollRef = useRef<HTMLDivElement>(null);
   const categories = useLedger((s) => s.categories);
@@ -190,7 +267,10 @@ export function SettingsScreen({ onInvite, syncState, lastSyncAt, onRetrySync, o
                 key={p}
                 person={p}
                 member={members[p]}
-                isSelf={p === self}
+                detail={memberDetail(p)}
+                {...(p === '妻' && self === '我' && invitee && onRemoveInvitee
+                  ? { manage: { email: invitee, onResendLink: onInvite, onRemove: onRemoveInvitee } }
+                  : {})}
                 open={editing === p}
                 onToggle={() => setEditing((e) => (e === p ? null : p))}
                 onChange={(patch) => changeMember(p, patch)}
@@ -202,13 +282,16 @@ export function SettingsScreen({ onInvite, syncState, lastSyncAt, onRetrySync, o
               />
             ))}
 
-            <button
-              type="button" className={styles.inviteRow} onClick={onInvite}
-              data-testid="invite-member"
-            >
-              <span className={styles.inviteLabel}>邀請成員</span>
-              <span className={styles.inviteHint}>分享連結 ›</span>
-            </button>
+            {/* 邀請過後就收起來；換人要點受邀那一列、移除這位成員 */}
+            {canInvite && (
+              <button
+                type="button" className={styles.inviteRow} onClick={onInvite}
+                data-testid="invite-member"
+              >
+                <span className={styles.inviteLabel}>邀請成員</span>
+                <span className={styles.inviteHint}>分享連結 ›</span>
+              </button>
+            )}
           </div>
           <p className={styles.memberNote} data-testid="member-limit-note">
             一本帳本最多兩位成員：建立帳本的人，加上一位受邀的人。

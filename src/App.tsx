@@ -24,6 +24,8 @@ import { createSyncController, type SyncController } from './sync/controller';
 import { joinLedger, joinOutcomeText } from './sync/joinLedger';
 import { joinedSid, setJoinedSid, setSelfPerson } from './sync/ledgerId';
 import { membersSync, resetLocalMembers } from './sync/members';
+import { findInvitee, removeInvitees } from './sync/invitee';
+import { DEFAULT_MEMBERS } from './domain/members';
 import styles from './App.module.css';
 
 // 只在 dev 模式下才會走到這裡；production 建置時 import.meta.env.DEV 會被
@@ -217,6 +219,8 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
   const [entry, setEntry] = useState<'new' | Txn | null>(null);
   // null = 面板關著。開著時 url 可能仍是 null——那代表這台裝置還沒有雲端帳本
   const [invite, setInvite] = useState<{ url: string | null; sharedWith: string | null } | null>(null);
+  // 帳本分享給了誰（受邀者）。先用本機記下的，連上 Google 後以雲端的共用設定為準
+  const [invitee, setInvitee] = useState<string | null>(null);
   const syncRef = useRef<SyncController | null>(null);
 
   // 本機改了帳：請同步控制器稍等一下（合併連續幾筆）再推上去
@@ -305,7 +309,45 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
         if (!sid) throw new Error('no_ledger');
         return cloud.client.shareWith(sid, email);
       })
-      .then(() => ledgerRepo.setMeta(SHARED_WITH_KEY, email));
+      .then(() => ledgerRepo.setMeta(SHARED_WITH_KEY, email))
+      .then(() => setInvitee(email));
+  }, [cloud]);
+
+  // 移除受邀者：拿掉試算表的共用權限，那個位置的名稱與饅頭顏色回到預設，之後可以邀請別人
+  const removeInvitee = useCallback(async (): Promise<void> => {
+    if (!cloud) throw new Error('no_cloud');
+    // connect 要在使用者按下「確定移除」的同一個事件裡叫，Google 視窗才不會被擋
+    if (!cloud.tokens.isConnected()) await cloud.tokens.connect();
+    const sid = await joinedSid();
+    if (!sid) throw new Error('no_ledger');
+    await removeInvitees(cloud.client, sid);
+    await ledgerRepo.setMeta(SHARED_WITH_KEY, null);
+    setInvitee(null);
+    await useLedger.getState().setMember('妻', DEFAULT_MEMBERS.妻);
+    pushSoon();
+  }, [cloud, pushSoon]);
+
+  // 受邀者：本機記的先顯示；連上 Google 後問雲端這本帳共用給了誰，換手機也對得上
+  useEffect(() => {
+    let alive = true;
+    const refresh = async () => {
+      const local = await ledgerRepo.getMeta<string | null>(SHARED_WITH_KEY);
+      if (alive) setInvitee(local ?? null);
+      if (!cloud || !cloud.tokens.isConnected()) return;
+      const sid = await joinedSid();
+      if (!sid) return;
+      try {
+        const remote = await findInvitee(cloud.client, sid);
+        if (!alive) return;
+        setInvitee(remote);
+        await ledgerRepo.setMeta(SHARED_WITH_KEY, remote);
+      } catch {
+        // 讀不到共用設定（離線、權限不夠）就維持本機記的
+      }
+    };
+    void refresh();
+    const unsubscribe = cloud ? cloud.tokens.subscribe((connected) => { if (connected) void refresh(); }) : () => {};
+    return () => { alive = false; unsubscribe(); };
   }, [cloud]);
 
   return (
@@ -342,6 +384,8 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
             lastSyncAt={lastSyncAt}
             onRetrySync={retrySync}
             onMembersChanged={pushSoon}
+            invitee={invitee}
+            {...(cloud ? { onRemoveInvitee: removeInvitee } : {})}
           />
         )}
       </div>

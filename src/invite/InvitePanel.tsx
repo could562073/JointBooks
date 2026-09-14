@@ -54,7 +54,7 @@ export function InvitePanel({ url, onClose, onPreview, onShareEmail, sharedWith 
   const [sharing, setSharing] = useState(false);
   const [shareError, setShareError] = useState<string | null>(null);
   const [sharedTo, setSharedTo] = useState<string | null>(sharedWith);
-  // 分享過就收成一行；還沒分享、或按了「分享給其他帳號」才展開輸入欄
+  // 分享過就收成一行；還沒分享才顯示輸入欄
   const [editing, setEditing] = useState(sharedWith === null);
   // 這次開面板才分享完、連結第一次出現：播一次上浮淡入
   const [revealed, setRevealed] = useState(false);
@@ -164,7 +164,7 @@ export function InvitePanel({ url, onClose, onPreview, onShareEmail, sharedWith 
                 data-testid="invite-share-form"
               >
                 <label className={styles.linkLabel} htmlFor="invite-email">
-                  {sharedTo === null ? '第一步 · 分享帳本給對方的 Google 帳號' : '改邀請其他 Google 帳號'}
+                  第一步 · 分享帳本給對方的 Google 帳號
                 </label>
                 <div className={styles.shareRow}>
                   <input
@@ -184,22 +184,14 @@ export function InvitePanel({ url, onClose, onPreview, onShareEmail, sharedWith 
                     data-testid="invite-email-submit"
                   >{sharing ? '分享中…' : '分享帳本'}</button>
                 </div>
-                {sharedTo !== null && (
-                  <p className={styles.reshareNote} data-testid="invite-reshare-note">
-                    一本帳本只能有一位受邀的人。{sharedTo} 仍保有這份試算表的權限；要移除，請到 Google 試算表右上角的「共用」設定。
-                  </p>
-                )}
                 {shareError && <p className={styles.note} data-testid="invite-email-error">{shareError}</p>}
               </form>
             ) : (
               <div className={styles.shareCard} data-testid="invite-shared">
                 <div className={styles.linkLabel}>第一步 · 分享帳本給對方的 Google 帳號</div>
+                {/* 一本帳本只有一位受邀者：換人要到配置頁移除這位成員，不在這裡多分享一個帳號 */}
                 <div className={styles.sharedRow}>
                   <span className={styles.shared}>✓ 已分享給 {sharedTo}</span>
-                  <button
-                    type="button" className={styles.change}
-                    onClick={() => setEditing(true)} data-testid="invite-email-change"
-                  >改邀請其他人</button>
                 </div>
               </div>
             ))}

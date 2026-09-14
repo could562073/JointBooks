@@ -93,17 +93,10 @@ describe('邀請面板：先分享帳本、再傳連結', () => {
     expect(screen.getByTestId('invite-link')).toBeInTheDocument();
   });
 
-  it('改邀請其他人：提醒一本帳只能有一位受邀者、原本的帳號仍有權限；連結照樣留著，送出後改顯示新帳號', async () => {
-    const onShareEmail = vi.fn(async () => {});
-    render(<InvitePanel {...BASE} onShareEmail={onShareEmail} sharedWith="wife@gmail.com" />);
-    expect(screen.getByTestId('invite-email-change')).toHaveTextContent('改邀請其他人');
-    fireEvent.click(screen.getByTestId('invite-email-change'));
-    expect(screen.getByTestId('invite-email')).toBeInTheDocument();
-    expect(screen.getByTestId('invite-reshare-note')).toHaveTextContent('wife@gmail.com 仍保有');
+  it('分享過之後面板上不能再分享給別的帳號——一本帳本只有一位受邀者，換人要到配置頁移除成員', () => {
+    render(<InvitePanel {...BASE} onShareEmail={async () => {}} sharedWith="wife@gmail.com" />);
+    expect(screen.queryByTestId('invite-email-change')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('invite-email')).not.toBeInTheDocument();
     expect(screen.getByTestId('invite-link')).toBeInTheDocument();
-
-    await submit('wife.work@gmail.com');
-    expect(onShareEmail).toHaveBeenCalledWith('wife.work@gmail.com');
-    expect(screen.getByTestId('invite-shared')).toHaveTextContent('已分享給 wife.work@gmail.com');
   });
 });

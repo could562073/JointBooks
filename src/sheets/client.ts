@@ -16,6 +16,9 @@ export class SheetsError extends Error {
   }
 }
 
+/** Drive 的共用設定（誰能讀寫這份試算表） */
+export type DrivePermission = { id: string; type: string; role: string; emailAddress?: string };
+
 const API = 'https://sheets.googleapis.com/v4/spreadsheets';
 const DRIVE = 'https://www.googleapis.com/drive/v3';
 
@@ -47,7 +50,8 @@ export function createSheetsClient(deps: SheetsClientDeps) {
         },
       });
 
-      if (res.ok) return (await res.json()) as T;
+      // 刪除共用權限這類請求回 204，沒有內容可以解析
+      if (res.ok) return (res.status === 204 ? undefined : await res.json()) as T;
 
       const body = await res.text().catch(() => '');
       if (!isRetryable(res.status) || !canRetry(attempts)) {
@@ -118,6 +122,23 @@ export function createSheetsClient(deps: SheetsClientDeps) {
         method: 'POST',
         body: JSON.stringify({ role: 'writer', type: 'user', emailAddress: email }),
       });
+    },
+
+    /** 這份試算表共用給了誰。drive.file 讓 App 管得到自己建的檔案的共用設定 */
+    async listPermissions(spreadsheetId: string): Promise<DrivePermission[]> {
+      const params = new URLSearchParams({ fields: 'permissions(id,type,role,emailAddress)' });
+      const r = await call<{ permissions?: DrivePermission[] }>(
+        `${DRIVE}/files/${spreadsheetId}/permissions?${params}`
+      );
+      return r.permissions ?? [];
+    },
+
+    /** 拿掉一個人的共用權限：對方之後讀不到這本帳 */
+    async removePermission(spreadsheetId: string, permissionId: string): Promise<void> {
+      await call<unknown>(
+        `${DRIVE}/files/${spreadsheetId}/permissions/${encodeURIComponent(permissionId)}`,
+        { method: 'DELETE' }
+      );
     },
   };
 }
