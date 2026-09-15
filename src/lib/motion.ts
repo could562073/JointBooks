@@ -67,7 +67,6 @@ export const DUR = {
   bootBunStagger: 120, // #39 第二顆晚一點彈起
   bootWord: 500,       // #39 字標浮現
   bootWordDelay: 220,  // #39 字標延遲
-  bootBar: 2100,       // #39 底部進度條跑完
   bootRing: 2400,      // #39 光暈擴散一輪（無限循環）
   reduced: 120,        // prefers-reduced-motion 統一時長
 } as const;

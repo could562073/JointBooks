@@ -5,7 +5,7 @@ import styles from './LaunchScreen.module.css';
 
 /**
  * 啟動畫面（使用者要求，照原型 v2 的「啟動畫面」）。每次打開 App 蓋在最上層：
- * 兩顆饅頭依序彈起、後面一圈光暈擴散、字標浮現、底部進度條跑完，2.15 秒後放大淡出，
+ * 兩顆饅頭依序彈起、後面一圈光暈擴散、字標浮現（原型底部的讀取條依使用者要求拿掉），2.15 秒後放大淡出，
  * 淡出播完（約 2.6 秒）就卸載（MOTION #39）。
  *
  * 只是蓋在上面的一層，底下的 App 照常載入與同步，不會因此多等資料。
@@ -30,7 +30,6 @@ export function LaunchScreen() {
     '--bun-stagger': `${DUR.bootBunStagger}ms`,
     '--word': `${DUR.bootWord}ms`,
     '--word-delay': `${DUR.bootWordDelay}ms`,
-    '--bar': `${DUR.bootBar}ms`,
     '--ring': `${DUR.bootRing}ms`,
   } as CSSProperties;
 
@@ -81,12 +80,6 @@ export function LaunchScreen() {
       <div className={styles.word}>
         <div className={styles.title}>饅頭記帳</div>
         <div className={styles.sub}>our little money book</div>
-      </div>
-
-      <div className={styles.progress}>
-        <div className={styles.track} data-testid="launch-progress">
-          <div className={styles.fill} />
-        </div>
       </div>
     </div>
   );

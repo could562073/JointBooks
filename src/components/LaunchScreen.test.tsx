@@ -13,14 +13,14 @@ function stubMotion(reduced: boolean) {
 }
 
 describe('啟動畫面（原型 v2）', () => {
-  it('打開時顯示兩顆饅頭、字標與進度條', () => {
+  it('打開時顯示兩顆饅頭與字標，下方沒有讀取條（使用者要求拿掉）', () => {
     stubMotion(false);
     render(<LaunchScreen />);
     const s = screen.getByTestId('launch-screen');
     expect(s).toHaveTextContent('饅頭記帳');
     expect(s).toHaveTextContent('our little money book');
     expect(s.querySelectorAll('[data-bun]')).toHaveLength(2);
-    expect(screen.getByTestId('launch-progress')).toBeInTheDocument();
+    expect(s.querySelector('[role="progressbar"], [data-testid="launch-progress"]')).toBeNull();
   });
 
   it('時間軸跟原型一樣：2.15 秒開始淡出，淡出 0.46 秒', () => {

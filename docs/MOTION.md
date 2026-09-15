@@ -45,4 +45,4 @@
 | 36 | 支出／收入切換滑塊 | `DUR.slide` `DUR.kindColor` `EASE.move` | 05 | 已實作 |
 | 37 | 刪除紀錄確認窗 | `DUR.dialogIn` `DUR.scrimIn` `DUR.rowCollapse` `EASE.enter` | 05 | 已實作 |
 | 38 | 記一筆日期選擇器（展開與收起都收放高度；收起時播完才卸載） | `DUR.chevron` `DUR.popIn` `DUR.outlineFade` `EASE.enter` `EASE.exit` | 05 | 已實作 |
-| 39 | 啟動畫面（原型 v2 新增：兩顆饅頭依序彈起、光暈擴散、字標浮現、進度條；2.15s 放大淡出、淡出播完卸載；減少動態時淡出 120ms。使用者要求，歸 App 外殼） | `DUR.bootHold` `DUR.bootOut` `DUR.bootBun` `DUR.bootBunStagger` `DUR.bootWord` `DUR.bootWordDelay` `DUR.bootBar` `DUR.bootRing` `EASE.enter` | 01 | 已實作 |
+| 39 | 啟動畫面（原型 v2 新增：兩顆饅頭依序彈起、光暈擴散、字標浮現（原型底部的讀取條依使用者要求拿掉）；2.15s 放大淡出、淡出播完卸載；減少動態時淡出 120ms。使用者要求，歸 App 外殼） | `DUR.bootHold` `DUR.bootOut` `DUR.bootBun` `DUR.bootBunStagger` `DUR.bootWord` `DUR.bootWordDelay` `DUR.bootRing` `EASE.enter` | 01 | 已實作 |
