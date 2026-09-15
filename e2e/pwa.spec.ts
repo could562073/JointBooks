@@ -6,7 +6,7 @@ test.describe('PWA 外殼', () => {
     const href = await page.locator('link[rel="manifest"]').getAttribute('href');
     expect(href).toBeTruthy();
 
-    const m = await (await request.get(new URL(href!, 'http://localhost:5173').toString())).json();
+    const m = await (await request.get(new URL(href!, page.url()).toString())).json();
     expect(m.display).toBe('standalone');
     expect(m.orientation).toBe('portrait');
     expect(m.theme_color).toBe('#FFF6EC');
@@ -19,7 +19,7 @@ test.describe('PWA 外殼', () => {
 
     // Verify all icon URLs are actually reachable with correct content type
     for (const icon of m.icons) {
-      const iconUrl = new URL(icon.src, 'http://localhost:5173').toString();
+      const iconUrl = new URL(icon.src, page.url()).toString();
       const res = await request.get(iconUrl);
       expect(res.status()).toBe(200);
       expect(res.headers()['content-type']).toMatch(/^image\//);
@@ -39,7 +39,7 @@ test.describe('PWA 外殼', () => {
     // Verify apple-touch-icon URL is reachable with correct content type
     const iconHref = await appleIconLink.getAttribute('href');
     expect(iconHref).toBeTruthy();
-    const iconRes = await request.get(new URL(iconHref!, 'http://localhost:5173').toString());
+    const iconRes = await request.get(new URL(iconHref!, page.url()).toString());
     expect(iconRes.status()).toBe(200);
     expect(iconRes.headers()['content-type']).toMatch(/^image\//);
 
