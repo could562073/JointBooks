@@ -16,7 +16,7 @@ export const TXN_HEADER = [
  * 額外欄位（「配置頁加 icon 與 id 欄」），這裡沿用同一個做法。
  */
 export const CATEGORY_HEADER = [
-  '主分類ID', '主分類', '子分類ID', '子分類', '圖示', '月預算 CAD', '排序', '啟用', 'kind', '配色',
+  '主分類ID', '主分類', '子分類ID', '子分類', '圖示', '月預算 CAD', '排序', '啟用', 'kind', '配色', '更新時間',
 ] as const;
 
 const CURRENCIES = new Set<Currency>(['CAD', 'TWD', 'USD']);
@@ -120,6 +120,8 @@ export function categoryToRows(c: Category): string[][] {
     bool(c.active),
     c.kind,
     String(c.colorSet),
+    // 逐一合併分類用的修改時間；空白＝加上這一欄之前的分類
+    c.updatedAt ? String(c.updatedAt) : '',
   ]);
 }
 
@@ -147,6 +149,7 @@ export function rowsToCategories(rows: readonly (readonly string[])[]): Category
     }
 
     const budgetRaw = (row[5] ?? '').trim();
+    const updatedAt = Number((row[10] ?? '').trim()) || 0;
     byId.set(id, {
       id,
       kind: (row[8] ?? '').trim() === 'income' ? 'income' : 'expense',
@@ -157,6 +160,7 @@ export function rowsToCategories(rows: readonly (readonly string[])[]): Category
       colorSet: Number(row[9] ?? 0) || 0,
       order: Number(row[6] ?? 0) || 0,
       active: parseBool(row[7]),
+      ...(updatedAt > 0 ? { updatedAt } : {}),
     });
   }
 

@@ -24,6 +24,11 @@ export type Category = {
   order: number;
   /** false = 假刪：不出現在記帳選單與預算清單，但歷史紀錄與統計不受影響 */
   active: boolean;
+  /**
+   * 最後一次修改的時間（epoch ms）。兩支手機逐一合併分類時較新的贏；
+   * 加上這個欄位之前的分類沒有值，當成 0
+   */
+  updatedAt?: number;
 };
 
 export type Txn = {

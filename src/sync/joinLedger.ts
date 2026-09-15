@@ -1,7 +1,7 @@
 import { NeedsConnectError } from '../auth/gis';
 import type { Category } from '../domain/types';
 import { SheetsError, type SheetsClient } from '../sheets/client';
-import { ENV_RANGE, ledgerEnvOf, SHEET, type LedgerEnv } from '../sheets/ledgerSheet';
+import { CATEGORIES_RANGE, ENV_RANGE, ledgerEnvOf, type LedgerEnv } from '../sheets/ledgerSheet';
 import { rowsToCategories } from '../sheets/rows';
 
 export type JoinOutcome =
@@ -38,7 +38,7 @@ export async function joinLedger(
     // 先看環境再讀分類：環境不對就不多讀、什麼都不寫
     const ledger = ledgerEnvOf((await client.get(sid, ENV_RANGE))[0]?.[0]);
     if (ledger !== env) return { kind: 'wrong-env', ledger };
-    rows = await client.get(sid, `${SHEET.config}!A2:J`);
+    rows = await client.get(sid, CATEGORIES_RANGE);
   } catch (e) {
     // 需要重新連線交給呼叫端處理（它握有使用者的點擊，才能叫出 Google 視窗）
     if (e instanceof NeedsConnectError) throw e;

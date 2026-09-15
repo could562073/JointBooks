@@ -4,6 +4,7 @@ import type { SheetsClient } from '../sheets/client';
 import { CATEGORIES_RANGE, REV_RANGE, writeCategories } from '../sheets/ledgerSheet';
 import { rowsToCategories } from '../sheets/rows';
 import type { CategoriesSync } from './categoriesSync';
+import { mergeCategories } from './categoryMerge';
 import { MEMBERS_RANGE, MEMBERS_READ_RANGE, membersToRows, rowsToMembers } from '../sheets/memberRows';
 import type { MembersSync } from './members';
 import type { SyncState } from './state';
@@ -97,23 +98,22 @@ export function createSyncController(d: SyncControllerDeps): SyncController {
   }
 
   /**
-   * 分類與月預算：本機改過就整批推（最後寫入的贏，年報表跟著重寫）；沒改過、雲端有變才拉。
-   * 雲端的分類區是空的（被人手動清掉）時不拿空的蓋掉本機。回傳有沒有推。
+   * 分類與月預算：本機改過或雲端有變時，讀雲端的分類逐一合併（同一個分類修改時間較新的贏）。
+   * 合併結果跟雲端不同就整批寫回（年報表跟著重寫），跟本機不同就存回本機。回傳有沒有推。
+   *
+   * 原本是整份「本機改過就推」：另一支手機還沒拉到新分類時按一次 ✓，就把整份舊的推上去，
+   * 蓋掉對方剛改的月預算、圖示、子分類（使用者回報）。雲端的分類區是空的（被人手動清掉）時，
+   * 合併結果就是本機那份，會寫回去補上，不會拿空的蓋掉本機。
    */
   async function syncCategories(sid: string, localDirty: boolean, remoteChanged: boolean): Promise<boolean> {
     const c = d.categories;
-    if (!c) return false;
-    if (localDirty) {
-      const mine = await c.local();
-      await writeCategories(d.client, sid, mine, new Date(now()).getFullYear());
-      await c.markPushed(mine);
-      return true;
-    }
-    if (remoteChanged) {
-      const pulled = rowsToCategories(await d.client.get(sid, CATEGORIES_RANGE));
-      if (pulled.length > 0) await c.save(pulled);
-    }
-    return false;
+    if (!c || (!localDirty && !remoteChanged)) return false;
+    const remote = rowsToCategories(await d.client.get(sid, CATEGORIES_RANGE));
+    const local = await c.local();
+    const { merged, pushNeeded, saveNeeded } = mergeCategories(local, remote, await c.preferLocal());
+    if (pushNeeded) await writeCategories(d.client, sid, merged, new Date(now()).getFullYear());
+    await c.settle(local, saveNeeded ? merged : null);
+    return pushNeeded;
   }
 
   async function cycle(): Promise<void> {

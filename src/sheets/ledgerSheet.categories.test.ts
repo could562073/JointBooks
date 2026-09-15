@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { defaultCategories } from '../domain/categories';
 import type { SheetsClient } from './client';
 import { CATEGORIES_RANGE, SHEET, writeCategories } from './ledgerSheet';
+import { CATEGORY_HEADER } from './rows';
 
 let n = 0;
 const CATS = defaultCategories(() => `c-${n++}`);
@@ -19,12 +20,19 @@ describe('writeCategories：分類整批寫回試算表', () => {
   it('先清掉配置頁的分類區再寫，舊的列不會留在表上', async () => {
     const f = fakeClient();
     await writeCategories(f.client, 'SID', CATS, 2026);
-    expect(CATEGORIES_RANGE).toBe('配置!A2:J');
+    expect(CATEGORIES_RANGE).toBe('配置!A2:K');
     const clearIdx = f.calls.findIndex((c) => c.op === 'clear' && c.range === CATEGORIES_RANGE);
-    const writeIdx = f.calls.findIndex((c) => c.op === 'update' && c.range.startsWith(`${SHEET.config}!A2:J`));
+    const writeIdx = f.calls.findIndex((c) => c.op === 'update' && c.range.startsWith(`${SHEET.config}!A2:K`));
     expect(clearIdx).toBeGreaterThanOrEqual(0);
     expect(writeIdx).toBeGreaterThan(clearIdx);
     expect(f.calls[writeIdx]!.rows).toHaveLength(CATS.reduce((sum, c) => sum + c.subs.length, 0));
+  });
+
+  it('標頭列一起寫到 K 欄（加上修改時間之前建的帳本，標頭只到 J）', async () => {
+    const f = fakeClient();
+    await writeCategories(f.client, 'SID', CATS, 2026);
+    const header = f.calls.find((c) => c.op === 'update' && c.range === `${SHEET.config}!A1:K1`);
+    expect(header?.rows?.[0]).toEqual([...CATEGORY_HEADER]);
   });
 
   it('年報表也照新的分類重寫（只列啟用中的支出分類）', async () => {

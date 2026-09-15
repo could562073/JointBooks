@@ -73,10 +73,11 @@ export const ledgerRepo = {
   },
 
   /** 假刪（冪等）：不出現在選單，但歷史紀錄與統計金額完全不變（§15.1-14）。找不到 id 時無聲返回。 */
-  async deleteCategory(id: string): Promise<void> {
+  async deleteCategory(id: string, updatedAt?: number): Promise<void> {
     const c = await db.categories.get(id);
     if (!c) return;
-    await db.categories.put(softDelete(c));
+    // 帶修改時間：刪除也是一次修改，兩支手機合併分類時才認得出這是比較新的
+    await db.categories.put(updatedAt === undefined ? softDelete(c) : { ...softDelete(c), updatedAt });
   },
 
   /** 刪分類確認窗要顯示的「已用在 N 筆紀錄」。只計算主分類使用次數。 */

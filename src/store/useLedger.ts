@@ -6,6 +6,7 @@ import type { Category, Dimension, Person, Txn } from '../domain/types';
 import { SELF_KEY } from '../sync/ledgerId';
 import { MEMBERS_DIRTY_KEY, MEMBERS_KEY } from '../sync/members';
 import { CATEGORIES_DIRTY_KEY } from '../sync/categoriesSync';
+import { sameContent } from '../sync/categoryMerge';
 import type { SyncState } from '../sync/state';
 
 export type Tab = 'daily' | 'stats' | 'settings';
@@ -132,15 +133,23 @@ export const useLedger = create<LedgerState>((set, get) => ({
     set({ txns: get().txns.filter((x) => x.id !== id) });
   },
 
-  // 改分類都標成待推，同步控制器下一輪才會推上雲端，另一邊才看得到（使用者回報）
+  /*
+   * 改分類都標成待推，同步控制器下一輪才會推上雲端，另一邊才看得到（使用者回報）。
+   * 記下修改時間，兩支手機逐一合併時較新的贏。按了 ✓ 但內容沒變不算修改：
+   * 不然這支手機手上還沒拉到的舊分類會被當成「剛改的」，蓋掉對方的修改
+   */
   async saveCategory(c) {
-    await ledgerRepo.saveCategory(c);
+    const before = (await ledgerRepo.listCategories()).find((x) => x.id === c.id);
+    if (before && sameContent(before, c)) return;
+    await ledgerRepo.saveCategory({ ...c, updatedAt: Date.now() });
     await ledgerRepo.setMeta(CATEGORIES_DIRTY_KEY, true);
     set({ categories: await ledgerRepo.listCategories() });
   },
 
   async deleteCategory(id) {
-    await ledgerRepo.deleteCategory(id);
+    const before = (await ledgerRepo.listCategories()).find((x) => x.id === id);
+    if (!before?.active) return;
+    await ledgerRepo.deleteCategory(id, Date.now());
     await ledgerRepo.setMeta(CATEGORIES_DIRTY_KEY, true);
     set({ categories: await ledgerRepo.listCategories() });
   },

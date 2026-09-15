@@ -80,12 +80,12 @@ export async function createLedger(
   const id = await client.createSpreadsheet(ledgerTitle(env), SHEET_TITLES);
 
   await client.update(id, `${SHEET.txns}!A1:N1`, [[...TXN_HEADER]]);
-  await client.update(id, `${SHEET.config}!A1:J1`, [[...CATEGORY_HEADER]]);
+  await client.update(id, `${SHEET.config}!A1:K1`, [[...CATEGORY_HEADER]]);
   await client.update(id, `${SHEET.chart}!A1:D1`, [[...CHART_HEADER]]);
 
   const configRows = categories.flatMap(categoryToRows);
   if (configRows.length > 0) {
-    await client.update(id, `${SHEET.config}!A2:J${configRows.length + 1}`, configRows);
+    await client.update(id, `${SHEET.config}!A2:K${configRows.length + 1}`, configRows);
   }
 
   const expense = categories.filter((c) => c.kind === 'expense' && c.active);
@@ -102,7 +102,7 @@ export async function createLedger(
 }
 
 /**
- * 版本戳記所在的儲存格（配置頁 A–J 已被分類用掉，L 欄空著）。
+ * 版本戳記所在的儲存格（配置頁 A–K 已被分類用掉，L 欄空著）。
  *
  * 任何一台裝置把變更推上來之後就改寫這一格；另一台每 5 秒輪詢時只讀這一格，
  * 沒變就不必把整張紀錄表拉下來。紀錄表會越記越長，這一格永遠只有一個值。
@@ -120,8 +120,8 @@ export function ledgerEnvOf(cell: string | undefined): LedgerEnv {
   return cell?.trim() === 'prod' ? 'prod' : 'dev';
 }
 
-/** 配置頁放分類的範圍（第 1 列是標頭）；L 欄以後是版本戳記、環境標記與成員，不在範圍內 */
-export const CATEGORIES_RANGE = `${SHEET.config}!A2:J`;
+/** 配置頁放分類的範圍（第 1 列是標頭，K 欄是修改時間）；L 欄以後是版本戳記、環境標記與成員，不在範圍內 */
+export const CATEGORIES_RANGE = `${SHEET.config}!A2:K`;
 
 /**
  * 把分類整批寫回配置頁，並照新的分類重寫年報表（改名、新增的分類在年報表才對得上）。
@@ -134,9 +134,11 @@ export async function writeCategories(
   year: number
 ): Promise<void> {
   await client.clear(id, CATEGORIES_RANGE);
+  // 標頭一起寫：加上 K 欄（修改時間）之前建的帳本，標頭列只到 J
+  await client.update(id, `${SHEET.config}!A1:K1`, [[...CATEGORY_HEADER]]);
   const configRows = categories.flatMap(categoryToRows);
   if (configRows.length > 0) {
-    await client.update(id, `${SHEET.config}!A2:J${configRows.length + 1}`, configRows);
+    await client.update(id, `${SHEET.config}!A2:K${configRows.length + 1}`, configRows);
   }
 
   const expense = categories.filter((c) => c.kind === 'expense' && c.active);

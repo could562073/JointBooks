@@ -49,7 +49,7 @@ describe('createLedger', () => {
     await createLedger(f.client, CATS, 2026, 'dev');
     const ranges = f.updates.map((u) => u.range);
     expect(ranges).toContain(`${SHEET.txns}!A1:N1`);
-    expect(ranges).toContain(`${SHEET.config}!A1:J1`);
+    expect(ranges).toContain(`${SHEET.config}!A1:K1`);
     expect(ranges).toContain(`${SHEET.chart}!A1:D1`);
     expect(f.updates.find((u) => u.range.startsWith(SHEET.chart))!.rows[0])
       .toEqual([...CHART_HEADER]);

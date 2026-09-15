@@ -118,8 +118,8 @@ describe('rowToTxn', () => {
 });
 
 describe('配置頁欄序', () => {
-  it('A–J 共 10 欄（C-3 的 9 欄 + 配色）', () => {
-    expect(CATEGORY_HEADER).toHaveLength(10);
+  it('A–K 共 11 欄（C-3 的 9 欄 + 配色 + 修改時間）', () => {
+    expect(CATEGORY_HEADER).toHaveLength(11);
   });
 
   it('一個子分類一列', () => {
@@ -151,6 +151,13 @@ describe('categoryToRows / rowsToCategories', () => {
   it('假刪的分類 active 是 false', () => {
     const hidden = { ...CATS[0]!, active: false };
     expect(rowsToCategories(categoryToRows(hidden))[0]!.active).toBe(false);
+  });
+
+  it('修改時間往返後不變；舊表沒有這一欄時就不帶', () => {
+    const edited = { ...CATS[0]!, updatedAt: 1_789_430_489_834 };
+    expect(rowsToCategories(categoryToRows(edited))[0]!.updatedAt).toBe(1_789_430_489_834);
+    const legacy = categoryToRows(CATS[0]!).map((r) => r.slice(0, 10));
+    expect(rowsToCategories(legacy)[0]).not.toHaveProperty('updatedAt');
   });
 
   it('子分類照 Sheet 由上而下的順序', () => {
