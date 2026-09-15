@@ -1,6 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { ShellHeader } from './components/ShellHeader';
 import { TabBar } from './components/TabBar';
+import { Toast } from './components/Toast';
 import { useTabDirection } from './components/useTabDirection';
 import { appPath, appRoot, BASE_URL } from './lib/basePath';
 import type { Txn } from './domain/types';
@@ -29,6 +30,8 @@ import { membersSync, resetLocalMembers } from './sync/members';
 import { categoriesSync, migrateCategorySync } from './sync/categoriesSync';
 import { findInvitee, removeInvitees } from './sync/invitee';
 import { DEFAULT_MEMBERS } from './domain/members';
+import { otherPerson } from './domain/people';
+import { createArrivalWatcher, partnerToastText } from './sync/partnerArrivals';
 import styles from './App.module.css';
 
 // 只在 dev 模式下才會走到這裡；production 建置時 import.meta.env.DEV 會被
@@ -237,6 +240,9 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
   const [invite, setInvite] = useState<{ url: string | null; sharedWith: string | null } | null>(null);
   // 帳本分享給了誰（受邀者）。先用本機記下的，連上 Google 後以雲端的共用設定為準
   const [invitee, setInvitee] = useState<string | null>(null);
+  // 「對方記帳時通知我」：App 開著時對方剛記的帳跳出來（key 讓連續兩次通知各自重新計時）
+  const [partnerToast, setPartnerToast] = useState<{ key: number; text: string } | null>(null);
+  const clearPartnerToast = useCallback(() => setPartnerToast(null), []);
   const syncRef = useRef<SyncController | null>(null);
 
   // 本機改了帳：請同步控制器稍等一下（合併連續幾筆）再推上去
@@ -281,6 +287,7 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
     let sidNow: string | null = null;
     let stop = () => {};
     let alive = true;
+    let arrivals = createArrivalWatcher([]);
 
     const ctl = createSyncController({
       client: cloud.client,
@@ -288,7 +295,15 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
       spreadsheetId: () => sidNow,
       localTxns: () => ledgerRepo.allTxnsForSync(),
       saveTxns: (ts) => ledgerRepo.saveSyncedTxns(ts),
-      onPulled: () => useLedger.getState().load(),
+      onPulled: async () => {
+        await useLedger.getState().load();
+        const s = useLedger.getState();
+        const fresh = arrivals.next(s.txns, s.self);
+        if (fresh.length > 0 && s.notifyOnPartnerEntry) {
+          const partner = s.members[otherPerson(s.self)].name;
+          setPartnerToast({ key: Date.now(), text: partnerToastText(fresh, partner, s.categories) });
+        }
+      },
       onState: (s) => useLedger.getState().setSyncState(s),
       onSynced: (at) => useLedger.getState().markSynced(at),
       // 成員名稱與饅頭顏色：配置頁改了就推，對方改了就拉
@@ -301,8 +316,10 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
     void joinedSid().then(async (v) => {
       if (!alive) return;
       sidNow = v;
-      // 升到會同步分類的版本時跑一次：受邀者之前改的分類先標成待推，才不會被雲端舊的蓋掉
+      // 升到逐一合併分類的版本時跑一次：受邀者之前改的分類第一次合併時以本機為準（見 migrateCategorySync）
       await migrateCategorySync();
+      // 打開 App 時本機已經有的紀錄不算對方新記的
+      arrivals = createArrivalWatcher((await ledgerRepo.allTxnsForSync()).map((t) => t.id));
       if (!alive) return;
       stop = ctl.start();
     });
@@ -417,6 +434,10 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
       </div>
 
       <TabBar tab={tab} onChange={setTab} />
+
+      {partnerToast && (
+        <Toast key={partnerToast.key} message={partnerToast.text} onDone={clearPartnerToast} />
+      )}
 
       {/*
         面板掛在外殼而不是日常頁裡：它要蓋過分頁列，且編輯入口之後會不只一個。
