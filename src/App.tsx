@@ -10,6 +10,7 @@ import { JoinPage } from './invite/JoinPage';
 import { joinStateOf, type JoinState } from './invite/joinFlow';
 import { LoginPage } from './invite/LoginPage';
 import { routeOf } from './invite/route';
+import { arrivedByHistory, replaceLocation } from './lib/navigation';
 import { DUR } from './lib/motion';
 import { useRowRemoval } from './lib/useRowRemoval';
 import { ledgerRepo } from './repo/ledgerRepo';
@@ -143,11 +144,23 @@ function Join({ search, cloud }: { search: string; cloud: Cloud | null }) {
   useEffect(() => {
     let alive = true;
     void Promise.all([checkInvite(search), joinedSid()]).then(([check, sid]) => {
-      if (alive) setState(joinStateOf({ check, joinedSid: sid, preview: isPreview(search) }));
+      if (!alive) return;
+      // 已經在帳本裡的手機按上一頁（iPhone 右滑）回到舊的邀請頁：直接回主程式（使用者回報右滑跳回邀請頁）
+      if (sid && arrivedByHistory()) { replaceLocation(appPath()); return; }
+      setState(joinStateOf({ check, joinedSid: sid, preview: isPreview(search) }));
     });
     cloud?.tokens.preload().catch(() => {});
     return () => { alive = false; };
   }, [search, cloud]);
+
+  useEffect(() => {
+    // 從返回快取還原的頁面不會重跑上面那段，右滑回來時在這裡再判斷一次
+    const onShow = (e: PageTransitionEvent) => {
+      if (e.persisted) void joinedSid().then((sid) => { if (sid) replaceLocation(appPath()); });
+    };
+    window.addEventListener('pageshow', onShow);
+    return () => window.removeEventListener('pageshow', onShow);
+  }, []);
 
   if (!state) return null;
 
@@ -418,7 +431,8 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
           onClose={() => setInvite(null)}
           onPreview={() => {
             // 帶 preview=1：這台裝置本來就在帳本裡，不帶的話接受邀請頁會顯示「你已在這本帳裡」
-            if (invite.url) location.href = previewHref(invite.url);
+            // 用 replace：預覽頁不留在歷史紀錄裡，右滑不會滑回預覽
+            if (invite.url) location.replace(previewHref(invite.url));
           }}
         />
       )}
