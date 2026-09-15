@@ -16,7 +16,7 @@ import type { SyncState } from '../../sync/state';
 import { agoLabel } from '../../sync/syncLabels';
 import { useLedger } from '../../store/useLedger';
 import { categorySummary, stackedIcons } from './settingsSummary';
-import { versionLabel } from '../../lib/appVersion';
+import { buildStamp, versionLabel } from '../../lib/appVersion';
 import styles from './SettingsScreen.module.css';
 
 type Props = {
@@ -405,7 +405,7 @@ export function SettingsScreen({
         </section>
 
         {/* 兩支手機對一下是不是同一版（手機上的 App 可能還沒換成新版） */}
-        <p className={styles.version} data-testid="app-version">{versionLabel()}</p>
+        <p className={styles.version} data-testid="app-version" title={buildStamp() || undefined}>{versionLabel()}</p>
       </div>
     </div>
   );

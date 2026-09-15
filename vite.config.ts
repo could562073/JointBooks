@@ -14,8 +14,8 @@ function isWsl(): boolean {
   }
 }
 
-/** 配置頁底下顯示的版本：部署時是這次提交的前 7 碼，本機是 git 的 HEAD，都拿不到就寫 dev */
-function appVersion(): string {
+/** 這次建置的提交碼（前 7 碼）：部署時用 GITHUB_SHA，本機用 git 的 HEAD，都拿不到就寫 dev */
+function commitSha(): string {
   if (process.env.GITHUB_SHA) return process.env.GITHUB_SHA.slice(0, 7);
   try {
     return execSync('git rev-parse --short HEAD', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
@@ -24,11 +24,19 @@ function appVersion(): string {
   }
 }
 
+/** 語意化版本號。發佈有感更新時用 npm version patch|minor|major 調，這裡只負責讀出來 */
+function pkgVersion(): string {
+  const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version?: string };
+  return pkg.version ?? '0.0.0';
+}
+
 export default defineConfig({
   // GitHub Pages 的專案網站在 /JointBooks/ 底下：部署時用 BASE_PATH=/JointBooks/ 建置，開發維持 /
   base: process.env.BASE_PATH ?? '/',
   define: {
-    'import.meta.env.VITE_APP_VERSION': JSON.stringify(appVersion()),
+    // 版本號以 package.json 的 version 為準（語意化版本）；提交碼另外給，同一個版本號可能部署過好幾次
+    'import.meta.env.VITE_APP_VERSION': JSON.stringify(pkgVersion()),
+    'import.meta.env.VITE_APP_COMMIT': JSON.stringify(commitSha()),
     'import.meta.env.VITE_APP_BUILT_AT': JSON.stringify(new Date().toISOString()),
   },
   plugins: [

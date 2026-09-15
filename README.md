@@ -95,6 +95,7 @@ npm run e2e        # Playwright 真實瀏覽器測試（互動、手勢、動畫
 - Google 用戶端 ID 放在 repo 的 **Settings → Secrets and variables → Actions → Variables**，名稱 `VITE_GOOGLE_CLIENT_ID`（用戶端 ID 本來就會出現在前端程式碼裡，不是機密）
 - Google Cloud Console 的「已授權的 JavaScript 來源」要加入 `https://could562073.github.io`
 - 建置時會把 `index.html` 複製成 `404.html`，直接打開邀請連結（`/JointBooks/join?…`）才不會停在 GitHub 的 404 頁
+- 版本號在 `package.json`，配置頁底下顯示成 `v1.0.0 · 提交碼`；發佈有感更新時先 `npm version patch|minor|major` 再推上去
 
 ## 專案結構
 

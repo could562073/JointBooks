@@ -20,6 +20,6 @@ afterEach(() => vi.unstubAllGlobals());
 describe('配置頁底下的版本', () => {
   it('顯示目前跑的版本：兩支手機對一下，才知道是不是都換成新版了', () => {
     render(<SettingsScreen onInvite={() => {}} syncState="synced" lastSyncAt={null} onRetrySync={() => {}} />);
-    expect(screen.getByTestId('app-version')).toHaveTextContent(/^版本 \S+/);
+    expect(screen.getByTestId('app-version')).toHaveTextContent(/^v\d+\.\d+\.\d+/);
   });
 });
