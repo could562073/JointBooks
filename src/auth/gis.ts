@@ -31,6 +31,15 @@ export const EXPIRY_MARGIN_MS = 2 * 60 * 1000;
 /** access token 存在 localStorage 的鍵（本機資料依網址分開，開發版與正式版各存各的） */
 export const TOKEN_KEY = 'jb.google-token.v1';
 
+/**
+ * 這台裝置在 Google 同意過權限沒有。同意紀錄留在 Google 帳號上（跨 token、跨分頁都在），
+ * 同意過的話續期時 Google 通常不必再問，可以不打擾使用者就換到新的 token。
+ */
+export const GRANTED_KEY = 'jb.google-granted.v1';
+
+/** 靜默續期失敗後至少隔這麼久才再試一次，免得每次回到前景都打一輪 */
+export const RENEW_THROTTLE_MS = 60_000;
+
 /** 只用到這三個方法；測試傳假的，拿不到 localStorage 時是 null */
 export type TokenStore = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
@@ -146,6 +155,11 @@ export type TokenProvider = {
   /** 先把 script 載好。連線要在使用者點擊的同一個事件裡呼叫才不會被擋彈出視窗 */
   preload(): Promise<void>;
   connect(prompt?: ConnectPrompt): Promise<void>;
+  /**
+   * 試著不打擾使用者就換到新的 token（同意紀錄還在時 Google 多半不會再問）。
+   * 需要使用者操作時安靜失敗回 false，畫面維持「點一下連線 Google」。
+   */
+  renewSilently(): Promise<boolean>;
   /** 取可用的 token；沒有或快過期就丟 NeedsConnectError */
   token(): Promise<string>;
   isConnected(): boolean;
@@ -176,6 +190,15 @@ export function createTokenProvider(opts: {
   const forget = () => {
     try { store?.removeItem(TOKEN_KEY); } catch { /* 同上 */ }
   };
+  // 同意紀錄不隨 token 一起清掉：token 過期不代表使用者收回了權限
+  const markGranted = () => {
+    try { store?.setItem(GRANTED_KEY, '1'); } catch { /* 同上 */ }
+  };
+  const grantedBefore = () => {
+    try { return store?.getItem(GRANTED_KEY) === '1'; } catch { return false; }
+  };
+  // 還沒試過：起始值不能是 0，否則第一次就被自己的節流擋掉（單元測試抓到）
+  let lastRenewAt = Number.NEGATIVE_INFINITY;
   const listeners = new Set<(connected: boolean) => void>();
 
   const isConnected = () => current !== null && tokenUsable(current.expiresAt, now());
@@ -198,6 +221,7 @@ export function createTokenProvider(opts: {
           }
           current = { token: r.access_token, expiresAt: expiresAtFrom(r.expires_in, now()) };
           save(r.scope ?? scopes.join(' '));
+          markGranted();
           emit();
           resolve();
         },
@@ -213,6 +237,21 @@ export function createTokenProvider(opts: {
     connect(prompt = '') {
       if (api) return request(api, prompt);
       return load().then((a) => { api = a; return request(a, prompt); });
+    },
+
+    async renewSilently() {
+      if (isConnected()) return true;
+      // 沒在這台裝置同意過就別試：一定會跳視窗，而且沒有使用者的點擊會被瀏覽器擋掉
+      if (!grantedBefore()) return false;
+      if (now() - lastRenewAt < RENEW_THROTTLE_MS) return false;
+      lastRenewAt = now();
+      try {
+        const a = api ?? (api = await load());
+        await request(a, '');
+        return isConnected();
+      } catch {
+        return false;
+      }
     },
 
     async token() {

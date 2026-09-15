@@ -338,10 +338,23 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
     // 使用者點「連線 Google」成功後立刻補同步，不必等下一次輪詢
     const unsubscribe = cloud.tokens.subscribe((connected) => { if (connected) void ctl.syncNow(); });
 
+    /*
+     * token 約一小時就過期（token model 沒有 refresh token，見 auth/gis.ts 開頭）。
+     * 同意紀錄還在 Google 帳號上時多半可以不打擾使用者就換到新的：打開、回到前景、每 5 分鐘各試一次。
+     * 成功時 subscribe 會補一輪同步；失敗就安靜維持「點一下連線 Google」。
+     */
+    const renew = () => { if (!cloud.tokens.isConnected()) void cloud.tokens.renewSilently(); };
+    const onVisibleRenew = () => { if (document.visibilityState === 'visible') renew(); };
+    renew();
+    const renewTimer = setInterval(renew, 5 * 60_000);
+    document.addEventListener('visibilitychange', onVisibleRenew);
+
     return () => {
       alive = false;
       stop();
       unsubscribe();
+      clearInterval(renewTimer);
+      document.removeEventListener('visibilitychange', onVisibleRenew);
       syncRef.current = null;
     };
   }, [cloud]);
