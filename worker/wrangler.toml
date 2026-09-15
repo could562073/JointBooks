@@ -9,6 +9,6 @@ compatibility_date = "2026-09-15"
 
 [vars]
 # 跟 App 用同一個 OAuth 用戶端 ID（公開資訊，前端本來就看得到）
-GOOGLE_CLIENT_ID = ""
+GOOGLE_CLIENT_ID = "834575546829-1mftb2cm5ei6gugjmuc37f49ivsro6cs.apps.googleusercontent.com"
 # 允許呼叫這支端點的來源，逗號分隔。正式網址與本機開發各一個
 ALLOWED_ORIGINS = "https://could562073.github.io,http://localhost:5173,http://localhost:5174"
