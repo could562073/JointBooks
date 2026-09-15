@@ -29,6 +29,16 @@
   :root { --dock-bottom: max(16px, calc(var(--sab) - 10px)); }
 }
 
+/*
+ * iPhone 點到字小於 16px 的輸入框會自動放大、之後不縮回（使用者回報改月預算時整頁放大）。
+ * viewport 的 maximum-scale=1 不一定擋得住（例如打開輔助使用的「縮放」時就失效），所以觸控裝置上
+ * 所有輸入框一律至少 16px，各元件裡寫的較小字級只留給桌機。用 !important 是因為 CSS Modules
+ * 的 class 比元素選擇器權重高，這條必須蓋過每一個輸入框
+ */
+@media (pointer: coarse) {
+  input, textarea, select { font-size: 16px !important; }
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body, #root {
