@@ -281,6 +281,18 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
     void load();
   }, [load]);
 
+  // App 開著跨過午夜：回到前景時、以及每分鐘檢查一次換日沒（store 的 refreshToday）
+  useEffect(() => {
+    const check = () => useLedger.getState().refreshToday();
+    const onVisible = () => { if (document.visibilityState === 'visible') check(); };
+    const tick = setInterval(check, 60_000);
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      clearInterval(tick);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, []);
+
   // 雲端同步：每 5 秒輪詢、上線或回到前景就補一輪、記帳後推送
   useEffect(() => {
     if (!cloud) return;

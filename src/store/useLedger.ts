@@ -21,6 +21,8 @@ export type LedgerState = {
   year: number;
   month: number;
   selectedDay: number;
+  /** 今天（YYYY-MM-DD）。App 開著跨過午夜時由 refreshToday 更新 */
+  today: string;
   dimension: Dimension;
   categories: Category[];
   txns: Txn[];
@@ -41,6 +43,8 @@ export type LedgerState = {
   goMonth(delta: number): void;
   setMonth(y: number, m: number): void;
   selectDay(day: number): void;
+  /** 跨過午夜：換成新的一天；原本停在（舊的）今天就跟著換過去 */
+  refreshToday(): void;
   setDimension(d: Dimension): void;
   addTxn(i: NewTxnInput): Promise<void>;
   updateTxn(id: string, p: Partial<NewTxnInput>): Promise<void>;
@@ -53,7 +57,8 @@ export type LedgerState = {
   setMember(p: Person, patch: Partial<Member>): Promise<void>;
 };
 
-const now = parseDate(todayLocal());
+const startToday = todayLocal();
+const now = parseDate(startToday);
 
 export const useLedger = create<LedgerState>((set, get) => ({
   ready: false,
@@ -61,6 +66,7 @@ export const useLedger = create<LedgerState>((set, get) => ({
   year: now.getFullYear(),
   month: now.getMonth(),
   selectedDay: now.getDate(),
+  today: startToday,
   dimension: 'month',
   categories: [],
   txns: [],
@@ -113,6 +119,16 @@ export const useLedger = create<LedgerState>((set, get) => ({
   selectDay(day) {
     const { year, month } = get();
     set({ selectedDay: clampDay(year, month, day) });
+  },
+
+  refreshToday() {
+    const next = todayLocal();
+    const s = get();
+    if (next === s.today) return;
+    // 原本停在（舊的）今天：跟著換到新的一天；使用者自己選了別天就不動
+    if (selectedDate(s) !== s.today) { set({ today: next }); return; }
+    const d = parseDate(next);
+    set({ today: next, year: d.getFullYear(), month: d.getMonth(), selectedDay: d.getDate() });
   },
 
   setDimension(dimension) { set({ dimension }); },

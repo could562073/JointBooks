@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { ScrollThumb, TAB_BAR_INSET } from '../../components/ScrollThumb';
 import { calendarCells, dayTotal, totalsIn, txnsOn } from '../../domain/aggregate';
-import { rangeOf, todayLocal } from '../../domain/date';
+import { rangeOf } from '../../domain/date';
 import type { Txn } from '../../domain/types';
 import { DUR } from '../../lib/motion';
 import { selectedDate as selectedDateOf, useLedger } from '../../store/useLedger';
@@ -43,6 +43,8 @@ export function DailyScreen({ onEdit, onAdd, collapsingTxns }: Props) {
   const goMonth = useLedger((s) => s.goMonth);
   const setMonth = useLedger((s) => s.setMonth);
   const selectDay = useLedger((s) => s.selectDay);
+  // 跨過午夜會更新（外殼每分鐘與回到前景時檢查），月曆上的「今天」才跟著換
+  const today = useLedger((s) => s.today);
 
   const [pickerOpen, setPickerOpen] = useState(false);
   // 換月後的方向性滑入（MOTION #7、#34）。用計數器當 key，同方向連續換月也會重播
@@ -133,7 +135,7 @@ export function DailyScreen({ onEdit, onAdd, collapsingTxns }: Props) {
               month={month}
               cells={cells}
               selectedDay={selectedDay}
-              todayDate={todayLocal()}
+              todayDate={today}
               onSelectDay={selectDay}
             />
           </div>

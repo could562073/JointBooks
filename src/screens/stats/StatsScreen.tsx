@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react';
 import { ScrollThumb, TAB_BAR_INSET } from '../../components/ScrollThumb';
 import { SegmentedControl, type Segment } from '../../components/SegmentedControl';
 import { budgetRows, comparePrevious, totalsIn, trendSeries } from '../../domain/aggregate';
-import { rangeOf, todayLocal } from '../../domain/date';
+import { rangeOf } from '../../domain/date';
 import { formatCadWhole } from '../../domain/money';
 import type { Dimension } from '../../domain/types';
 import { selectedDate as selectedDateOf, useLedger } from '../../store/useLedger';
@@ -30,6 +30,7 @@ export function StatsScreen() {
   const setDimension = useLedger((s) => s.setDimension);
   const txns = useLedger((s) => s.txns);
   const categories = useLedger((s) => s.categories);
+  const today = useLedger((s) => s.today);
   const anchor = useLedger(selectedDateOf);
 
   const range = useMemo(() => rangeOf(dimension, anchor), [dimension, anchor]);
@@ -76,7 +77,7 @@ export function StatsScreen() {
 
         <OverviewCard
           totals={totals}
-          title={balanceTitle(dimension, range, todayLocal())}
+          title={balanceTitle(dimension, range, today)}
           periodLabel={periodSpan(range)}
           delta={delta}
         />
@@ -99,7 +100,7 @@ export function StatsScreen() {
           </div>
           {/* 換維度要重播描線與填充，key 帶著維度 */}
           {/* 最後一點就是總覽卡正在看的那一期，圖上標成本週／本月／今年 */}
-          <TrendChart points={trend} drawKey={dimension} currentLabel={periodWord(dimension, range, todayLocal())} />
+          <TrendChart points={trend} drawKey={dimension} currentLabel={periodWord(dimension, range, today)} />
         </section>
 
         <section className={styles.section}>
