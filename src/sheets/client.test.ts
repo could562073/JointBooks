@@ -110,11 +110,11 @@ describe('SheetsClient 的重試（§14.5）', () => {
 describe('createSpreadsheet', () => {
   it('帶上四張工作表的標題並回傳 id（§14.3）', async () => {
     const c = client([{ status: 200, body: { spreadsheetId: 'SID-1' } }]);
-    const id = await c.api.createSpreadsheet('饅頭共享記帳', ['紀錄', '配置', '年報表', '圖表']);
+    const id = await c.api.createSpreadsheet('饅頭記帳', ['紀錄', '配置', '年報表', '圖表']);
 
     expect(id).toBe('SID-1');
     const body = JSON.parse(String(c.calls[0]!.init.body));
-    expect(body.properties.title).toBe('饅頭共享記帳');
+    expect(body.properties.title).toBe('饅頭記帳');
     expect(body.sheets.map((s: { properties: { title: string } }) => s.properties.title))
       .toEqual(['紀錄', '配置', '年報表', '圖表']);
   });

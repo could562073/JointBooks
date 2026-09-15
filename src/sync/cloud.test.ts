@@ -46,7 +46,7 @@ describe('ensureLedger', () => {
     const d = deps();
     expect(await ensureLedger(client, d)).toBe('MINE');
     // 連改名前的名稱一起找
-    expect(client.findLedgers).toHaveBeenCalledWith(['饅頭共享記帳（開發）', '加拿大共用記帳（開發）', '加拿大共用記帳']);
+    expect(client.findLedgers).toHaveBeenCalledWith(['饅頭記帳（開發）', '饅頭共享記帳（開發）', '加拿大共用記帳（開發）', '加拿大共用記帳']);
     expect(client.createSpreadsheet).not.toHaveBeenCalled();
     expect(d.setJoinedSid).toHaveBeenCalledWith('MINE');
     expect(d.replaceCategories).toHaveBeenCalled();
@@ -80,7 +80,7 @@ describe('ensureLedger', () => {
     const d = deps({ categories: async () => cats });
     expect(await ensureLedger(client, d)).toBe('NEW-SID');
     expect(client.createSpreadsheet).toHaveBeenCalledTimes(1);
-    expect(client.createSpreadsheet).toHaveBeenCalledWith('饅頭共享記帳（開發）', expect.anything());
+    expect(client.createSpreadsheet).toHaveBeenCalledWith('饅頭記帳（開發）', expect.anything());
     expect(d.setJoinedSid).toHaveBeenCalledWith('NEW-SID');
   });
 });

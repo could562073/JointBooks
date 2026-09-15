@@ -83,7 +83,7 @@ describe('createLedger', () => {
     expect(prod.client.createSpreadsheet).toHaveBeenCalledWith(LEDGER_TITLE, SHEET_TITLES);
     const dev = fakeClient();
     await createLedger(dev.client, CATS, 2026, 'dev');
-    expect(dev.client.createSpreadsheet).toHaveBeenCalledWith('饅頭共享記帳（開發）', SHEET_TITLES);
+    expect(dev.client.createSpreadsheet).toHaveBeenCalledWith('饅頭記帳（開發）', SHEET_TITLES);
   });
 
   it('配置頁寫下環境標記，就在版本戳記旁邊', async () => {
@@ -97,9 +97,10 @@ describe('createLedger', () => {
 
 describe('ledgerTitles', () => {
   it('找舊帳本時也認得改名前的名稱；開發版多認沒有「（開發）」的最早那批', () => {
-    expect(LEDGER_TITLE).toBe('饅頭共享記帳');
-    expect(ledgerTitles('prod')).toEqual(['饅頭共享記帳']);
-    expect(ledgerTitles('dev')).toEqual(['饅頭共享記帳（開發）', '加拿大共用記帳（開發）', '加拿大共用記帳']);
+    expect(LEDGER_TITLE).toBe('饅頭記帳');
+    // 改名前建的帳本（正式版上線時叫「饅頭共享記帳」）還是要找得到，不能再建一本
+    expect(ledgerTitles('prod')).toEqual(['饅頭記帳', '饅頭共享記帳']);
+    expect(ledgerTitles('dev')).toEqual(['饅頭記帳（開發）', '饅頭共享記帳（開發）', '加拿大共用記帳（開發）', '加拿大共用記帳']);
   });
 });
 

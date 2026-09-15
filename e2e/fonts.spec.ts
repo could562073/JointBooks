@@ -5,7 +5,7 @@ import { test, expect } from '@playwright/test';
 // 會對「檔案其實正常」的字型回傳 false。先 load 指定文字再 check 才是真的驗證，
 // 因為 load() 會實際去抓對應的 woff2 並解析。
 const SAMPLES = [
-  { family: 'Zen Maru Gothic', spec: '700 20px "Zen Maru Gothic"', text: '饅頭共享記帳' },
+  { family: 'Zen Maru Gothic', spec: '700 20px "Zen Maru Gothic"', text: '饅頭記帳' },
   { family: 'Noto Sans TC',    spec: '400 16px "Noto Sans TC"',    text: '收入支出結餘' },
   { family: 'Baloo 2',         spec: '700 16px "Baloo 2"',         text: '1234567890' },
 ];
