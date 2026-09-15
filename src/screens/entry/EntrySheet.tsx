@@ -18,6 +18,7 @@ import { Keypad } from './Keypad';
 import { KindSegment } from './KindSegment';
 import { MiniCalendar } from './MiniCalendar';
 import { useSheetDismiss } from './useSheetDismiss';
+import { useBackToClose } from '../../lib/useBackToClose';
 import styles from './EntrySheet.module.css';
 
 const CURRENCIES: Currency[] = ['CAD', 'TWD', 'USD'];
@@ -84,6 +85,8 @@ export function EntrySheet({
   useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
 
   const dismiss = useSheetDismiss(requestClose);
+  // Android 返回鍵、iPhone 右滑先關面板（播下滑動畫），不直接離開 App
+  useBackToClose(requestClose);
   // MOTION #38：小月曆展開與收起都要有動畫，收起時先留著播完才卸載
   const datePanel = usePresence(dateOpen, DUR.popIn, reduced);
 

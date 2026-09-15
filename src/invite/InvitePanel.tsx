@@ -3,6 +3,7 @@ import QRCode from 'qrcode';
 import { DUR, EASE } from '../lib/motion';
 import { useReducedMotion } from '../lib/useReducedMotion';
 import { useSheetDismiss } from '../screens/entry/useSheetDismiss';
+import { useBackToClose } from '../lib/useBackToClose';
 import { copyText, shareUrl } from './clipboard';
 import { isEmail, normalizeEmail } from './email';
 import { displayInviteUrl } from './inviteLink';
@@ -60,6 +61,8 @@ export function InvitePanel({ url, onClose, onPreview, onShareEmail, sharedWith 
   const [revealed, setRevealed] = useState(false);
   const reduced = useReducedMotion();
   const dismiss = useSheetDismiss(onClose);
+  // Android 返回鍵、iPhone 右滑先關面板，不直接離開 App
+  useBackToClose(onClose);
 
   const linkReady = !onShareEmail || sharedTo !== null;
 
