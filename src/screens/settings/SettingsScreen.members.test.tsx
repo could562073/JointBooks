@@ -72,11 +72,28 @@ describe('帳本成員：名稱與饅頭顏色', () => {
     expect(s().members.妻.name).toBe('雪雪大人');
   });
 
-  it('加入的人的手機：「這台裝置」標在雪雪大人那一列，那列寫線上', () => {
+  it('加入的人的手機：「這台裝置」與同步狀態都在雪雪大人那一列', () => {
     useLedger.setState({ self: '妻' });
     render(<SettingsScreen {...BASE} />);
     expect(screen.getByTestId('member-partner')).toHaveTextContent('這台裝置');
-    expect(screen.getByTestId('member-partner')).toHaveTextContent('線上');
+    expect(screen.getByTestId('member-partner')).toHaveTextContent('尚未同步');
     expect(screen.getByTestId('member-me')).not.toHaveTextContent('這台裝置');
+    expect(screen.getByTestId('member-me')).not.toHaveTextContent('尚未同步');
+  });
+
+  it('同步狀態放自己那一列，對方那一列寫他最後記帳的時間（使用者回報兩個人的狀態看起來互換）', () => {
+    const at = new Date(Date.now() - 3 * 60_000).toISOString();
+    useLedger.setState({
+      self: '我',
+      txns: [{
+        id: 't1', date: '2026-09-15', mainId: 'm1', subId: 's1', mainName: '超市', subName: '食材',
+        amountCents: 100, currency: 'CAD', actualCadCents: 100, by: '妻', note: '',
+        createdAt: at, updatedAt: at, deleted: false,
+      }],
+    });
+    render(<SettingsScreen {...BASE} />);
+    expect(screen.getByTestId('member-me')).toHaveTextContent('尚未同步');
+    expect(screen.getByTestId('member-partner')).toHaveTextContent('最後記帳 · 3 分鐘前');
+    expect(screen.getByTestId('member-partner')).not.toHaveTextContent('尚未同步');
   });
 });

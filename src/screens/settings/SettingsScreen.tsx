@@ -13,6 +13,7 @@ import { CategoriesPage } from './CategoriesPage';
 import { colorSetOf } from '../../domain/palette';
 import { formatCadWhole } from '../../domain/money';
 import type { SyncState } from '../../sync/state';
+import { agoLabel } from '../../sync/syncLabels';
 import { useLedger } from '../../store/useLedger';
 import { categorySummary, stackedIcons } from './settingsSummary';
 import { versionLabel } from '../../lib/appVersion';
@@ -244,6 +245,20 @@ export function SettingsScreen({
   const categories = useLedger((s) => s.categories);
   const txns = useLedger((s) => s.txns);
   const saveCategory = useLedger((s) => s.saveCategory);
+
+  /*
+   * 對方那一列寫他最後記帳的時間。對方的同步狀態是他手機上的事，這台裝置不知道，
+   * 寫成「已同步」只會誤導（使用者回報兩個人的狀態看起來互換了）
+   */
+  const lastEntryLabel = (p: Person): string => {
+    let latest: number | null = null;
+    for (const t of txns) {
+      if (t.by !== p || t.deleted) continue;
+      const at = Date.parse(t.createdAt);
+      if (!Number.isNaN(at) && (latest === null || at > latest)) latest = at;
+    }
+    return latest === null ? '' : `最後記帳 · ${agoLabel(latest)}`;
+  };
   const deleteCategory = useLedger((s) => s.deleteCategory);
   const showWhoTags = useLedger((s) => s.showWhoTags);
   const notifyOnPartnerEntry = useLedger((s) => s.notifyOnPartnerEntry);
@@ -310,10 +325,11 @@ export function SettingsScreen({
                 open={editing === p}
                 onToggle={() => setEditing((e) => (e === p ? null : p))}
                 onChange={(patch) => changeMember(p, patch)}
-                // 自己這一列寫「線上」，另一位那列放同步狀態（原型同樣位置）
+                // 這台裝置那一列放自己的同步狀態，另一位那列放他最後記帳的時間。
+                // 原本反過來（自己寫「線上」、同步狀態掛在對方那一列），看起來像兩個人的狀態互換（使用者回報）
                 status={p === self
-                  ? '線上'
-                  : <SyncStatus state={syncState} lastSyncAt={lastSyncAt} onRetry={onRetrySync} />}
+                  ? <SyncStatus state={syncState} lastSyncAt={lastSyncAt} onRetry={onRetrySync} />
+                  : lastEntryLabel(p)}
                 testId={p === '我' ? 'member-me' : 'member-partner'}
               />
             ))}
