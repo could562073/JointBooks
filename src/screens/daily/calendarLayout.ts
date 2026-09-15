@@ -3,7 +3,7 @@
  *
  * 抽成純函式的理由跟手勢那組一樣：格子座標與熱度色是唯一有邏輯的部分，
  * 用 Vitest 逐條驗；真正需要版面的部分（滑塊實際滑到哪）jsdom 量不到，
- * 列在 docs/MANUAL-TESTS.md 手動驗。
+ * 由 e2e/daily.spec.ts 在真實瀏覽器驗（D9）。
  */
 
 /** 一格的實際高度（px），與 MonthCalendar.module.css 的 grid-auto-rows 同一個數字 */

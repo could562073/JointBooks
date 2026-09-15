@@ -37,5 +37,5 @@ describe('Fab', () => {
   });
 
   // 外觀（漸層、inset 高光、髮絲邊、無投射陰影）驗不到：CSS Modules 的樣式
-  // 在 jsdom 下不會套用，getComputedStyle 拿回來是空字串。列在 MANUAL-TESTS D13。
+  // 在 jsdom 下不會套用，getComputedStyle 拿回來是空字串。真實瀏覽器由 e2e/daily.spec.ts（D13）量。
 });

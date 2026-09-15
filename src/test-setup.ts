@@ -9,7 +9,7 @@ import '@testing-library/jest-dom/vitest';
  * 所以 useDragGesture 接管手勢時會以 "setPointerCapture is not a function" 炸掉，
  * 看起來像元件寫錯、實際是環境缺 API。補上三個 no-op，讓跟手邏輯在 jsdom 下跑得完。
  * 真正的捕捉行為（會不會擋到底下元素的 click）仍然只有瀏覽器測得出來，
- * 那部分在 e2e/gesture.spec.ts 與 docs/MANUAL-TESTS.md。
+ * 那部分在 e2e/gesture.spec.ts 與其他 e2e spec（原本的手動清單已改成自動測試）。
  */
 if (!Element.prototype.setPointerCapture) {
   const captured = new WeakMap<Element, Set<number>>();

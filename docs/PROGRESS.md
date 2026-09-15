@@ -21,14 +21,14 @@ Repo：`git@github.com:could562073/JointBooks.git`（公開）；網站 https://
 | 08 | Google OAuth ＋ Sheets 同步 | ✅ 已合併 main |
 | 09 | 邀請流程＋§15 驗收套件 | ✅ 已合併 main |
 
-**九份計畫全部完成。** 接下來是 `docs/MANUAL-TESTS.md` 的人工驗證，以及下方
-「延後給後續計畫的事」列的技術債。
+**九份計畫全部完成。** 手動清單在 2026-09-15 改成自動測試（能自動化的寫成測試，做不到的不再列管，
+見 `docs/MANUAL-TESTS.md`）；接下來是下方「延後給後續計畫的事」列的技術債。
 
-目前測試：**Vitest 1166（125 檔）、Playwright 57（ip13）**，typecheck 兩個 project 都乾淨，
-`npm run build` 通過。
+目前測試：**Vitest 1166（125 檔）、Playwright 131（ip13）／397（三個寬度＋正式建置）**，typecheck 兩個 project 都乾淨，
+`npm run build` 通過。Playwright 在推到 main 時由 `.github/workflows/e2e.yml` 自動跑（不擋部署）。
 
-`docs/MOTION.md` 的 **38 條全部標為「已實作」**；「已驗收」要等擁有者跑完
-`docs/MANUAL-TESTS.md`。
+`docs/MOTION.md` 的 **38 條全部已實作**；量得到的（時長、位移方向、跟手、門檻）都有 e2e 驗，
+對照表在 `docs/MANUAL-TESTS.md`。
 
 ### Plan 03 已完成
 
@@ -272,22 +272,23 @@ inotify 事件，dev server 會一直服舊模組；`vite.config.ts` 已在偵�
 - **「對方記帳時通知我」接上了**（2026-09-14，原本開關存得起來但沒有任何作用）：同步拉回來後比對這台手機看過的紀錄 id（`sync/partnerArrivals.ts`），對方新記的就用 Toast（MOTION #25）跳出「雪雪大人記了一筆 超市 · 食材 $42.18」，好幾筆一起到就說幾筆。打開 App 時本機已有的紀錄當基準不跳；本機一筆都沒有時第一次同步拉回來的歷史也不跳；自己記的、已刪除的、對方改舊紀錄都不跳；開關關掉就不跳。App 關著時仍沒有推播。
 - **跨午夜自動換日**（2026-09-14）：App 開著過了午夜，回到前景或下一分鐘內「今天」換成新的一天；原本停在今天的選取跟著換（跨月也對），自己選了別天不動。日常頁月曆與統計頁的本週／本月標題改讀 store 的 `today`。
 - **返回鍵先關面板**（2026-09-14，§12.4）：記一筆面板與邀請面板開著時佔一格歷史紀錄（`lib/useBackToClose`），Android 返回鍵、iPhone 右滑先用面板自己的動畫關掉，不直接離開 App；用按鈕關掉時自己退掉那一格。退那一格延到下一輪做，React 開發模式掛兩次時才不會一打開就被自己關掉。
+- **手動清單改成自動測試**（使用者指示，2026-09-15）：152 條裡能自動化的寫成 Playwright spec（`e2e/daily`、`entry`、`stats`、`categories`、`invite`、`shell`，共用 `e2e/helpers.ts`）或對到既有的單元測試，要真實 Google 帳號、第二支手機、真機觀感的不再列管。`playwright.config` 改成自己起純本機模式的 dev server（5174，不帶 Google 用戶端 ID）——原本沿用開發者開著的 5173，那台會停在登入頁。自動化時抓到兩個問題並修掉：新增分類的卡片其實沒有 MOTION #17 的浮現動畫（補上）；分類卡在桌機上滑一次之後就滑不回去（第一次滑動選到文字、第二次變成原生拖放，卡片改成不可選取文字）。
 - **沒有登出功能。** token 存在 localStorage，最多一小時後自己失效。
 - **每小時還是要點一次重新連線。** 要做到「登入一次就一直有效」得加一個保管用戶端密碼的小後端（例如 Cloudflare Worker）換 refresh token。
 - **給更多人用之前要處理的事。** 使用者不需要自己開 Sheets／Drive API，那是開在開發者的 Cloud 專案上。但同意畫面要從「測試中」發布成正式版；`spreadsheets` 是敏感權限，要先通過 Google 驗證（隱私權政策、網域、示範影片），否則上限 100 人、會看到未驗證警告，而且每 7 天要重新同意。Sheets API 讀取配額是每個專案每分鐘 300 次，每位開著 App 的人每分鐘輪詢 12 次，約 25 人同時在線就會碰到，要申請提高配額或放慢輪詢。
 - **一本帳只有兩位成員（我／妻）**，三人以上共用還不支援。
 - **App 在「測試中」狀態時，Google 的同意授權每 7 天過期一次**，到時會再看到一次同意畫面。
 - **部署在 GitHub Pages**（2026-09-13）：網址 `https://could562073.github.io/JointBooks/`，repo 改為公開（使用者同意；部署前查過 git 歷史沒有 `.env` 與用戶端密碼）。`.github/workflows/deploy.yml` 在推到 main 時先跑單元測試，通過才用 `BASE_PATH=/JointBooks/` 建置並發布；用戶端 ID 放在 repo 的 Variables（`VITE_GOOGLE_CLIENT_ID`）。站內路徑一律經過 `lib/basePath`（路由判斷、回首頁、邀請連結），建置時把 `index.html` 複製成 `404.html`，直接打開 `/JointBooks/join?…` 才不會停在 GitHub 的 404 頁。Google Cloud Console 的「已授權的 JavaScript 來源」要加 `https://could562073.github.io`。正式建置是 `prod` 環境，會建一本新的「饅頭共享記帳」，不會碰開發帳本。
-- 以上全部還沒用真實 Google 帳號跑過，見 MANUAL-TESTS 的 G、I 組。
+- 真實 Google 帳號與兩支手機的流程沒有自動化測試（2026-09-15 起不再列管，見 MANUAL-TESTS「不再列管」）；同步與加入的邏輯由假 Sheets API 的單元測試驗。
 
 ---
 
 ## 工作方式（2026-09-09 起，擁有者指示）
 
 - **以功能實作為主**，不要停在基礎建設上打轉。
-- **只寫單元測試。** 需要瀏覽器／互動層才驗得到的，**跳過**。
-- 跳過的每一條都要寫進 `docs/MANUAL-TESTS.md`，附「怎麼操作」與「該看到什麼」，
-  讓擁有者手動驗。不准只寫一句無法執行的空話。
+- ~~只寫單元測試，瀏覽器層面的跳過並列進手動清單~~：2026-09-15 起改成**能自動化的都寫成測試**（擁有者指示）——
+  邏輯寫單元測試，互動、手勢、動畫參數、版面寫 Playwright spec（`e2e/`）；真的沒辦法自動化的
+  （要真實 Google 帳號、第二支手機、真機觀感）就不測，不再維護手動清單。
 
 **接手指令**：
 

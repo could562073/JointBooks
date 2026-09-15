@@ -10,7 +10,7 @@ import { useLedger } from '../store/useLedger';
  * 這一套是 HANDOFF §15.1 的 A 類（原訂用 Playwright 跑兩個斷點）。使用者指定
  * 只做單元測試、瀏覽器層面先跳過，所以「功能行為」那 22 條在這裡以 jsdom +
  * Testing Library 覆蓋，「版面」那 6 條（23–28）量的是 getBoundingClientRect，
- * jsdom 一律回 0，量不出來——那幾條連同 B／C 類一起列進 docs/MANUAL-TESTS.md。
+ * jsdom 一律回 0，量不出來——那幾條在 e2e/layout.spec.ts 用真實瀏覽器量；B／C 類不再列管（見 docs/MANUAL-TESTS.md）。
  *
  * 每個測試都從 App 的最外層渲染而不是單獨掛某個畫面：驗收要驗的是「接起來之後
  * 還對不對」，元件自己的行為已經有各自的測試檔了。

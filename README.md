@@ -82,7 +82,7 @@ Google Cloud Console 的設定步驟寫在 [`.env.example`](.env.example) 開頭
 ```bash
 npx vitest run     # 單元與驗收測試
 npm run build      # 型別檢查＋正式建置
-npm run e2e        # Playwright 真實瀏覽器測試（手勢）
+npm run e2e        # Playwright 真實瀏覽器測試（互動、手勢、動畫、版面；自己起純本機 server，不用 Google 帳號）
 ```
 
 `http://localhost:5173/?debug=mantou`、`?debug=icons` 是開發用的元件展示頁。
@@ -112,7 +112,7 @@ src/
   lib/         動畫時長、手勢、部署路徑等工具
 docs/
   PROGRESS.md      進度總覽與設計決策（新進度從這裡看起）
-  MANUAL-TESTS.md  需要手動驗證的項目
+  MANUAL-TESTS.md  原本手動清單的去向（改成哪些自動測試、哪些不再列管）
   MOTION.md        動畫規格清單
 ```
 
