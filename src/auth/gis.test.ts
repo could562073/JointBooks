@@ -20,6 +20,8 @@ function fakeApi(reply: TokenResponse | { popupError: string }, granted = true) 
         },
       };
     },
+    // 這組測試只走 token model；授權碼流程另有 proxyTokens.test.ts
+    initCodeClient: () => ({ requestCode: () => {} }),
     hasGrantedAllScopes: () => granted,
     revoke,
   };

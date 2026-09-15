@@ -1,4 +1,5 @@
 import { browserTokenStore, createTokenProvider, type TokenProvider } from '../auth/gis';
+import { createProxyTokenProvider } from '../auth/proxyTokens';
 import type { Category } from '../domain/types';
 import { createSheetsClient, type SheetsClient } from '../sheets/client';
 import { createLedger, ledgerTitles, type LedgerEnv } from '../sheets/ledgerSheet';
@@ -18,6 +19,17 @@ export function createCloud(
   // token 存 localStorage：到期前重整、重開 App 都不必重新連線
   tokens: TokenProvider = createTokenProvider({ clientId, store: browserTokenStore() })
 ): Cloud {
+  return { tokens, client: createSheetsClient({ token: () => tokens.token() }), env };
+}
+
+/**
+ * 有設定登入端點時改走授權碼流程：登入一次之後用 refresh token 續期，
+ * 不需要彈出視窗、也不需要使用者點畫面（見 worker/README.md）。沒設定就用上面那個。
+ */
+export function createCloudWithProxy(clientId: string, env: LedgerEnv, proxyUrl: string | null): Cloud {
+  const tokens = proxyUrl
+    ? createProxyTokenProvider({ clientId, proxyUrl, store: browserTokenStore() })
+    : createTokenProvider({ clientId, store: browserTokenStore() });
   return { tokens, client: createSheetsClient({ token: () => tokens.token() }), env };
 }
 

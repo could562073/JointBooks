@@ -9,6 +9,7 @@ const HOUR = 3600;
 function fakeApi(response: TokenResponse): Oauth2Api {
   return {
     initTokenClient: (cfg) => ({ requestAccessToken: () => cfg.callback(response) }),
+    initCodeClient: () => ({ requestCode: () => {} }),
     hasGrantedAllScopes: () => true,
     revoke: (_t, done) => done(),
   };

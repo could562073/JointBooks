@@ -17,6 +17,8 @@ function fakeApi(reply: TokenResponse | { popupError: string }) {
         },
       };
     },
+    // 這組測試只走 token model；授權碼流程另有 proxyTokens.test.ts
+    initCodeClient: () => ({ requestCode: () => {} }),
     hasGrantedAllScopes: () => true,
     revoke: vi.fn((_t: string, done: () => void) => done()),
   };

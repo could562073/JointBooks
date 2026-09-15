@@ -21,7 +21,7 @@ import { EntrySheet } from './screens/entry/EntrySheet';
 import { SettingsScreen } from './screens/settings/SettingsScreen';
 import { StatsScreen } from './screens/stats/StatsScreen';
 import { selectedDate as selectedDateOf, useLedger } from './store/useLedger';
-import { connectErrorText, createCloud, ensureLedger, type Cloud } from './sync/cloud';
+import { connectErrorText, createCloudWithProxy, ensureLedger, type Cloud } from './sync/cloud';
 import { isConfigured, readConfig } from './sync/config';
 import { createSyncController, type SyncController } from './sync/controller';
 import { joinLedger, joinOutcomeText } from './sync/joinLedger';
@@ -51,7 +51,10 @@ let cloudOnce: Cloud | null | undefined;
 function getCloud(): Cloud | null {
   if (cloudOnce === undefined) {
     const config = readConfig(import.meta.env as unknown as Record<string, string | undefined>);
-    cloudOnce = isConfigured(config) ? createCloud(config.clientId!, config.ledgerEnv) : null;
+    // 有設定登入端點就走授權碼流程（登入一次就不用再點），沒有就維持 token model
+    cloudOnce = isConfigured(config)
+      ? createCloudWithProxy(config.clientId!, config.ledgerEnv, config.authProxyUrl)
+      : null;
   }
   return cloudOnce;
 }

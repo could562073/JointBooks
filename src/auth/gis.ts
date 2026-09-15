@@ -94,8 +94,29 @@ export type TokenClientConfig = {
 
 export type TokenClient = { requestAccessToken(override?: { prompt?: string }): void };
 
+/** 授權碼模式：彈出視窗回一個授權碼，交給登入端點換 token（見 worker/README.md） */
+export type CodeResponse = {
+  code?: string;
+  scope?: string;
+  error?: string;
+  error_description?: string;
+};
+
+export type CodeClientConfig = {
+  client_id: string;
+  scope: string;
+  ux_mode?: 'popup' | 'redirect';
+  /** true 會強迫選帳號；重新拿 refresh token 時用得到 */
+  select_account?: boolean;
+  callback(r: CodeResponse): void;
+  error_callback?(e: { type?: string; message?: string }): void;
+};
+
+export type CodeClient = { requestCode(): void };
+
 export type Oauth2Api = {
   initTokenClient(cfg: TokenClientConfig): TokenClient;
+  initCodeClient(cfg: CodeClientConfig): CodeClient;
   hasGrantedAllScopes(r: TokenResponse, first: string, ...rest: string[]): boolean;
   revoke(token: string, done: () => void): void;
 };

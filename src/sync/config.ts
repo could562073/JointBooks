@@ -15,12 +15,19 @@ import type { LedgerEnv } from '../sheets/ledgerSheet';
 export type SyncConfig = {
   clientId: string | null;
   ledgerEnv: LedgerEnv;
+  /**
+   * 登入端點的網址（Cloudflare Worker，見 worker/README.md）。
+   * 有填就走授權碼流程：登入一次之後用 refresh token 自動續期，不必每小時點一下。
+   * 沒填就維持 token model（一小時後要點一下重新連線）。
+   */
+  authProxyUrl: string | null;
 };
 
 export function readConfig(env: Record<string, string | undefined>): SyncConfig {
   return {
     clientId: env.VITE_GOOGLE_CLIENT_ID?.trim() || null,
     ledgerEnv: env.MODE === 'production' ? 'prod' : 'dev',
+    authProxyUrl: env.VITE_AUTH_PROXY_URL?.trim().replace(/\/$/, '') || null,
   };
 }
 
