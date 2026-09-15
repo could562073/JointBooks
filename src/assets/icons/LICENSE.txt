@@ -1,4 +1,5 @@
-圖示來源：Microsoft Fluent Emoji（Flat 版）
+分類圖示（本資料夾的 *.svg）來源：Microsoft Fluent Emoji（Flat 版）
+（manto-icon-1024.png、manto-icon-1024-square.png 是這個 App 自己的主畫面圖示，不在這份授權範圍內）
 https://github.com/microsoft/fluentui-emoji
 授權：MIT License
 
