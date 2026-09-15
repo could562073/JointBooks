@@ -295,6 +295,8 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
 
   // 雲端同步：每 5 秒輪詢、上線或回到前景就補一輪、記帳後推送
   useEffect(() => {
+    // 距離過期剩這麼久就開始找機會換新的 token
+    const RENEW_BEFORE_MS = 10 * 60_000;
     if (!cloud) return;
     let sidNow: string | null = null;
     let stop = () => {};
@@ -343,11 +345,22 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
      * 同意紀錄還在 Google 帳號上時多半可以不打擾使用者就換到新的：打開、回到前景、每 5 分鐘各試一次。
      * 成功時 subscribe 會補一輪同步；失敗就安靜維持「點一下連線 Google」。
      */
-    const renew = () => { if (!cloud.tokens.isConnected()) void cloud.tokens.renewSilently(); };
+    const renew = () => {
+      const t = cloud.tokens;
+      // 快過期就先換，不要等真的過期：過期後才換的話，那一刻沒有使用者的點擊可以搭
+      if (t.isConnected() && t.expiresInMs() > RENEW_BEFORE_MS) return;
+      void t.renewSilently(true);
+    };
     const onVisibleRenew = () => { if (document.visibilityState === 'visible') renew(); };
     renew();
     const renewTimer = setInterval(renew, 5 * 60_000);
     document.addEventListener('visibilitychange', onVisibleRenew);
+    /*
+     * 搭著使用者的點擊換（使用者回報過一小時還是要點一次）：Safari 只在點過畫面之後的短時間內
+     * 允許 Google 的視窗，背景自己換會被擋掉。點哪裡都算，不必特地去點同步狀態；
+     * 真的要打 Google 時 provider 自己節流一分鐘
+     */
+    window.addEventListener('pointerdown', renew, { capture: true, passive: true });
 
     return () => {
       alive = false;
@@ -355,6 +368,7 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
       unsubscribe();
       clearInterval(renewTimer);
       document.removeEventListener('visibilitychange', onVisibleRenew);
+      window.removeEventListener('pointerdown', renew, { capture: true });
       syncRef.current = null;
     };
   }, [cloud]);

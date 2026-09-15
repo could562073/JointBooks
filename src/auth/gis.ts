@@ -158,8 +158,11 @@ export type TokenProvider = {
   /**
    * 試著不打擾使用者就換到新的 token（同意紀錄還在時 Google 多半不會再問）。
    * 需要使用者操作時安靜失敗回 false，畫面維持「點一下連線 Google」。
+   * force：還連著但快過期時也換（在使用者的點擊裡呼叫，Safari 才不會擋掉 Google 的視窗）。
    */
-  renewSilently(): Promise<boolean>;
+  renewSilently(force?: boolean): Promise<boolean>;
+  /** 手上的 token 還有多久過期（毫秒）；沒有 token 時是 0 */
+  expiresInMs(): number;
   /** 取可用的 token；沒有或快過期就丟 NeedsConnectError */
   token(): Promise<string>;
   isConnected(): boolean;
@@ -239,8 +242,8 @@ export function createTokenProvider(opts: {
       return load().then((a) => { api = a; return request(a, prompt); });
     },
 
-    async renewSilently() {
-      if (isConnected()) return true;
+    async renewSilently(force = false) {
+      if (isConnected() && !force) return true;
       // 沒在這台裝置同意過就別試：一定會跳視窗，而且沒有使用者的點擊會被瀏覽器擋掉
       if (!grantedBefore()) return false;
       if (now() - lastRenewAt < RENEW_THROTTLE_MS) return false;
@@ -253,6 +256,8 @@ export function createTokenProvider(opts: {
         return false;
       }
     },
+
+    expiresInMs: () => (current ? Math.max(0, current.expiresAt - now()) : 0),
 
     async token() {
       if (current && tokenUsable(current.expiresAt, now())) return current.token;

@@ -94,3 +94,37 @@ describe('不打擾使用者的續期（token 一小時就過期）', () => {
     expect(calls).toHaveLength(1);
   });
 });
+
+describe('快過期就先換（使用者回報過一小時還是要點一次）', () => {
+  it('還連著但快過期：force 時照樣換新的', async () => {
+    const { api, calls } = fakeApi(OK);
+    const store = memoryStore({ [GRANTED_KEY]: '1' });
+    let clock = 0;
+    const p = createTokenProvider({ clientId: 'cid', load: async () => api, now: () => clock, store });
+    await p.connect();
+    expect(calls).toHaveLength(1);
+
+    // 走到只剩 5 分鐘就過期
+    clock = 3_599_000 - 5 * 60_000;
+    expect(p.isConnected()).toBe(true);
+    expect(p.expiresInMs()).toBeLessThan(10 * 60_000);
+
+    expect(await p.renewSilently(true)).toBe(true);
+    expect(calls).toHaveLength(2);
+    expect(p.expiresInMs()).toBeGreaterThan(10 * 60_000);
+  });
+
+  it('還很久才過期時不必 force，直接說還連著', async () => {
+    const { api, calls } = fakeApi(OK);
+    const p = createTokenProvider({ clientId: 'cid', load: async () => api, now: () => 0, store: memoryStore() });
+    await p.connect();
+    expect(p.expiresInMs()).toBeGreaterThan(50 * 60_000);
+    expect(await p.renewSilently()).toBe(true);
+    expect(calls).toHaveLength(1);
+  });
+
+  it('沒有 token 時「還有多久過期」是 0', () => {
+    const p = createTokenProvider({ clientId: 'cid', load: async () => fakeApi(OK).api, now: () => 0, store: memoryStore() });
+    expect(p.expiresInMs()).toBe(0);
+  });
+});
