@@ -3,7 +3,8 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     environment: 'jsdom',
-    include: ['src/**/*.test.{ts,tsx}'],
+    // worker/ 是登入端點（Cloudflare Worker），測試用假的 Google 回應，不需要網路
+    include: ['src/**/*.test.{ts,tsx}', 'worker/**/*.test.ts'],
     globals: true,
     setupFiles: ['./src/test-setup.ts'],
     // 開發者自己的 .env.local 會填 Google 用戶端 ID；測試一律跑純本機模式，
