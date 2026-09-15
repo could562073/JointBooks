@@ -265,6 +265,7 @@ inotify 事件，dev server 會一直服舊模組；`vite.config.ts` 已在偵�
 - **iPhone 點輸入框會放大**（使用者回報，第一次修完仍會）：`global.css` 本來就有輸入框 `font-size: max(16px, 1em)`，但各元件的 CSS Modules class 權重較高，把月預算、分類名稱、備註、Email 等輸入框蓋回 12–13.5px；viewport 的 `maximum-scale=1` 也不一定擋得住。觸控裝置（`pointer: coarse`）上所有輸入框一律 `16px !important`，桌機維持原型字級。Vitest 讀不到 CSS（`?raw` 回空字串），由 `e2e/input-zoom.spec.ts` 在模擬觸控的 Chromium 量字級。
 - **右滑跳回邀請頁**（使用者回報，第一次修完仍會）：舊版留在歷史紀錄裡的接受邀請頁還在，右滑到底還是會出現。已經在帳本裡的手機按上一頁回到接受邀請頁（navigation type 是 back_forward，或從返回快取還原）時直接換回主程式；點連結打開照常顯示「你已在這本帳裡」。邀請面板的預覽改用 `location.replace`，不留歷史紀錄。
 - **手機換不到新版**（使用者回報修好了卻沒效）：原本只註冊 service worker，iPhone 主畫面 App 多半從背景叫回來、不重新載入，一直跑舊版。改在 `main.tsx` 註冊：每次回到前景檢查新版，新版裝好就重新整理；記一筆或邀請面板開著、正在打字時延到下次回到前景。配置頁最底下顯示「版本 提交碼 · 建置時間」，兩支手機對得上才是同一版。
+- **美妝分類圖示**（使用者要求，2026-09-14）：圖示庫加一顆口紅（`lipstick`），跟原本 15 顆同一套 Microsoft Fluent Emoji Flat、同一份 MIT 授權，配置頁的圖示選擇器變成 16 顆。
 - **沒有登出功能。** token 存在 localStorage，最多一小時後自己失效。
 - **每小時還是要點一次重新連線。** 要做到「登入一次就一直有效」得加一個保管用戶端密碼的小後端（例如 Cloudflare Worker）換 refresh token。
 - **給更多人用之前要處理的事。** 使用者不需要自己開 Sheets／Drive API，那是開在開發者的 Cloud 專案上。但同意畫面要從「測試中」發布成正式版；`spreadsheets` 是敏感權限，要先通過 Google 驗證（隱私權政策、網域、示範影片），否則上限 100 人、會看到未驗證警告，而且每 7 天要重新同意。Sheets API 讀取配額是每個專案每分鐘 300 次，每位開著 App 的人每分鐘輪詢 12 次，約 25 人同時在線就會碰到，要申請提高配額或放慢輪詢。

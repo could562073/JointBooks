@@ -84,7 +84,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // §12.1：App shell 與 15 個圖示走 cache-first。
+        // §12.1：App shell 與 16 個圖示走 cache-first。
         //
         // woff2 刻意排除在 precache 之外。Task 3 自架的三套字型被 Google Fonts 依
         // unicode-range 切成 567 個 subset、共 18 MB；把它們全部塞進 precache 會讓

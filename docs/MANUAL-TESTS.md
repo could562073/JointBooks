@@ -83,7 +83,7 @@ npx playwright test         # 手勢引擎的真實瀏覽器測試
 ### 5. 元件展示櫃（dev 限定）
 
 ```
-http://localhost:5173/?debug=icons     # 15 個圖示
+http://localhost:5173/?debug=icons     # 16 個圖示
 http://localhost:5173/?debug=mantou    # 饅頭三種變體與呼吸動畫
 ```
 

@@ -53,8 +53,8 @@ test.describe('PWA 正式建置產物', () => {
     // 每一筆 precache 項目在產出的 sw.js 裡都會有一個 {url: 開頭。這比對著
     // workbox 版本號去解析陣列語法更穩，也不受 minifier 輸出格式變動影響。
     const entries = body.match(/\{url:/g) ?? [];
-    // app shell（js/css/html）＋ 15 個圖示 SVG ＋ 4 個 PWA png 圖示（含重複列出
-    // 的 icon 陣列）＋ manifest.webmanifest，目前是 27 筆。給到 60 當上限，
+    // app shell（js/css/html）＋ 16 個圖示 SVG ＋ 4 個 PWA png 圖示（含重複列出
+    // 的 icon 陣列）＋ manifest.webmanifest，目前 30 筆。給到 60 當上限，
     // 留一點成長空間，但 567 筆字型 subset 絕對撞不進來。
     expect(entries.length).toBeLessThan(60);
 

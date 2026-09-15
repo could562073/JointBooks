@@ -5,8 +5,9 @@ import { Icon, ICON_KEYS } from './Icon';
 afterEach(cleanup);
 
 describe('Icon', () => {
-  it('圖示庫剛好 15 個 key', () => {
-    expect(ICON_KEYS).toHaveLength(15);
+  it('圖示庫剛好 16 個 key（原型 15 個，另加美妝用的口紅）', () => {
+    expect(ICON_KEYS).toHaveLength(16);
+    expect(ICON_KEYS).toContain('lipstick');
     expect(ICON_KEYS).toContain('house');
     expect(ICON_KEYS).toContain('coin');
   });

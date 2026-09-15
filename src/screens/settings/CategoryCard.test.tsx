@@ -25,10 +25,11 @@ describe('CategoryCard 的圖示選擇器（MOTION #18）', () => {
     expect(screen.queryByTestId('icon-picker')).not.toBeInTheDocument();
   });
 
-  it('點圖示展開 15 顆', () => {
+  it('點圖示展開 16 顆（原型 15 顆，另加美妝用的口紅）', () => {
     render(<CategoryCard {...BASE} category={MULTI} />);
     fireEvent.click(screen.getByTestId(`cat-${MULTI.id}-icon`));
-    expect(screen.getByTestId('icon-picker').children).toHaveLength(15);
+    expect(screen.getByTestId('icon-picker').children).toHaveLength(16);
+    expect(screen.getByTestId('icon-lipstick')).toBeInTheDocument();
   });
 
   it('目前的圖示標成選中', () => {
