@@ -1,0 +1,47 @@
+name: E2E tests
+
+# 真實瀏覽器測試（Playwright）：原本手動清單裡能自動化的互動、手勢、動畫參數、版面都在這裡。
+# 跟部署分開跑、不擋部署：部署那條只跑單元測試，這條失敗時看 Actions 的報告再修。
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+
+      # playwright.config 自己起兩顆 server：純本機模式的 dev server（5174）與正式建置的 preview（4173），
+      # 都不帶 Google 用戶端 ID
+      - name: Playwright（三個手機寬度＋正式建置）
+        run: npx playwright test --reporter=line
+
+      - name: Upload the report when something fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7
