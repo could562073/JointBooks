@@ -49,7 +49,7 @@
 ## 目前的限制
 
 - 一本帳本最多兩位成員
-- 沒有後端，Google 登入最長一小時有效。App 會在快過期時趁你操作的空檔換新的（同意紀錄還在就不打擾你），真的續不到才需要點一下重新連線
+- Google 登入最長一小時有效。預設沒有後端，App 只能在快過期時趁你操作的空檔換新的，續不到就要點一下重新連線；部署 [`worker/`](worker/README.md) 那支登入端點（Cloudflare 免費方案）之後，登入一次就會自動續期
 - App 開著時，對方記帳會跳出通知；App 關著時收不到推播（沒有後端）
 - 還在 Google 同意畫面的「測試中」階段：只有加進測試使用者名單的帳號能登入
 
@@ -93,6 +93,7 @@ npm run e2e        # Playwright 真實瀏覽器測試（互動、手勢、動畫
 
 - 網站在 `/JointBooks/` 子路徑底下，建置時用 `BASE_PATH=/JointBooks/`
 - Google 用戶端 ID 放在 repo 的 **Settings → Secrets and variables → Actions → Variables**，名稱 `VITE_GOOGLE_CLIENT_ID`（用戶端 ID 本來就會出現在前端程式碼裡，不是機密）
+- 選用：同一個地方加 `VITE_AUTH_PROXY_URL`（登入端點的網址，見 [`worker/README.md`](worker/README.md)），登入就不必每小時點一次；沒設定時 App 照常運作
 - Google Cloud Console 的「已授權的 JavaScript 來源」要加入 `https://could562073.github.io`
 - 建置時會把 `index.html` 複製成 `404.html`，直接打開邀請連結（`/JointBooks/join?…`）才不會停在 GitHub 的 404 頁
 - 版本號在 `package.json`，配置頁底下顯示成 `v1.0.0 · 提交碼`；發佈有感更新時先 `npm version patch|minor|major` 再推上去

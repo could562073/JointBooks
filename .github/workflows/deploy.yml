@@ -39,6 +39,8 @@ jobs:
           BASE_PATH: /JointBooks/
           # Google 用戶端 ID 本來就會出現在前端程式碼裡，不是機密；放在 repo 的 Variables
           VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
+          # 選用：登入端點的網址（worker/README.md）。沒設定時 App 維持原本的登入方式
+          VITE_AUTH_PROXY_URL: ${{ vars.VITE_AUTH_PROXY_URL }}
 
       - uses: actions/upload-pages-artifact@v3
         with:
