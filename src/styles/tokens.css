@@ -40,6 +40,11 @@
   --c-decor-a: #EDE9FA;
   --c-decor-b: #FAE9F3;
 
+  /* 啟動畫面（原型 v2）：右上的淡紫光圈、粉色饅頭的腳、底部進度條的軌道 */
+  --c-boot-glow: #F5F0FF;
+  --c-boot-partner-foot: #C98BBC;
+  --c-boot-track: rgba(74, 63, 54, .12);
+
   /* 其他 */
   --c-sync: #4E9B7A;
   --c-blush: #F79BA0;

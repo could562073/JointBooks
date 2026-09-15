@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { registerSW } from 'virtual:pwa-register';
 import App from './App';
+import { LaunchScreen } from './components/LaunchScreen';
 import './styles/global.css';
 
 // 像原生 App 一樣不讓整頁縮放（使用者要求）。Safari 分頁裡會忽略 user-scalable=no，
@@ -36,8 +37,12 @@ registerSW({
   },
 });
 
+// 開發用的 ?debug= 元件展示頁不蓋啟動畫面：e2e 一打開就要量元件
+const debugPage = import.meta.env.DEV && new URLSearchParams(location.search).has('debug');
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
+    {!debugPage && <LaunchScreen />}
   </StrictMode>
 );

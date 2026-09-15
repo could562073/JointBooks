@@ -61,6 +61,14 @@ export const DUR = {
   syncPulse: 2400,     // #25 同步中圓點脈動
   yearPanelIn: 260,    // #33 年／月選擇面板進場（別借用 popIn=240 或 rowCollapse=260）
   kindColor: 280,      // #36 收支分類顏色轉場（數值巧合等於 toastIn，別借用）
+  bootHold: 2150,      // #39 啟動畫面停留（原型 2.15s 開始淡出）
+  bootOut: 460,        // #39 啟動畫面放大淡出，播完就卸載
+  bootBun: 620,        // #39 兩顆饅頭彈起
+  bootBunStagger: 120, // #39 第二顆晚一點彈起
+  bootWord: 500,       // #39 字標浮現
+  bootWordDelay: 220,  // #39 字標延遲
+  bootBar: 2100,       // #39 底部進度條跑完
+  bootRing: 2400,      // #39 光暈擴散一輪（無限循環）
   reduced: 120,        // prefers-reduced-motion 統一時長
 } as const;
 

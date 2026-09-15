@@ -1,0 +1,197 @@
+/*
+ * 啟動畫面（原型 v2「啟動畫面」）。尺寸、位置、動畫逐項照原型，顏色一律用 tokens。
+ * 時長由元件用 CSS 變數帶進來（DUR.boot*）。
+ */
+.screen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--c-tint);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  will-change: opacity, transform;
+}
+
+/* 2.15 秒後：放大一點點淡出 */
+.leaving { animation: bootOut var(--out) ease-in both; }
+.reduced.leaving { animation-name: bootFade; }
+
+/* 右上、左下兩個裝飾圓 */
+.glowA {
+  position: absolute; top: -70px; right: -60px;
+  width: 220px; height: 220px; border-radius: 50%;
+  background: var(--c-boot-glow); opacity: .85;
+}
+.glowB {
+  position: absolute; bottom: -60px; left: -50px;
+  width: 190px; height: 190px; border-radius: 50%;
+  background: var(--c-decor-b); opacity: .7;
+}
+
+.buns {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: 26px;
+}
+
+/* 饅頭後面那圈往外擴散的白色光暈 */
+.ring {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 120px; height: 120px; border-radius: 50%;
+  background: var(--c-card); opacity: .55;
+  animation: bootRing var(--ring) ease-out infinite;
+}
+
+/* 紫色那顆 86×70 */
+.bunMe {
+  position: relative; width: 86px; height: 70px;
+  animation: bootBun var(--bun) var(--ease-enter) both;
+}
+.meFoot {
+  position: absolute; bottom: 0; width: 18px; height: 12px;
+  border-radius: 0 0 10px 10px; background: var(--c-shade);
+}
+.meFootL { left: 11px; }
+.meFootR { right: 11px; }
+.meBody {
+  position: absolute; inset: 0;
+  border-radius: 50% 50% 34% 34% / 64% 64% 36% 36%;
+  background: var(--c-primary);
+  box-shadow: inset 0 -8px 0 var(--c-mantou-shade);
+}
+.meHi {
+  position: absolute; top: 8px; left: 18px; width: 38px; height: 14px;
+  border-radius: 50%; background: var(--c-hi); opacity: .8;
+}
+.meEye {
+  position: absolute; top: 33px; width: 8px; height: 9px;
+  border-radius: 50%; background: var(--c-face);
+}
+.meEyeL { left: 23px; }
+.meEyeR { right: 23px; }
+.meBlush {
+  position: absolute; top: 44px; width: 13px; height: 7px;
+  border-radius: 50%; background: var(--c-blush); opacity: .55;
+}
+.meBlushL { left: 13px; }
+.meBlushR { right: 13px; }
+.meMouth {
+  position: absolute; top: 43px; left: 50%; transform: translateX(-50%);
+  width: 10px; height: 6px; border-radius: 0 0 10px 10px; background: var(--c-face);
+}
+
+/* 粉色那顆 70×58，疊在紫色右邊、晚一點彈起 */
+.bunPartner {
+  position: relative; width: 70px; height: 58px; margin-left: -16px;
+  animation: bootBun var(--bun) var(--ease-enter) var(--bun-stagger) both;
+}
+.ptFoot {
+  position: absolute; bottom: 0; width: 15px; height: 10px;
+  border-radius: 0 0 9px 9px; background: var(--c-boot-partner-foot);
+}
+.ptFootL { left: 9px; }
+.ptFootR { right: 9px; }
+.ptBody {
+  position: absolute; inset: 0;
+  border-radius: 50% 50% 34% 34% / 64% 64% 36% 36%;
+  background: var(--c-partner);
+  box-shadow: inset 0 -7px 0 var(--c-mantou-shade);
+}
+.ptHi {
+  position: absolute; top: 7px; left: 15px; width: 31px; height: 12px;
+  border-radius: 50%; background: var(--c-partner-hi); opacity: .85;
+}
+.ptEye {
+  position: absolute; top: 27px; width: 7px; height: 8px;
+  border-radius: 50%; background: var(--c-face);
+}
+.ptEyeL { left: 19px; }
+.ptEyeR { right: 19px; }
+.ptBlush {
+  position: absolute; top: 36px; width: 11px; height: 6px;
+  border-radius: 50%; background: var(--c-blush); opacity: .5;
+}
+.ptBlushL { left: 10px; }
+.ptBlushR { right: 10px; }
+.ptMouth {
+  position: absolute; top: 36px; left: 50%; transform: translateX(-50%);
+  width: 9px; height: 5px; border-radius: 0 0 9px 9px; background: var(--c-face);
+}
+
+/* 字標 */
+.word {
+  position: relative;
+  text-align: center;
+  animation: bootWord var(--word) ease-out var(--word-delay) both;
+}
+.title {
+  font-family: var(--f-title);
+  font-weight: 700;
+  font-size: 25px;
+  line-height: 1.2;
+  color: var(--c-text);
+}
+.sub {
+  font-family: var(--f-num);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: .04em;
+  color: var(--c-primary-deep);
+  margin-top: 5px;
+}
+
+/* 底部進度條 */
+.progress {
+  position: absolute; left: 0; right: 0; bottom: 64px;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.track {
+  width: 116px; height: 5px; border-radius: var(--r-pill);
+  background: var(--c-boot-track); overflow: hidden;
+}
+.fill {
+  height: 100%; border-radius: var(--r-pill);
+  background: var(--c-shade);
+  transform-origin: left center;
+  /* 原型的進度條曲線，只用在這裡 */
+  animation: bootBar var(--bar) cubic-bezier(.4, 0, .2, 1) both;
+}
+
+/* 減少動態效果：不彈起、不擴散、進度條直接滿格，只保留淡出 */
+.reduced .bunMe,
+.reduced .bunPartner,
+.reduced .word,
+.reduced .ring,
+.reduced .fill { animation: none; }
+
+@keyframes bootOut {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(1.04); }
+}
+@keyframes bootFade {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+@keyframes bootBun {
+  0%   { transform: translateY(14px) scale(.86); opacity: 0; }
+  55%  { transform: translateY(-5px) scale(1.04); }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+@keyframes bootWord {
+  from { transform: translateY(8px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+@keyframes bootBar {
+  0%   { transform: scaleX(.04); }
+  40%  { transform: scaleX(.55); }
+  100% { transform: scaleX(1); }
+}
+@keyframes bootRing {
+  0%   { transform: translate(-50%, -50%) scale(.7); opacity: .5; }
+  100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+}

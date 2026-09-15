@@ -8,8 +8,9 @@ import doc from '../../docs/MOTION.md?raw';
 const rows = doc.split('\n').filter((l) => /^\| \d+ \|/.test(l));
 
 describe('MOTION.md 與程式碼同步', () => {
-  it('剛好 37 條', () => {
-    expect(rows).toHaveLength(37);
+  // HANDOFF §10 的 38 條扣掉 §A 刪除的 #20，再加上使用者要求的 #39 啟動畫面（原型 v2）
+  it('剛好 38 條', () => {
+    expect(rows).toHaveLength(38);
   });
 
   it('編號不重複', () => {
