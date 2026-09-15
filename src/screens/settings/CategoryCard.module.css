@@ -6,6 +6,16 @@
   overflow: hidden;
 }
 
+/* MOTION #17：剛新增的分類卡插在最上方，translateY -10px→0 + opacity，320ms */
+.fresh {
+  animation: cardRise var(--rise) var(--ease-enter) both;
+}
+
+@keyframes cardRise {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: none; }
+}
+
 .delete {
   position: absolute;
   top: 0;
@@ -24,6 +34,13 @@
 
 .card {
   position: relative;
+  /*
+   * 可左右滑的卡片不讓文字被選取：桌機用滑鼠滑過一次會順手選到分類名，下一次按在選取的
+   * 文字上拖曳就變成瀏覽器原生的拖放（dragstart → pointercancel），卡片滑不回去（e2e 抓到的）。
+   * 輸入欄自己的文字選取不受影響
+   */
+  -webkit-user-select: none;
+  user-select: none;
   display: flex;
   flex-direction: column;
   padding: 12px 14px;

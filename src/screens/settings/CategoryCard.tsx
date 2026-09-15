@@ -7,6 +7,7 @@ import type { Category } from '../../domain/types';
 import { IconPicker } from './IconPicker';
 import { InlineEdit } from './InlineEdit';
 import { useCardSwipe } from './useCardSwipe';
+import { DUR } from '../../lib/motion';
 import styles from './CategoryCard.module.css';
 
 type Props = {
@@ -35,7 +36,10 @@ export function CategoryCard({
 
   return (
     <li
-      className={collapsing ? `${styles.wrap} jb-row-collapsing` : styles.wrap}
+      className={[styles.wrap, autoEditName ? styles.fresh : '', collapsing ? 'jb-row-collapsing' : '']
+        .filter(Boolean).join(' ')}
+      // MOTION #17：剛新增的卡從上方 10px 浮現（原本文件標已實作，e2e 量過其實沒有）
+      style={autoEditName ? { ['--rise' as string]: `${DUR.riseIn}ms` } : undefined}
       data-collapsing={collapsing ? '' : undefined}
       data-testid={`cat-${c.id}`}
     >
