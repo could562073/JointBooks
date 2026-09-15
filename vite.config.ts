@@ -1,3 +1,4 @@
+import { execSync } from 'node:child_process';
 import { copyFileSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
@@ -13,9 +14,23 @@ function isWsl(): boolean {
   }
 }
 
+/** 配置頁底下顯示的版本：部署時是這次提交的前 7 碼，本機是 git 的 HEAD，都拿不到就寫 dev */
+function appVersion(): string {
+  if (process.env.GITHUB_SHA) return process.env.GITHUB_SHA.slice(0, 7);
+  try {
+    return execSync('git rev-parse --short HEAD', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+  } catch {
+    return 'dev';
+  }
+}
+
 export default defineConfig({
   // GitHub Pages 的專案網站在 /JointBooks/ 底下：部署時用 BASE_PATH=/JointBooks/ 建置，開發維持 /
   base: process.env.BASE_PATH ?? '/',
+  define: {
+    'import.meta.env.VITE_APP_VERSION': JSON.stringify(appVersion()),
+    'import.meta.env.VITE_APP_BUILT_AT': JSON.stringify(new Date().toISOString()),
+  },
   plugins: [
     react(),
     {
@@ -48,6 +63,8 @@ export default defineConfig({
     },
     VitePWA({
       registerType: 'autoUpdate',
+      // 自己在 main.tsx 註冊：回到前景時要檢查新版，正在記帳時要延後重新整理
+      injectRegister: false,
       devOptions: { enabled: true },
       manifest: {
         name: '饅頭共享記帳',

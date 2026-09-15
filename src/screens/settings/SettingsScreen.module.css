@@ -364,6 +364,16 @@
   color: var(--c-text-3);
 }
 
+/* 配置頁最底下的版本：兩支手機對得上才是同一版 */
+.version {
+  margin: 18px 4px 0;
+  text-align: center;
+  font-family: var(--f-body);
+  font-size: 10.5px;
+  color: var(--c-text-3);
+  font-variant-numeric: tabular-nums;
+}
+
 /* 建立帳本的人管理受邀者：重新傳邀請連結、移除這位成員 */
 .manage {
   display: flex;

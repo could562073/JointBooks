@@ -15,6 +15,7 @@ import { formatCadWhole } from '../../domain/money';
 import type { SyncState } from '../../sync/state';
 import { useLedger } from '../../store/useLedger';
 import { categorySummary, stackedIcons } from './settingsSummary';
+import { versionLabel } from '../../lib/appVersion';
 import styles from './SettingsScreen.module.css';
 
 type Props = {
@@ -386,6 +387,9 @@ export function SettingsScreen({
             </div>
           </div>
         </section>
+
+        {/* 兩支手機對一下是不是同一版（手機上的 App 可能還沒換成新版） */}
+        <p className={styles.version} data-testid="app-version">{versionLabel()}</p>
       </div>
     </div>
   );
