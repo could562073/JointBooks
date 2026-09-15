@@ -12,20 +12,26 @@ export default defineConfig({
   // 5000ms 的預設值在滿載時偶爾不夠、會誤判成真的壞掉。量過：暖機後單一
   // 冷啟動約 1.1s，這裡給到 10s 純粹是吃滿載排隊的餘裕，不是在蓋掉真的壞掉。
   expect: { timeout: 10_000 },
+  // 預設 workers 是 CPU 核心數的一半（這台 32 核就開 16 個），全部同時打同一顆 WSL 上的 dev server，
+  // 第一波頁面等不到模組轉譯、App 十秒內掛不上來，二十幾條一起失敗（2026-09-15 實測）。
+  // 限制並行數，換來穩定；CI 的機器只有幾核，再少一點
+  workers: process.env.CI ? 2 : 4,
   webServer: [
     {
-      command: 'npm run dev',
-      url: 'http://localhost:5173',
+      // 純本機模式（不帶 Google 用戶端 ID）：開發者的 .env.local 設了 ID 時 App 會停在登入頁，
+      // 畫面測試全部跑不到。用自己的 port，不去沿用開發者手上開著的 5173
+      command: 'VITE_GOOGLE_CLIENT_ID= npm run dev -- --port 5174 --strictPort',
+      url: 'http://localhost:5174',
       reuseExistingServer: !process.env.CI,
     },
     {
-      command: 'npm run build && npm run preview',
+      command: 'VITE_GOOGLE_CLIENT_ID= npm run build && npm run preview',
       url: 'http://localhost:4173',
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
     },
   ],
-  use: { baseURL: 'http://localhost:5173' },
+  use: { baseURL: 'http://localhost:5174' },
   projects: [
     { name: 'se',    testIgnore: 'build.spec.ts',
       use: { ...devices['Desktop Chrome'], viewport: { width: 375, height: 667 } } },

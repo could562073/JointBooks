@@ -121,7 +121,8 @@ export default defineConfig({
     // project 同時起跑、同時第一次打 ?debug=icons／?debug=mantou 時，會撞上
     // 同一個 dev server process 現轉譯的排隊延遲。開機就先暖機，把這個 race
     // 消掉，同時仍然保留 production 建置時它是獨立 chunk（見 Important 6）。
-    warmup: { clientFiles: ['./src/debug/DebugGallery.tsx'] },
+    // 主程式入口也先暖機：e2e 一開跑就好幾個頁面同時要模組，冷啟動時一起轉譯會卡住
+    warmup: { clientFiles: ['./src/main.tsx', './src/debug/DebugGallery.tsx'] },
   },
   build: {
     assetsInlineLimit: 0, // Don't inline SVG icons; keep them as separate files

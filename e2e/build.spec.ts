@@ -64,4 +64,11 @@ test.describe('PWA 正式建置產物', () => {
     // 整份文字會誤判。這裡鎖定「precache 項目」本身的形狀。）
     expect(body).not.toMatch(/\{url:"fonts\//);
   });
+
+  test('GitHub Pages 找不到網址時回的 404.html 就是 App 本身，直接打開邀請連結不會停在 404 頁（原本手動清單 I38）', async ({ request }) => {
+    const index = await (await request.get('http://localhost:4173/index.html')).text();
+    const notFound = await request.get('http://localhost:4173/404.html');
+    expect(notFound.status()).toBe(200);
+    expect(await notFound.text()).toBe(index);
+  });
 });
