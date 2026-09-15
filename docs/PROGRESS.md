@@ -24,10 +24,10 @@ Repo：`git@github.com:could562073/JointBooks.git`（公開）；網站 https://
 **九份計畫全部完成。** 接下來是 `docs/MANUAL-TESTS.md` 的人工驗證，以及下方
 「延後給後續計畫的事」列的技術債。
 
-目前測試：**Vitest 1142（120 檔）、Playwright 57（ip13）**，typecheck 兩個 project 都乾淨，
+目前測試：**Vitest 1166（125 檔）、Playwright 57（ip13）**，typecheck 兩個 project 都乾淨，
 `npm run build` 通過。
 
-`docs/MOTION.md` 的 **37 條全部標為「已實作」**；「已驗收」要等擁有者跑完
+`docs/MOTION.md` 的 **38 條全部標為「已實作」**；「已驗收」要等擁有者跑完
 `docs/MANUAL-TESTS.md`。
 
 ### Plan 03 已完成
@@ -270,6 +270,8 @@ inotify 事件，dev server 會一直服舊模組；`vite.config.ts` 已在偵�
 - **主畫面圖示換成使用者設計的圖**（使用者要求，2026-09-14）：原圖在 `src/assets/icons/manto-icon-1024-square.png`（滿版正方形）與 `manto-icon-1024.png`（已裁圓角、帶陰影）。iPhone 與 Android 都會自己裁圓角，所以 `public/icons` 的 apple-touch-icon（180）、icon-192、icon-512、maskable 512 一律由滿版正方形那張縮出（逐次減半再縮，底色 #FFF6EC、不透明）；圓角那張不放主畫面，免得重複裁角、邊上留陰影。原圖沒有被程式引用，不會打包進網站。
 - **啟動畫面**（使用者要求，2026-09-14，照原型 v2 的「啟動畫面」；原型其他部分已過時，不跟著改）：`components/LaunchScreen` 掛在 `main.tsx`、蓋在 App 上面，底下照常載入與同步。兩顆饅頭依序彈起、光暈擴散、字標浮現（原型底部的讀取條依使用者要求拿掉），2.15 秒放大淡出、淡出播完（約 2.6 秒）卸載（`DUR.boot*`，MOTION #39）；減少動態效果時不播彈起、淡出 120ms。`index.html` 先把底色設成同一個淡紫，載入前不閃白；開發用的 `?debug=` 展示頁不蓋啟動畫面。
 - **「對方記帳時通知我」接上了**（2026-09-14，原本開關存得起來但沒有任何作用）：同步拉回來後比對這台手機看過的紀錄 id（`sync/partnerArrivals.ts`），對方新記的就用 Toast（MOTION #25）跳出「雪雪大人記了一筆 超市 · 食材 $42.18」，好幾筆一起到就說幾筆。打開 App 時本機已有的紀錄當基準不跳；本機一筆都沒有時第一次同步拉回來的歷史也不跳；自己記的、已刪除的、對方改舊紀錄都不跳；開關關掉就不跳。App 關著時仍沒有推播。
+- **跨午夜自動換日**（2026-09-14）：App 開著過了午夜，回到前景或下一分鐘內「今天」換成新的一天；原本停在今天的選取跟著換（跨月也對），自己選了別天不動。日常頁月曆與統計頁的本週／本月標題改讀 store 的 `today`。
+- **返回鍵先關面板**（2026-09-14，§12.4）：記一筆面板與邀請面板開著時佔一格歷史紀錄（`lib/useBackToClose`），Android 返回鍵、iPhone 右滑先用面板自己的動畫關掉，不直接離開 App；用按鈕關掉時自己退掉那一格。退那一格延到下一輪做，React 開發模式掛兩次時才不會一打開就被自己關掉。
 - **沒有登出功能。** token 存在 localStorage，最多一小時後自己失效。
 - **每小時還是要點一次重新連線。** 要做到「登入一次就一直有效」得加一個保管用戶端密碼的小後端（例如 Cloudflare Worker）換 refresh token。
 - **給更多人用之前要處理的事。** 使用者不需要自己開 Sheets／Drive API，那是開在開發者的 Cloud 專案上。但同意畫面要從「測試中」發布成正式版；`spreadsheets` 是敏感權限，要先通過 Google 驗證（隱私權政策、網域、示範影片），否則上限 100 人、會看到未驗證警告，而且每 7 天要重新同意。Sheets API 讀取配額是每個專案每分鐘 300 次，每位開著 App 的人每分鐘輪詢 12 次，約 25 人同時在線就會碰到，要申請提高配額或放慢輪詢。
@@ -398,16 +400,16 @@ inotify 事件，dev server 會一直服舊模組；`vite.config.ts` 已在偵�
 ## 延後給後續計畫的事
 
 **Plan 04（日常頁）**
-- store 的初始年月日在 module load 時算一次，PWA 跨午夜不會更新。
-  正解是綁 `visibilitychange` 的復原動作，屬於畫面層。
+- ~~store 的初始年月日在 module load 時算一次，PWA 跨午夜不會更新~~：已修（2026-09-14）。store 多一個 `today`，
+  外殼回到前景時與每分鐘呼叫 `refreshToday`；原本停在今天就跟著換日，選了別天不動。
 - 兩個設定開關的持久化 promise 沒被 await，IndexedDB 寫入失敗會靜靜消失。
 - §2 有一批數值還沒 token 化：CTA 漸層、分頁列圓角 22px、FAB 圓角 19px、
   圖示方塊圓角 13/8/14、毛玻璃配方、分頁標籤 10px。也還沒有間距與字級 scale。
 - 收窄 Playwright 的全域 `expect.timeout`（目前 10s，應該只給需要的 spec）。
 
 **Plan 06（統計頁）**
-- `animation-iteration-count: 1 !important` 在 reduced-motion 下會讓 MOTION #26 的
-  同步轉圈凍在半途，看起來像當掉。要特例處理。
+- ~~`animation-iteration-count: 1 !important` 在 reduced-motion 下會讓 MOTION #26 的
+  同步轉圈凍在半途~~：查過不會（2026-09-14）——`SyncStatus` 在減少動態效果時本來就不套轉圈樣式。
 
 **Plan 08（Sheets 同步）**
 - `outbox` 只寫不讀。順序、去重、衝突解析的資訊都夠，但**分類的變更完全沒有
