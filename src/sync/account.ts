@@ -4,14 +4,14 @@ import { ledgerRepo } from '../repo/ledgerRepo';
 import type { SheetsClient } from '../sheets/client';
 import { createLedger, ENV_RANGE, ledgerEnvOf, ledgerTitles, type LedgerEnv } from '../sheets/ledgerSheet';
 import {
-  LAST_LEDGER_KEY, LOCAL_MODE_KEY, lastAccount, lastLedger, localFacts, rememberAccount,
+  LAST_LEDGER_KEY, LOCAL_MODE_KEY, enterLocalMode, lastAccount, lastLedger, localFacts, rememberAccount,
   type Account, type LedgerRef, type LocalFacts,
 } from './accountState';
 import { CATEGORIES_DIRTY_KEY } from './categoriesSync';
 import { remapToLedger } from './categoryRemap';
 import { connectErrorText } from './cloud';
 import { joinLedger, joinOutcomeText } from './joinLedger';
-import { setJoinedSid, setSelfPerson } from './ledgerId';
+import { clearJoinedSid, joinedSid, SELF_KEY, setJoinedSid, setSelfPerson } from './ledgerId';
 import { MEMBERS_DIRTY_KEY, resetLocalMembers } from './members';
 
 /**
@@ -238,4 +238,43 @@ export async function resolveAsk(
   }
   await finishLink(plan.account, plan.target, plan.self);
   return { kind: 'linked', sid: plan.target };
+}
+
+/**
+ * 登出：帳留在手機上變回本機模式，同一個帳號再登入時接回這一本。
+ * 不撤銷 Google 那邊的授權，只清掉這台手機上的通行證與續期憑證，之後再登入比較快。
+ */
+export async function signOut(d: {
+  tokens: Pick<TokenProvider, 'disconnect'>;
+  syncNow(): Promise<void>;
+  waitMs?: number;
+}): Promise<void> {
+  // 先試著把還沒推的帳推上去；離線或太久就算了，帳留在手機上，同帳號再登入時補推
+  await Promise.race([
+    d.syncNow().catch(() => {}),
+    new Promise<void>((r) => setTimeout(r, d.waitMs ?? 5_000)),
+  ]);
+  const sid = await joinedSid();
+  if (sid) {
+    const self: Person = (await ledgerRepo.getMeta<string>(SELF_KEY)) === '妻' ? '妻' : '我';
+    await ledgerRepo.setMeta(LAST_LEDGER_KEY, { sid, self } satisfies LedgerRef);
+  }
+  await clearJoinedSid();
+  await enterLocalMode();
+  await d.tokens.disconnect();
+}
+
+/**
+ * 這個功能上線前就登入的手機沒記過帳號：第一次連上 Google 時補記，之後換帳號登入才比得出來。
+ * 讀不到（離線）就算了，下次連上再補。補記到了才回傳帳號，讓畫面顯示信箱
+ */
+export async function recordAccountIfMissing(client: Pick<SheetsClient, 'aboutUser'>): Promise<Account | null> {
+  if (await lastAccount()) return null;
+  try {
+    const a = await client.aboutUser();
+    await rememberAccount(a);
+    return a;
+  } catch {
+    return null;
+  }
 }
