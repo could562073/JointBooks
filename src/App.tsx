@@ -1,4 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { AccountSwitchDialog } from './components/AccountSwitchDialog';
 import { ShellHeader } from './components/ShellHeader';
 import { TabBar } from './components/TabBar';
 import { Toast } from './components/Toast';
@@ -11,6 +12,7 @@ import { JoinPage } from './invite/JoinPage';
 import { joinStateOf, type JoinState } from './invite/joinFlow';
 import { LoginPage } from './invite/LoginPage';
 import { routeOf } from './invite/route';
+import { useSignIn } from './invite/useSignIn';
 import { arrivedByHistory, replaceLocation } from './lib/navigation';
 import { DUR } from './lib/motion';
 import { useRowRemoval } from './lib/useRowRemoval';
@@ -21,7 +23,11 @@ import { EntrySheet } from './screens/entry/EntrySheet';
 import { SettingsScreen } from './screens/settings/SettingsScreen';
 import { StatsScreen } from './screens/stats/StatsScreen';
 import { selectedDate as selectedDateOf, useLedger } from './store/useLedger';
-import { connectErrorText, createCloudWithProxy, ensureLedger, type Cloud } from './sync/cloud';
+import {
+  finishLink, planJoin, recordAccountIfMissing, resolveAsk, signInErrorText, signOut, type AskPlan,
+} from './sync/account';
+import { enterLocalMode, lastAccount, localFacts, readLink, type Account, type Link } from './sync/accountState';
+import { createCloudWithProxy, type Cloud } from './sync/cloud';
 import { isConfigured, readConfig } from './sync/config';
 import { createSyncController, type SyncController } from './sync/controller';
 import { joinLedger, joinOutcomeText } from './sync/joinLedger';
@@ -80,59 +86,87 @@ export default function App() {
 }
 
 /**
- * 未設定 client id：直接進主程式（純本機模式）。
- * 設定了：這台裝置已經有帳本就進主程式（同步狀態會提示點一下連線）；
- * 還沒有就先給登入頁，登入後建立帳本。
+ * 未設定 client id：直接進主程式（純本機模式，開發用）。
+ * 設定了：接著帳本就進那一本；選過「先不登入」或登出過就進本機模式；都沒有才給開始畫面。
+ * 接上的帳本是這裡的狀態：登入、登出之後 Shell 跟著換，同步控制器依 sid 重新啟動。
  */
-function Gate({ cloud }: { cloud: Cloud | null }) {
-  // undefined＝還在讀；null＝這台裝置還沒有帳本
-  const [sid, setSid] = useState<string | null | undefined>(cloud ? undefined : null);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export function Gate({ cloud }: { cloud: Cloud | null }) {
+  // undefined＝還在讀
+  const [link, setLink] = useState<Link | undefined>(cloud ? undefined : { sid: null });
+  const [email, setEmail] = useState<string | null>(null);
+  // 開始畫面貼錯的邀請連結
+  const [linkError, setLinkError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!cloud) return;
     let alive = true;
-    void joinedSid().then((v) => { if (alive) setSid(v); });
+    void readLink().then(async (l) => {
+      const a = typeof l === 'object' && l.sid ? await lastAccount() : null;
+      if (!alive) return;
+      setEmail(a?.email ?? null);
+      setLink(l);
+    });
     // 先把 Google 的 script 載好：之後按登入時才能在同一個點擊事件裡叫出視窗
     cloud.tokens.preload().catch(() => {});
     return () => { alive = false; };
   }, [cloud]);
 
-  if (!cloud) return <Shell cloud={null} />;
-  if (sid === undefined) return null;
-  if (sid) return <Shell cloud={cloud} />;
+  // 接上帳本之後：本機資料可能換過（合併、改用雲端），重讀一次再進那本帳
+  const onLinked = useCallback((sid: string) => {
+    void Promise.all([lastAccount(), useLedger.getState().load()]).then(([a]) => {
+      setEmail(a?.email ?? null);
+      setLink({ sid });
+    });
+  }, []);
+  const signin = useSignIn(cloud, onLinked);
+
+  if (!cloud) return <Shell cloud={null} sid={null} />;
+  if (link === undefined) return null;
+
+  const dialog = signin.ask && (
+    <AccountSwitchDialog plan={signin.ask} busy={signin.busy} error={signin.error} onChoose={signin.choose} />
+  );
+  // 確認視窗開著時錯誤寫在視窗裡，外面不重複
+  const error = signin.ask ? null : signin.error;
+
+  if (link === 'login') {
+    return (
+      <>
+        <LoginPage
+          busy={signin.busy}
+          error={error ?? linkError}
+          onSignIn={() => { setLinkError(null); signin.start(); }}
+          onJoinLink={(raw) => {
+            try {
+              const u = new URL(raw);
+              location.assign(`${appPath('join')}${u.search}`);
+            } catch {
+              setLinkError('這不是有效的邀請連結，請整條複製後再貼一次。');
+            }
+          }}
+          onUseLocally={() => { void enterLocalMode().then(() => setLink({ sid: null })); }}
+        />
+        {dialog}
+      </>
+    );
+  }
 
   return (
-    <LoginPage
-      busy={busy}
-      error={error}
-      onSignIn={() => {
-        setError(null);
-        setBusy(true);
-        // connect 必須在這個點擊事件裡同步呼叫，瀏覽器才不會擋掉 Google 視窗
-        cloud.tokens.connect()
-          .then(() => ensureLedger(cloud.client, {
-            joinedSid,
-            setJoinedSid,
-            categories: async () => { await ledgerRepo.bootstrap(); return ledgerRepo.listCategories(); },
-            replaceCategories: (cs) => ledgerRepo.replaceCategories(cs),
-            year: new Date().getFullYear(),
-            env: cloud.env,
-          }))
-          .then((id) => setSid(id))
-          .catch((e) => setError(connectErrorText(e)))
-          .finally(() => setBusy(false));
-      }}
-      onJoinLink={(link) => {
-        try {
-          const u = new URL(link);
-          location.assign(`${appPath('join')}${u.search}`);
-        } catch {
-          setError('這不是有效的邀請連結，請整條複製後再貼一次。');
-        }
-      }}
-    />
+    <>
+      <Shell
+        cloud={cloud}
+        sid={link.sid}
+        account={{
+          email,
+          busy: signin.busy,
+          error,
+          onSignIn: signin.start,
+          onSignedOut: () => { setEmail(null); setLink({ sid: null }); },
+          onAccountKnown: (a) => setEmail(a.email),
+        }}
+      />
+      {dialog}
+    </>
   );
 }
 
@@ -141,11 +175,13 @@ function Gate({ cloud }: { cloud: Cloud | null }) {
  *
  * 加入＝連線 Google → 確認這個帳號讀得到那本帳 → 搬對方的分類 → 記下帳本。
  * 讀不到（對方還沒分享）就停在這頁說明原因，不記下一本打不開的帳。
+ * 手機上有帳、又沒接著別本帳（訪客或登出後）時，先問要合併、清掉還是取消。
  */
 function Join({ search, cloud }: { search: string; cloud: Cloud | null }) {
   const [state, setState] = useState<JoinState | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [ask, setAsk] = useState<AskPlan | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -173,56 +209,96 @@ function Join({ search, cloud }: { search: string; cloud: Cloud | null }) {
   // 用 replace 不用 href：接受邀請頁不留在歷史紀錄裡，iPhone 右滑（上一頁）才不會跳回邀請頁
   const goHome = () => { location.replace(appPath()); };
 
-  return (
-    <JoinPage
-      state={state}
-      busy={busy}
-      error={error}
-      onJoin={() => {
-        // 預覽只是給邀請的人看畫面，按下去就回主程式，不加入任何東西
-        if (state.kind !== 'invite' || state.preview) { goHome(); return; }
-        const sid = state.sid;
-        // 這台原本記的是另一本帳：加入成功才清掉那本的紀錄，免得被推進對方的帳本
-        const switching = state.switching === true;
-        const forgetOldLedger = async () => {
-          if (!switching) return;
-          await ledgerRepo.clearTxns();
-          await resetLocalMembers();
-        };
+  const join = () => {
+    // 預覽只是給邀請的人看畫面，按下去就回主程式，不加入任何東西
+    if (state.kind !== 'invite' || state.preview) { goHome(); return; }
+    const sid = state.sid;
+    // 這台原本記的是另一本帳：加入成功才清掉那本的紀錄，免得被推進對方的帳本
+    const switching = state.switching === true;
+    const forgetOldLedger = async () => {
+      if (!switching) return;
+      await ledgerRepo.clearTxns();
+      await resetLocalMembers();
+    };
 
-        // 純本機模式（沒設定 Google）：只記下帳本 id
-        // 用邀請連結加入的人：這台裝置之後記帳都記成「妻」
-        if (!cloud) {
-          void forgetOldLedger()
-            .then(() => Promise.all([setJoinedSid(sid), setSelfPerson('妻')]))
-            .then(goHome);
-          return;
+    // 純本機模式（沒設定 Google）：只記下帳本 id
+    // 用邀請連結加入的人：這台裝置之後記帳都記成「妻」
+    if (!cloud) {
+      void forgetOldLedger()
+        .then(() => Promise.all([setJoinedSid(sid), setSelfPerson('妻')]))
+        .then(goHome);
+      return;
+    }
+
+    setError(null);
+    setBusy(true);
+    // 已連線就不再叫視窗；沒連線時 connect 要在這個點擊事件裡同步呼叫
+    const ready = cloud.tokens.isConnected() ? Promise.resolve() : cloud.tokens.connect();
+    ready
+      .then(async () => {
+        const account: Account = await cloud.client.aboutUser();
+        // 已經接著別本帳的走原本的切換流程（先提醒、加入成功才清掉）；沒接著又有帳就先問
+        if (!switching) {
+          const plan = planJoin({ account, lastAccount: await lastAccount(), inviteSid: sid, local: await localFacts() });
+          if (plan.kind === 'ask') { setAsk(plan); return; }
         }
+        const r = await joinLedger(cloud.client, sid, cloud.env, {
+          replaceCategories: (cs) => ledgerRepo.replaceCategories(cs),
+          setJoinedSid: async (id) => { await forgetOldLedger(); await setJoinedSid(id); },
+        });
+        const msg = joinOutcomeText(r);
+        if (msg) { setError(msg); return; }
+        // 記成「妻」，順便記下帳號、離開本機模式
+        await finishLink(account, sid, '妻');
+        goHome();
+      })
+      .catch((e) => setError(signInErrorText(e)))
+      .finally(() => setBusy(false));
+  };
 
-        setError(null);
-        setBusy(true);
-        // 已連線就不再叫視窗；沒連線時 connect 要在這個點擊事件裡同步呼叫
-        const ready = cloud.tokens.isConnected() ? Promise.resolve() : cloud.tokens.connect();
-        ready
-          .then(() => joinLedger(cloud.client, sid, cloud.env, {
-            replaceCategories: (cs) => ledgerRepo.replaceCategories(cs),
-            setJoinedSid: async (id) => { await forgetOldLedger(); await setJoinedSid(id); },
-          }))
-          .then((r) => {
-            const msg = joinOutcomeText(r);
-            if (msg) setError(msg);
-            else void setSelfPerson('妻').then(goHome);
-          })
-          .catch((e) => setError(connectErrorText(e)))
-          .finally(() => setBusy(false));
-      }}
-      onBrowse={() => setState({ kind: 'browsing' })}
-      onHome={goHome}
-    />
+  return (
+    <>
+      <JoinPage
+        state={state}
+        busy={busy}
+        error={ask ? null : error}
+        onJoin={join}
+        onBrowse={() => setState({ kind: 'browsing' })}
+        onHome={goHome}
+      />
+      {ask && cloud && (
+        <AccountSwitchDialog
+          plan={ask}
+          busy={busy}
+          error={error}
+          onChoose={(c) => {
+            setError(null);
+            setBusy(true);
+            resolveAsk(ask, c, { client: cloud.client, tokens: cloud.tokens, env: cloud.env })
+              .then((r) => { setAsk(null); if (r.kind === 'linked') goHome(); })
+              .catch((e) => setError(signInErrorText(e)))
+              .finally(() => setBusy(false));
+          }}
+        />
+      )}
+    </>
   );
 }
 
-function Shell({ cloud }: { cloud: Cloud | null }) {
+/** Gate 交給 Shell 的帳號操作（有設定 Google 時才有） */
+type ShellAccount = {
+  email: string | null;
+  busy: boolean;
+  error: string | null;
+  /** 在點擊事件裡呼叫：會同步叫出 Google 視窗 */
+  onSignIn(): void;
+  /** 登出完成、本機已經是本機模式之後通知外層 */
+  onSignedOut(): void;
+  /** 這個功能上線前就登入的手機第一次連上 Google 時補記到帳號 */
+  onAccountKnown(a: Account): void;
+};
+
+function Shell({ cloud, sid, account }: { cloud: Cloud | null; sid: string | null; account?: ShellAccount }) {
   const ready = useLedger((s) => s.ready);
   const tab = useLedger((s) => s.tab);
   const members = useLedger((s) => s.members);
@@ -247,6 +323,9 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
   const [partnerToast, setPartnerToast] = useState<{ key: number; text: string } | null>(null);
   const clearPartnerToast = useCallback(() => setPartnerToast(null), []);
   const syncRef = useRef<SyncController | null>(null);
+  // account 每次重繪都是新物件；放進 effect 的依賴會讓同步一直重啟，所以經由 ref 讀
+  const accountRef = useRef(account);
+  accountRef.current = account;
 
   // 本機改了帳：請同步控制器稍等一下（合併連續幾筆）再推上去
   const pushSoon = useCallback(() => { syncRef.current?.requestPush(); }, []);
@@ -301,7 +380,9 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
     // 距離過期剩這麼久就開始找機會換新的 token
     const RENEW_BEFORE_MS = 10 * 60_000;
     if (!cloud) return;
-    let sidNow: string | null = null;
+    // 本機模式：沒有帳本可以同步，狀態寫「只存在這台手機」，點它就登入
+    if (!sid) { useLedger.getState().setSyncState('local'); return; }
+    const sidNow = sid;
     let stop = () => {};
     let alive = true;
     let arrivals = createArrivalWatcher([]);
@@ -330,18 +411,25 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
     });
     syncRef.current = ctl;
 
-    void joinedSid().then(async (v) => {
-      if (!alive) return;
-      sidNow = v;
+    void (async () => {
       // 升到逐一合併分類的版本時跑一次：受邀者之前改的分類第一次合併時以本機為準（見 migrateCategorySync）
       await migrateCategorySync();
       // 打開 App 時本機已經有的紀錄不算對方新記的
       arrivals = createArrivalWatcher((await ledgerRepo.allTxnsForSync()).map((t) => t.id));
       if (!alive) return;
       stop = ctl.start();
-    });
+    })();
+    // 這個功能上線前就登入的手機沒記過帳號：第一次連上時補記，之後換帳號登入才比得出來
+    const noteAccount = () => {
+      void recordAccountIfMissing(cloud.client).then((a) => { if (a) accountRef.current?.onAccountKnown(a); });
+    };
+    if (cloud.tokens.isConnected()) noteAccount();
     // 使用者點「連線 Google」成功後立刻補同步，不必等下一次輪詢
-    const unsubscribe = cloud.tokens.subscribe((connected) => { if (connected) void ctl.syncNow(); });
+    const unsubscribe = cloud.tokens.subscribe((connected) => {
+      if (!connected) return;
+      void ctl.syncNow();
+      noteAccount();
+    });
 
     /*
      * token 約一小時就過期（token model 沒有 refresh token，見 auth/gis.ts 開頭）。
@@ -374,14 +462,15 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
       window.removeEventListener('pointerdown', renew, { capture: true });
       syncRef.current = null;
     };
-  }, [cloud]);
+  }, [cloud, sid]);
 
-  // 點同步狀態：連著就立刻同步；token 過期就在這個點擊裡叫出 Google 視窗
+  // 點同步狀態：本機模式就是登入；連著就立刻同步；token 過期就在這個點擊裡叫出 Google 視窗
   const retrySync = useCallback(() => {
     if (!cloud) return;
+    if (!sid) { accountRef.current?.onSignIn(); return; }
     if (cloud.tokens.isConnected()) { void syncRef.current?.syncNow(); return; }
     cloud.tokens.connect().catch(() => useLedger.getState().setSyncState('needs-auth'));
-  }, [cloud]);
+  }, [cloud, sid]);
 
   // 邀請面板：把帳本分享給她的 Google 帳號（Drive 權限：可編輯）
   const shareWithHer = useCallback((email: string): Promise<void> => {
@@ -411,6 +500,14 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
     pushSoon();
   }, [cloud, pushSoon]);
 
+  // 登出：先同步、記下這本帳，回到本機模式；帳留在手機上
+  const signOutHere = useCallback(async (): Promise<void> => {
+    if (!cloud) return;
+    await signOut({ tokens: cloud.tokens, syncNow: () => syncRef.current?.syncNow() ?? Promise.resolve() });
+    await useLedger.getState().load();
+    accountRef.current?.onSignedOut();
+  }, [cloud]);
+
   // 受邀者：本機記的先顯示；連上 Google 後問雲端這本帳共用給了誰，換手機也對得上
   useEffect(() => {
     let alive = true;
@@ -432,7 +529,7 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
     void refresh();
     const unsubscribe = cloud ? cloud.tokens.subscribe((connected) => { if (connected) void refresh(); }) : () => {};
     return () => { alive = false; unsubscribe(); };
-  }, [cloud]);
+  }, [cloud, sid]);
 
   return (
     <div className={styles.shell} data-testid="app-root">
@@ -456,10 +553,12 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
         {ready && tab === 'settings' && (
           <SettingsScreen
             onInvite={() => {
+              // 本機模式沒有帳本可以分享：先登入（在這個點擊裡叫出 Google 視窗）
+              if (cloud && !sid) { accountRef.current?.onSignIn(); return; }
               void Promise.all([joinedSid(), ledgerRepo.getMeta<string>(SHARED_WITH_KEY)])
-                .then(async ([sid, shared]) => {
+                .then(async ([s, shared]) => {
                   setInvite({
-                    url: sid ? await buildInviteUrl(appRoot(location.origin), sid) : null,
+                    url: s ? await buildInviteUrl(appRoot(location.origin), s) : null,
                     sharedWith: shared ?? null,
                   });
                 });
@@ -470,7 +569,16 @@ function Shell({ cloud }: { cloud: Cloud | null }) {
             onMembersChanged={pushSoon}
             onCategoriesChanged={pushSoon}
             invitee={invitee}
-            {...(cloud ? { onRemoveInvitee: removeInvitee } : {})}
+            {...(cloud && sid ? { onRemoveInvitee: removeInvitee } : {})}
+            {...(cloud && account ? {
+              account: {
+                email: account.email,
+                busy: account.busy,
+                error: account.error,
+                onSignIn: account.onSignIn,
+                onSignOut: signOutHere,
+              },
+            } : {})}
           />
         )}
       </div>
