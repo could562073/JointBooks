@@ -40,7 +40,7 @@ export function remapToLedger(
   for (const l of local) {
     const r = remoteByKey.get(nameKey(l.kind, l.name));
     if (!r) {
-      if (usedMain.has(l.id)) extras.push({ ...l, order: order++, updatedAt: now });
+      if (usedMain.has(l.id)) extras.push({ ...l, subs: [...l.subs], order: order++, updatedAt: now });
       continue;
     }
     mainMap.set(l.id, r.id);

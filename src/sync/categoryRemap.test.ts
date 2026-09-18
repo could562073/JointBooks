@@ -37,6 +37,8 @@ describe('remapToLedger', () => {
     const r = remapToLedger(local, remote, [txn('t1', 'L1', 'l1a')], NOW);
     expect(r.categories.map((c) => c.id)).toEqual(['R1', 'L1']);
     expect(r.categories[1]).toMatchObject({ order: 5, updatedAt: NOW });
+    expect(r.categories[1]!.subs).not.toBe(local[0]!.subs);
+    expect(r.categories[1]!.subs).toEqual(local[0]!.subs);
   });
 
   it('對到的主分類底下，雲端沒有、又有帳在用的子分類加進去，那個分類的修改時間跟著更新', () => {
