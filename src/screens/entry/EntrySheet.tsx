@@ -338,7 +338,10 @@ export function EntrySheet({
           />
         </label>
 
-        <Keypad onKey={key} onSave={save} canSave={saveable} />
+        {/* 鍵盤底座：面板裝不下時貼在面板底部，上面的內容從後面捲過去（見 .dock） */}
+        <div className={styles.dock} data-testid="entry-dock">
+          <Keypad onKey={key} onSave={save} canSave={saveable} />
+        </div>
       </div>
 
       {confirming && txn && (

@@ -167,4 +167,30 @@ test.describe('記一筆面板（§5、MOTION #1–#4 #35–#38）', () => {
     await page.getByTestId('open-categories').click();
     await expect(page.getByTestId('categories-page').locator('li[data-testid^="cat-"]').first()).toContainText('寵物');
   });
+
+  test('畫面比面板矮時，鍵盤固定在底部一直看得到；捲到最底，備註欄不會被鍵盤蓋住', async ({ page }) => {
+    // 使用者回報：iPhone 15 Pro Max 開「顯示放大：較大文字」後可用高度只剩約 765，0 那排被捲到畫面外
+    await page.setViewportSize({ width: 375, height: 700 });
+    await openSheet(page);
+    const sheet = page.getByTestId('entry-sheet');
+    // 前提：內容真的比面板高，面板要捲
+    expect(await sheet.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
+
+    const vh = page.viewportSize()!.height;
+    const inView = async (testId: string) => {
+      const b = (await page.getByTestId(testId).boundingBox())!;
+      return b.y >= 0 && b.y + b.height <= vh;
+    };
+    // 還沒捲：最後一排（0）與儲存鍵都在畫面內
+    expect(await inView('key-0')).toBe(true);
+    expect(await inView('key-save')).toBe(true);
+
+    // 捲到最底：鍵盤還在原地，備註欄整個露在鍵盤上面
+    await sheet.evaluate((el) => { el.scrollTop = el.scrollHeight; });
+    await settle(page);
+    expect(await inView('key-0')).toBe(true);
+    const note = (await page.getByTestId('entry-note').boundingBox())!;
+    const pad = (await page.getByTestId('keypad').boundingBox())!;
+    expect(note.y + note.height).toBeLessThanOrEqual(pad.y);
+  });
 });

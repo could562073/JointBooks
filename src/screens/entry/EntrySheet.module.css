@@ -22,8 +22,8 @@
 }
 
 /*
- * 原型：整片面板一起捲，不是只捲中段。分類一直展開後內容比畫面高，
- * 小螢幕（iPhone SE）靠這裡捲到鍵盤。
+ * 原型：整片面板一起捲，不是只捲中段。分類一直展開後內容比畫面高時要捲，
+ * 但鍵盤固定在底部（.dock），捲的是它上面的內容。
  */
 .sheet {
   width: 100%;
@@ -32,7 +32,8 @@
   overscroll-behavior: contain;
   background: var(--c-bg);
   border-radius: 30px 30px 0 0;
-  padding: 0 16px calc(26px + env(safe-area-inset-bottom));
+  /* 底部留白在 .dock 裡：它貼在面板底部時，留白要跟著鍵盤走 */
+  padding: 0 16px;
   /* 面板浮在遮罩上，這一條是原型刻意的模糊陰影，跟卡片的實體陰影不同 */
   box-shadow: 0 -10px 30px rgba(74, 63, 54, .2);
   will-change: transform;
@@ -50,6 +51,21 @@
 @keyframes sheetOut {
   from { transform: none; }
   to   { transform: translateY(100%); }
+}
+
+/*
+ * 鍵盤底座。面板裝不下時（iPhone SE；使用者回報 15 Pro Max 開「顯示放大：較大文字」後
+ * 可用高度比 iPhone 13 還矮，0 那排被捲到畫面外）貼在面板底部，一直看得到；
+ * 裝得下時就在原位，外觀不變。底色蓋住從後面捲過去的內容；flow-root 讓鍵盤的
+ * margin-top 留在底座裡，那段空隙也有底色。
+ */
+.dock {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  display: flow-root;
+  background: var(--c-bg);
+  padding-bottom: calc(26px + env(safe-area-inset-bottom));
 }
 
 .handle {
