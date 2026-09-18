@@ -104,6 +104,17 @@ export function createSheetsClient(deps: SheetsClientDeps) {
     },
 
     /**
+     * 目前登入的 Google 帳號。換帳號登入時用 permissionId 比對（不會變），信箱只拿來顯示。
+     * drive.file 權限就讀得到，不必多要權限
+     */
+    async aboutUser(): Promise<{ id: string; email: string }> {
+      const params = new URLSearchParams({ fields: 'user(emailAddress,permissionId)' });
+      const r = await call<{ user?: { emailAddress?: string; permissionId?: string } }>(`${DRIVE}/about?${params}`);
+      if (!r.user?.permissionId) throw new Error('no_account');
+      return { id: r.user.permissionId, email: r.user.emailAddress ?? '' };
+    },
+
+    /**
      * 找這個使用者雲端硬碟裡、這個 App 建過的帳本（名稱是其中之一的試算表），最近改過的在前。
      * 傳多個名稱是為了連改名前建的帳本一起找到。
      * drive.file 權限只看得到這個 App 自己建或開過的檔案，剛好就是要找的範圍。
