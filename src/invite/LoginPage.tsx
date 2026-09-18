@@ -13,6 +13,8 @@ type Props = {
    * 點開連結、再加到主畫面之後，主畫面上的 App 不會知道那條連結，所以要能在這裡貼上。
    */
   onJoinLink?(link: string): void;
+  /** 不登入也能用：帳只存在這台手機，之後可以在配置頁登入（使用者要求） */
+  onUseLocally?(): void;
 };
 
 /**
@@ -23,7 +25,7 @@ type Props = {
  *     免得對方已經建好、自己又建一本，變成兩本分開的帳。
  *   - 我收到了邀請連結：貼上連結加入別人的帳本。
  */
-export function LoginPage({ onSignIn, disabled = false, busy = false, error = null, onJoinLink }: Props) {
+export function LoginPage({ onSignIn, disabled = false, busy = false, error = null, onJoinLink, onUseLocally }: Props) {
   const [joining, setJoining] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [link, setLink] = useState('');
@@ -94,6 +96,18 @@ export function LoginPage({ onSignIn, disabled = false, busy = false, error = nu
         <p className={styles.scope} data-testid="login-scope">
           會請你授權讀寫 Google 試算表，用來存放與同步這本帳
         </p>
+
+        {onUseLocally && !(confirming && !busy) && (
+          <>
+            <button
+              type="button" className={styles.localBtn} onClick={onUseLocally}
+              disabled={busy} data-testid="login-local"
+            >先不登入，直接使用</button>
+            <p className={styles.localHint} data-testid="login-local-hint">
+              帳只存在這台手機，之後可以在配置頁登入
+            </p>
+          </>
+        )}
 
         {error && <p className={styles.error} role="alert" data-testid="login-error">{error}</p>}
 
