@@ -100,6 +100,7 @@ describe('connectErrorText', () => {
   it('把 Google 的錯誤代碼翻成白話', () => {
     expect(connectErrorText(new Error('popup_failed_to_open'))).toContain('彈出視窗');
     expect(connectErrorText(new Error('scopes_not_granted'))).toContain('勾選所有權限');
+    expect(connectErrorText(new Error('no_refresh_token'))).toContain('與第三方應用程式和服務的連結');
     expect(connectErrorText(new Error('weird'))).toBe('連線失敗：weird');
   });
 });

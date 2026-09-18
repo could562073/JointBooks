@@ -84,6 +84,7 @@ export function connectErrorText(e: unknown): string {
     case 'popup_closed': return '登入視窗被關掉了，再按一次就好。';
     case 'access_denied': return '沒有完成 Google 授權。';
     case 'scopes_not_granted': return '請勾選所有權限，帳本才能存到 Google 試算表。';
+    case 'no_refresh_token': return 'Google 這次沒有給續期憑證。請到 Google 帳號 →「安全性」→「與第三方應用程式和服務的連結」移除這個 App，再登入一次。';
     case 'gis_load_failed': return '連不到 Google 登入服務，請確認網路後再試一次。';
     default: return `連線失敗：${m}`;
   }

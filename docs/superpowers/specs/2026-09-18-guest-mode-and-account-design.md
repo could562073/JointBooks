@@ -1,6 +1,6 @@
 # 不登入使用，與配置頁的登入／登出
 
-日期：2026-09-18。狀態：已實作（計畫見 `docs/superpowers/plans/2026-09-18-guest-mode-and-account.md`）。實作時的調整：登出與取消登入都不撤銷 Google 的授權，`TokenProvider.disconnect()` 在兩種登入方式都只清掉這台手機的通行證；登出失敗時確認框留著並說明。
+日期：2026-09-18。狀態：已實作（計畫見 `docs/superpowers/plans/2026-09-18-guest-mode-and-account.md`）。實作時的調整：登出與取消登入會撤銷 Google 的授權（授權碼流程只有同意時才發續期憑證，不撤銷的話下次登入會失敗），之後再登入會重新顯示同意畫面；登出失敗時確認框留著並說明。
 
 ## 目標
 
@@ -95,7 +95,7 @@ function planSignIn(f: SignInFacts): SignInPlan
 ### 4. 登出：`sync/account.ts` 的 `signOut(deps)`
 
 1. 試著同步一次（最多等 5 秒，失敗不擋）。
-2. `tokens.disconnect()`：清掉這台手機上的 Google 通行證與續期憑證。不撤銷 Google 那邊的授權，所以之後再登入很快。
+2. `tokens.disconnect()`：清掉這台手機上的 Google 通行證與續期憑證，並撤銷 Google 那邊的授權。授權碼流程只有同意畫面才發續期憑證，所以之後再登入會重新顯示同意畫面。
 3. 寫 `lastLedger = { sid, self }`、清 `spreadsheetId`、寫 `localMode`。
 4. 畫面切到本機模式；手機上的帳、分類、成員名稱都留著。
 
@@ -138,5 +138,4 @@ function planSignIn(f: SignInFacts): SignInPlan
 ## 不在這次範圍
 
 - Google 品牌驗證、自訂網域。
-- 登出時撤銷 Google 授權。
 - 三人以上共用。

@@ -127,3 +127,49 @@ describe('用登入端點的授權碼流程', () => {
     expect(code.calls.map((c) => c.selectAccount)).toEqual([false, true]);
   });
 });
+
+describe('登出：撤銷 Google 的授權', () => {
+  it('登入成功後登出：用現有的 access token 撤銷，並清掉本機狀態', async () => {
+    const revoke = vi.fn((_t: string, done: () => void) => done());
+    const code = fakeCodeApi({ code: 'the-code', scope: SCOPE });
+    const api = { ...code.api, revoke };
+    const proxy = fakeProxy([OK_EXCHANGE]);
+    const { p, store } = provider({ load: async () => api, fetchImpl: proxy.fetchImpl });
+
+    await p.connect();
+    await p.disconnect();
+
+    expect(revoke).toHaveBeenCalledWith('at', expect.any(Function));
+    expect(p.isConnected()).toBe(false);
+    expect(store.map.has(PROXY_TOKEN_KEY)).toBe(false);
+  });
+
+  it('存的 access token 已過期：先打 /auth/refresh 換新的，再撤銷新的', async () => {
+    const revoke = vi.fn((_t: string, done: () => void) => done());
+    const code = fakeCodeApi({ code: 'x', scope: SCOPE });
+    const api = { ...code.api, revoke };
+    const saved = JSON.stringify({ refreshToken: 'rt', accessToken: 'old', expiresAt: 0, scope: SCOPE });
+    const proxy = fakeProxy([{ status: 200, body: { access_token: 'fresh', expires_in: 3599, scope: SCOPE } }]);
+    const { p } = provider({
+      store: memoryStore({ [PROXY_TOKEN_KEY]: saved }), load: async () => api, fetchImpl: proxy.fetchImpl, now: () => 0,
+    });
+
+    await p.disconnect();
+
+    expect(proxy.sent[0]).toEqual({ path: '/auth/refresh', body: { refresh_token: 'rt' } });
+    expect(revoke).toHaveBeenCalledWith('fresh', expect.any(Function));
+  });
+
+  it('撤銷或續期失敗（例如離線）：disconnect 仍然完成，本機狀態已經清掉', async () => {
+    const code = fakeCodeApi({ code: 'x', scope: SCOPE });
+    const api = { ...code.api, revoke: vi.fn(() => { throw new Error('offline'); }) };
+    const proxy = fakeProxy([OK_EXCHANGE]);
+    const { p, store } = provider({ load: async () => api, fetchImpl: proxy.fetchImpl });
+
+    await p.connect();
+    await expect(p.disconnect()).resolves.toBeUndefined();
+
+    expect(p.isConnected()).toBe(false);
+    expect(store.map.has(PROXY_TOKEN_KEY)).toBe(false);
+  });
+});

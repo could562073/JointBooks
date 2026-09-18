@@ -242,7 +242,7 @@ export async function resolveAsk(
 
 /**
  * 登出：帳留在手機上變回本機模式，同一個帳號再登入時接回這一本。
- * 不撤銷 Google 那邊的授權，只清掉這台手機上的通行證與續期憑證，之後再登入比較快。
+ * 清掉這台手機上的通行證並撤銷 Google 的授權：授權碼流程只有顯示同意畫面時才發續期憑證，不撤銷的話下次登入會失敗。
  */
 export async function signOut(d: {
   tokens: Pick<TokenProvider, 'disconnect'>;

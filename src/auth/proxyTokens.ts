@@ -161,9 +161,24 @@ export function createProxyTokenProvider(opts: {
     isConnected,
 
     async disconnect() {
+      const saved = current;
       current = null;
       write();
       emit();
+      if (!saved) return;
+      // 撤銷 Google 的授權：授權碼流程只有顯示同意畫面時才發 refresh token，
+      // 只清本機的話下次登入拿不到，登入會失敗（no_refresh_token）
+      try {
+        let token = saved.accessToken;
+        if (!tokenUsable(saved.expiresAt, now()) && saved.refreshToken) {
+          token = (await call('/auth/refresh', { refresh_token: saved.refreshToken })).access_token!;
+        }
+        if (!token) return;
+        const a = api ?? (api = await load());
+        await new Promise<void>((done) => a.revoke(token, done));
+      } catch {
+        // 離線等原因撤銷不了：本機已經清掉；下次登入若拿不到續期憑證，錯誤訊息會教使用者到 Google 帳號移除授權
+      }
     },
 
     subscribe(listener) {
