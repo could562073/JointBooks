@@ -1,6 +1,6 @@
 # 不登入使用，與配置頁的登入／登出
 
-日期：2026-09-18。狀態：使用流程已由使用者確認，技術設計待確認。
+日期：2026-09-18。狀態：使用者已確認，實作計畫見 `docs/superpowers/plans/2026-09-18-guest-mode-and-account.md`。
 
 ## 目標
 
@@ -65,7 +65,7 @@ type SignInPlan =
   | { kind: 'rejoin'; sid: string; self: Person }   // 同帳號接回上次那本
   | { kind: 'attach'; sid: string }                 // 接上自己的帳本，手機上沒帳
   | { kind: 'create' }                              // 開新帳本，手機上的帳帶過去（或本來就沒帳）
-  | { kind: 'ask'; from: string | null; to: string; target: string | null; canMerge: boolean };
+  | { kind: 'ask'; from: string | null; to: string; target: string | null; self: Person; count: number; canMerge: boolean; account: Account };
 
 function planSignIn(f: SignInFacts): SignInPlan
 ```
@@ -74,7 +74,7 @@ function planSignIn(f: SignInFacts): SignInPlan
 
 1. 同帳號（`lastAccount.id === account.id`）而且有 `lastLedger` → `rejoin`。
 2. 手機上沒帳 → 有 `ownLedger` 就 `attach`，沒有就 `create`。
-3. 沒有 `ownLedger`，而且（沒有 `lastAccount`，或 `lastAccount` 就是這個帳號）→ `create`。
+3. 沒有 `ownLedger`，而且（沒有 `lastAccount`，或 `lastAccount` 就是這個帳號），而且手機上的帳是同一個人記的 → `create`（帳改算成「我」）。
 4. 其他 → `ask`，`target` 是 `ownLedger`（可能是 null，代表會開新帳本），`canMerge = local.people.size <= 1`。
 
 `rejoin` 實際去接時，如果讀不到那本帳（對方取消共用、帳本被刪），就把 `lastLedger` 當作沒有，重新跑一次 `planSignIn`。
@@ -82,7 +82,7 @@ function planSignIn(f: SignInFacts): SignInPlan
 ### 3. 確認視窗的三個選擇怎麼執行
 
 - **合併**：
-  1. 目標是既有帳本：讀它的分類。手機上的分類依「收支類型＋名稱」對應到雲端的分類（主分類對主分類、子分類在對應到的主分類底下再用名稱對），對得上的就把手機上的帳改指向雲端分類的 id，對不上的分類保留、推上去成為新分類。
+  1. 目標是既有帳本：讀它的分類。手機上的分類依「收支類型＋名稱」對應到雲端的分類（主分類對主分類、子分類在對應到的主分類底下再用名稱對），對得上的就把手機上的帳改指向雲端分類的 id，對不上的分類只帶有帳在用的（沒用到的預設分類不塞進對方的帳本），推上去成為新分類；子分類同理。
   2. 手機上的帳全部改成目標帳本裡自己的身分（建立者是「我」，加入者是「妻」）。只在 `canMerge` 時才會走到這裡，所以不會把兩個人的帳混成一個人。
   3. 成員名稱與饅頭顏色以目標帳本為準：清掉本機「待推」的標記，讓同步拉雲端的下來，不拿手機上的蓋過去。
   4. 接上帳本，同步引擎照常把雲端沒有的帳推上去（現有的 `mergeTxns` 本來就會補推）。
