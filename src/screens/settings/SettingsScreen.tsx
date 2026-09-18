@@ -33,7 +33,78 @@ type Props = {
   onRemoveInvitee?(): Promise<void>;
   /** 改了分類或預算：要求同步推上雲端，對方才看得到 */
   onCategoriesChanged?(): void;
+  /**
+   * 帳號區，有設定 Google 時才有。email 是 null＝本機模式，帳只存在這台手機。
+   * onSignIn 要在點擊事件裡同步呼叫 connect，Google 視窗才不會被擋
+   */
+  account?: AccountSection;
 };
+
+export type AccountSection = {
+  email: string | null;
+  /** 正在連線 Google 或接上帳本 */
+  busy?: boolean;
+  error?: string | null;
+  onSignIn(): void;
+  onSignOut(): Promise<void>;
+};
+
+/**
+ * 登入／登出（使用者要求：不登入也能用，之後想同步再登入；登入的人也能登出）。
+ * 登出後帳留在這台手機、變回本機模式，同一個帳號再登入就接回這本帳。
+ */
+function AccountCard({ email, busy = false, error = null, onSignIn, onSignOut }: AccountSection) {
+  const [confirming, setConfirming] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+
+  function signOut() {
+    setLeaving(true);
+    void onSignOut().finally(() => { setLeaving(false); setConfirming(false); });
+  }
+
+  return (
+    <div className={styles.card} data-testid="account-section">
+      <div className={styles.accountRow}>
+        <div className={styles.memberText}>
+          <span className={styles.memberName} data-testid="account-email">{email ?? '未登入'}</span>
+          <span className={styles.rowSub}>{email ? '帳會同步到你的 Google 試算表' : '帳只存在這台手機'}</span>
+        </div>
+        {!confirming && (email ? (
+          <button
+            type="button" className={styles.accountBtn}
+            onClick={() => setConfirming(true)} data-testid="account-sign-out"
+          >登出</button>
+        ) : (
+          <button
+            type="button" className={styles.accountBtn}
+            onClick={onSignIn} disabled={busy} data-testid="account-sign-in"
+          >{busy ? '連線中…' : '登入 Google'}</button>
+        ))}
+      </div>
+
+      {confirming && (
+        <div className={styles.confirmBox} role="group" aria-label="登出" data-testid="account-sign-out-confirm">
+          <p className={styles.confirmText}>
+            登出後帳會留在這台手機，但不再同步，對方新記的帳也看不到。之後用同一個帳號登入就會接回這本帳。
+          </p>
+          <div className={styles.manageRow}>
+            <button
+              type="button" className={`${styles.manageBtn} ${styles.danger}`}
+              onClick={signOut} disabled={leaving} data-testid="account-sign-out-go"
+            >{leaving ? '登出中…' : '確定登出'}</button>
+            <button
+              type="button" className={styles.manageBtn}
+              onClick={() => setConfirming(false)} disabled={leaving} data-testid="account-sign-out-cancel"
+            >取消</button>
+          </div>
+        </div>
+      )}
+
+      {!email && <p className={styles.accountHint}>登入後帳會存進你的 Google 試算表，才能跟對方共用。</p>}
+      {error && <p className={styles.manageError} role="alert" data-testid="account-error">{error}</p>}
+    </div>
+  );
+}
 
 type MemberManageProps = {
   email: string;
@@ -200,7 +271,7 @@ function MemberManage({ email, onResendLink, onRemove, testId }: MemberManagePro
  */
 export function SettingsScreen({
   onInvite, syncState, lastSyncAt, onRetrySync, onMembersChanged, invitee = null, onRemoveInvitee,
-  onCategoriesChanged,
+  onCategoriesChanged, account,
 }: Props) {
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   // 按 ‹ 返回時自己退掉那一格歷史紀錄，這次 popstate 不用再關一次
@@ -305,8 +376,15 @@ export function SettingsScreen({
           <p className={styles.pageTitleSub}>budgets &amp; categories</p>
         </div>
 
+        {account && (
+          <section className={styles.section}>
+            <h2 className={styles.titleFirst}>帳號</h2>
+            <AccountCard {...account} />
+          </section>
+        )}
+
         <section className={styles.section}>
-          <h2 className={styles.titleFirst}>帳本成員</h2>
+          <h2 className={account ? styles.title : styles.titleFirst}>帳本成員</h2>
 
           <div className={styles.card}>
             {/*
@@ -341,7 +419,7 @@ export function SettingsScreen({
                 data-testid="invite-member"
               >
                 <span className={styles.inviteLabel}>邀請成員</span>
-                <span className={styles.inviteHint}>分享連結 ›</span>
+                <span className={styles.inviteHint}>{account && !account.email ? '先登入 ›' : '分享連結 ›'}</span>
               </button>
             )}
           </div>
