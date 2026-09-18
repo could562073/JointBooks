@@ -61,3 +61,14 @@ describe('SyncStatus 的圓環（MOTION #26）', () => {
     expect(screen.getByTestId('sync-dot').className.split(' ')).toHaveLength(1);
   });
 });
+
+describe('SyncStatus 的本機模式', () => {
+  it('點一下就是登入', () => {
+    stubMotion(false);
+    const onRetry = vi.fn();
+    render(<SyncStatus state="local" lastSyncAt={null} onRetry={onRetry} />);
+    fireEvent.click(screen.getByTestId('sync-status'));
+    expect(onRetry).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('sync-text')).toHaveTextContent('只存在這台手機');
+  });
+});

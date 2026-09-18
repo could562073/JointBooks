@@ -28,6 +28,7 @@ export function syncLabel(state: SyncState, lastSyncAt: number | null, now?: num
     case 'offline': return '離線 · 已存在這支手機';
     case 'error': return '同步失敗 · 稍後重試';
     case 'needs-auth': return '點一下連線 Google';
+    case 'local': return '只存在這台手機';
     // 從來沒同步過就不要說「已同步」——那兩件事同時講出來是自相矛盾的
     default: return lastSyncAt === null ? '尚未同步' : `已同步 · ${agoLabel(lastSyncAt, now)}`;
   }

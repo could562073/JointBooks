@@ -2,8 +2,9 @@
 /**
  * needs-auth：Google 的 access token 過期了，要使用者點一下重新連線。
  * 它不是 error——token model 沒有 refresh token，過期是常態，亮紅燈會讓人以為壞了。
+ * local：沒接上雲端帳本（使用者選了不登入或登出了），帳只存在這台手機；點一下就是登入。
  */
-export type SyncState = 'idle' | 'syncing' | 'synced' | 'offline' | 'error' | 'needs-auth';
+export type SyncState = 'idle' | 'syncing' | 'synced' | 'offline' | 'error' | 'needs-auth' | 'local';
 
 export type SyncEvent =
   | { type: 'start' }

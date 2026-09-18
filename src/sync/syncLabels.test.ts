@@ -47,3 +47,10 @@ describe('syncLabel', () => {
     expect(syncLabel('idle', ago(300), NOW)).toBe('已同步 · 5 分鐘前');
   });
 });
+
+describe('本機模式', () => {
+  it('寫「只存在這台手機」，不管有沒有同步過', () => {
+    expect(syncLabel('local', null)).toBe('只存在這台手機');
+    expect(syncLabel('local', Date.now())).toBe('只存在這台手機');
+  });
+});

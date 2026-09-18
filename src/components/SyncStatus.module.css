@@ -24,7 +24,8 @@
   background: var(--c-sync);
 }
 
-.dot[data-state="offline"] { background: var(--c-text-4); }
+.dot[data-state="offline"],
+.dot[data-state="local"]   { background: var(--c-text-4); }
 .dot[data-state="error"]   { background: var(--c-expense); }
 
 /* MOTION #26：同步中換成 1.5px 圓環 spin 900ms linear 無限 */
@@ -61,4 +62,5 @@
 }
 
 .textPill[data-state="offline"],
+.textPill[data-state="local"],
 .textPill[data-state="error"] { color: var(--c-text-3); }
