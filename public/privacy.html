@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#FFF6EC" />
+    <title>隱私權政策 · 饅頭記帳</title>
+    <link rel="icon" href="icons/icon-192.png" />
+    <!--
+      Google 同意畫面切換成正式版時必填的隱私權政策網址（使用者要求，2026-09-18）。
+      靜態頁、不經過 App：從 public/ 原樣複製到建置結果，網址是 /JointBooks/privacy.html。
+      內容要跟程式實際行為一致：權限範圍見 src/auth/gis.ts 的 SCOPES，登入端點見 worker/。
+    -->
+    <style>
+      :root {
+        --c-bg: #FFF6EC;
+        --c-card: #FFFFFF;
+        --c-text: #4A3F36;
+        --c-text-2: rgba(74, 63, 54, .62);
+        --c-primary-deep: #6B57B8;
+        --c-tint: #EDE9FA;
+      }
+      * { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        margin: 0;
+        background: var(--c-bg);
+        color: var(--c-text);
+        font: 16px/1.75 -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      }
+      main {
+        max-width: 680px;
+        margin: 0 auto;
+        padding: calc(32px + env(safe-area-inset-top, 0px)) 16px calc(48px + env(safe-area-inset-bottom, 0px));
+      }
+      h1 { font-size: 26px; line-height: 1.3; margin: 0 0 4px; }
+      .date { color: var(--c-text-2); margin: 0 0 24px; font-size: 14px; }
+      section {
+        background: var(--c-card);
+        border-radius: 18px;
+        padding: 18px 20px;
+        margin: 0 0 14px;
+      }
+      h2 { font-size: 18px; margin: 0 0 8px; color: var(--c-primary-deep); }
+      p, ul { margin: 0 0 10px; }
+      p:last-child, ul:last-child { margin-bottom: 0; }
+      ul { padding-left: 1.2em; }
+      li { margin: 0 0 6px; }
+      code { background: var(--c-tint); border-radius: 6px; padding: 1px 6px; font-size: 14px; word-break: break-all; }
+      a { color: var(--c-primary-deep); overflow-wrap: anywhere; }
+      .note { background: var(--c-tint); }
+      .back { display: inline-block; margin-top: 10px; font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>饅頭記帳 隱私權政策</h1>
+      <p class="date">生效日期：2026 年 9 月 18 日</p>
+
+      <section>
+        <h2>這是什麼</h2>
+        <p>饅頭記帳是給兩個人一起用的記帳 App。帳本存在建立者自己的 Google 雲端硬碟裡的一份 Google 試算表，
+          App 沒有自己的資料庫，也沒有廣告或使用行為追蹤。</p>
+      </section>
+
+      <section>
+        <h2>會存取哪些 Google 資料</h2>
+        <ul>
+          <li><strong>Google 試算表</strong>（<code>spreadsheets</code>）：讀寫帳本那一份試算表，包含記帳紀錄（金額、分類、備註、日期、誰記的）、分類設定、成員名稱與顏色。
+            App 只開自己建立的帳本，或你透過邀請連結加入的那一份。</li>
+          <li><strong>本 App 建立的雲端硬碟檔案</strong>（<code>drive.file</code>）：用來建立帳本、找回自己的帳本、
+            把帳本分享給你邀請的人（以對方的 Google 帳號 email 加為編輯者），以及取消分享。這個權限看不到你雲端硬碟裡的其他檔案。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>資料存在哪裡</h2>
+        <ul>
+          <li><strong>你的 Google 雲端硬碟</strong>：帳本試算表，受你的 Google 帳號保護；被邀請的人有編輯權限。</li>
+          <li><strong>你的手機或瀏覽器</strong>：帳本的本機副本（沒網路時也能記帳）、登入用的通行證與續期憑證、App 設定。這些只存在這台裝置上。</li>
+          <li><strong>登入端點</strong>（架在 Cloudflare Workers）：只在登入和續期時，把授權碼或續期憑證轉交給 Google、再把新的通行證交回 App。
+            端點不儲存任何資料，也碰不到你的帳本內容。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>分享與傳輸</h2>
+        <p>不販售、不出租，也不提供給任何第三方。只有你主動邀請的人看得到你的帳本。所有連線都經過 HTTPS 加密。</p>
+      </section>
+
+      <section class="note">
+        <h2>Google API 有限使用聲明</h2>
+        <p>饅頭記帳使用及轉移從 Google API 取得的資訊時，將遵守
+          <a href="https://developers.google.com/terms/api-services-user-data-policy" rel="noopener">Google API 服務使用者資料政策</a>，包括其中的「有限使用」規定。</p>
+        <p lang="en">饅頭記帳's use and transfer of information received from Google APIs will adhere to the
+          <a href="https://developers.google.com/terms/api-services-user-data-policy" rel="noopener">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
+      </section>
+
+      <section>
+        <h2>撤銷授權與刪除資料</h2>
+        <ul>
+          <li><strong>撤銷授權</strong>：到 Google 帳號 →「安全性」→「與第三方應用程式和服務的連結」，移除本 App。之後 App 就無法再存取你的資料。</li>
+          <li><strong>刪除帳本</strong>：在 Google 雲端硬碟刪除帳本試算表。</li>
+          <li><strong>停止共用</strong>：帳本建立者可以在 App 的「配置」頁移除成員，對方就讀不到這本帳。</li>
+          <li><strong>清除手機上的資料</strong>：刪除主畫面上的 App，或在瀏覽器設定清除這個網站的資料。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>政策變更與聯絡方式</h2>
+        <p>這份政策有變更時會更新本頁與上方的生效日期。有任何問題，請到
+          <a href="https://github.com/could562073/JointBooks/issues" rel="noopener">GitHub 專案頁</a>留言。</p>
+      </section>
+
+      <a class="back" href="./">← 回到饅頭記帳</a>
+    </main>
+  </body>
+</html>

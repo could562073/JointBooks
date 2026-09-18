@@ -71,4 +71,16 @@ test.describe('PWA 正式建置產物', () => {
     expect(notFound.status()).toBe(200);
     expect(await notFound.text()).toBe(index);
   });
+
+  test('隱私權政策是獨立的靜態頁：Google 同意畫面填的網址打得開，而且不是 App 本身', async ({ request }) => {
+    const res = await request.get('http://localhost:4173/privacy.html');
+    expect(res.status()).toBe(200);
+    const body = await res.text();
+    expect(body).toContain('饅頭記帳 隱私權政策');
+    expect(body).toContain('Limited Use');
+    // 權限範圍寫在頁面上，要跟 App 實際請求的一致（src/auth/gis.ts 的 SCOPES）
+    expect(body).toContain('<code>spreadsheets</code>');
+    expect(body).toContain('<code>drive.file</code>');
+    expect(body).not.toContain('id="root"');
+  });
 });
