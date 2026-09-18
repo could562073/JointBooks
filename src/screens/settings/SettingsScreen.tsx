@@ -56,10 +56,16 @@ export type AccountSection = {
 function AccountCard({ email, busy = false, error = null, onSignIn, onSignOut }: AccountSection) {
   const [confirming, setConfirming] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  const [failed, setFailed] = useState<string | null>(null);
 
   function signOut() {
     setLeaving(true);
-    void onSignOut().finally(() => { setLeaving(false); setConfirming(false); });
+    setFailed(null);
+    // 失敗就留在確認框裡說明，不要當作已經登出
+    onSignOut()
+      .then(() => setConfirming(false))
+      .catch(() => setFailed('登出失敗，請再試一次。'))
+      .finally(() => setLeaving(false));
   }
 
   return (
@@ -97,6 +103,7 @@ function AccountCard({ email, busy = false, error = null, onSignIn, onSignOut }:
               onClick={() => setConfirming(false)} disabled={leaving} data-testid="account-sign-out-cancel"
             >取消</button>
           </div>
+          {failed && <p className={styles.manageError} role="alert" data-testid="account-sign-out-error">{failed}</p>}
         </div>
       )}
 

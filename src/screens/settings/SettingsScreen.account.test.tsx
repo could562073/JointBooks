@@ -68,4 +68,14 @@ describe('配置頁的帳號區', () => {
     render(<SettingsScreen {...BASE} account={account({ error: '連不到 Google，請確認網路後再試一次。' })} />);
     expect(screen.getByTestId('account-error')).toHaveTextContent('連不到 Google');
   });
+
+  it('登出失敗：留在確認框並說明，不當作已經登出', async () => {
+    const a = account({ email: 'a@gmail.com', onSignOut: vi.fn(async () => { throw new Error('boom'); }) });
+    render(<SettingsScreen {...BASE} syncState="synced" account={a} />);
+    fireEvent.click(screen.getByTestId('account-sign-out'));
+    fireEvent.click(screen.getByTestId('account-sign-out-go'));
+    await waitFor(() => expect(screen.getByTestId('account-sign-out-error')).toHaveTextContent('登出失敗'));
+    expect(screen.getByTestId('account-sign-out-confirm')).toBeInTheDocument();
+    expect(screen.getByTestId('account-sign-out-go')).not.toBeDisabled();
+  });
 });
