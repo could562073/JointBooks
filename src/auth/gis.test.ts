@@ -99,13 +99,13 @@ describe('createTokenProvider', () => {
     await pending;
   });
 
-  it('中斷連線會撤銷 token', async () => {
+  it('中斷連線只忘掉這台裝置的 token，不撤銷 Google 的授權', async () => {
     const { api, revoke } = fakeApi(OK);
     const p = createTokenProvider({ clientId: 'cid', load: async () => api, now: () => 0 });
     await p.preload();
     await p.connect();
     await p.disconnect();
-    expect(revoke).toHaveBeenCalledWith('tok-1', expect.any(Function));
+    expect(revoke).not.toHaveBeenCalled();
     expect(p.isConnected()).toBe(false);
   });
 });

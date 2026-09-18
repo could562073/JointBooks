@@ -187,6 +187,7 @@ export type TokenProvider = {
   /** 取可用的 token；沒有或快過期就丟 NeedsConnectError */
   token(): Promise<string>;
   isConnected(): boolean;
+  /** 忘掉這台裝置上的通行證（登出、取消登入）。不撤銷 Google 那邊的授權：之後再登入不必重新同意，要撤銷請到 Google 帳號移除 */
   disconnect(): Promise<void>;
   subscribe(listener: (connected: boolean) => void): () => void;
 };
@@ -292,10 +293,8 @@ export function createTokenProvider(opts: {
     isConnected,
 
     async disconnect() {
-      const t = current?.token;
       current = null;
       forget();
-      if (t && api) await new Promise<void>((done) => api!.revoke(t, done));
       emit();
     },
 
