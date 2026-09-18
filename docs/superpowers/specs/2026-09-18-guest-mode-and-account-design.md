@@ -1,6 +1,6 @@
 # 不登入使用，與配置頁的登入／登出
 
-日期：2026-09-18。狀態：使用者已確認，實作計畫見 `docs/superpowers/plans/2026-09-18-guest-mode-and-account.md`。
+日期：2026-09-18。狀態：已實作（計畫見 `docs/superpowers/plans/2026-09-18-guest-mode-and-account.md`）。實作時的調整：登出與取消登入都不撤銷 Google 的授權，`TokenProvider.disconnect()` 在兩種登入方式都只清掉這台手機的通行證；登出失敗時確認框留著並說明。
 
 ## 目標
 
