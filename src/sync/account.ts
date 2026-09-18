@@ -1,5 +1,5 @@
 import type { TokenProvider } from '../auth/gis';
-import type { Person } from '../domain/types';
+import type { Category, Person } from '../domain/types';
 import { ledgerRepo } from '../repo/ledgerRepo';
 import type { SheetsClient } from '../sheets/client';
 import { createLedger, ENV_RANGE, ledgerEnvOf, ledgerTitles, type LedgerEnv } from '../sheets/ledgerSheet';
@@ -7,9 +7,12 @@ import {
   LAST_LEDGER_KEY, LOCAL_MODE_KEY, lastAccount, lastLedger, localFacts, rememberAccount,
   type Account, type LedgerRef, type LocalFacts,
 } from './accountState';
+import { CATEGORIES_DIRTY_KEY } from './categoriesSync';
+import { remapToLedger } from './categoryRemap';
 import { connectErrorText } from './cloud';
 import { joinLedger, joinOutcomeText } from './joinLedger';
 import { setJoinedSid, setSelfPerson } from './ledgerId';
+import { MEMBERS_DIRTY_KEY, resetLocalMembers } from './members';
 
 /**
  * 登入、登出、換帳號（設計見 docs/superpowers/specs/2026-09-18-guest-mode-and-account-design.md）。
@@ -180,4 +183,59 @@ async function carryOut(d: AccountDeps, facts: SignInFacts): Promise<Linked | As
     case 'ask':
       return plan;
   }
+}
+
+export type AskChoice = 'merge' | 'cloud' | 'cancel';
+
+export async function resolveAsk(
+  plan: AskPlan,
+  choice: AskChoice,
+  d: AccountDeps
+): Promise<Linked | { kind: 'cancelled' }> {
+  if (choice === 'cancel') {
+    // 不接任何帳本就不要留著連線：畫面還是本機模式，連著反而讓人以為登入了
+    await d.tokens.disconnect();
+    return { kind: 'cancelled' };
+  }
+  if (choice === 'merge' && !plan.canMerge) {
+    throw new SignInError('手機上的帳有兩個人記的，不能合併。');
+  }
+
+  // 這個帳號還沒有帳本：開一本新的。改用雲端＝不帶手機上的帳
+  if (plan.target === null) {
+    if (choice === 'cloud') {
+      await ledgerRepo.clearTxns();
+      await resetLocalMembers();
+    }
+    return createWithLocal(d, plan.account);
+  }
+
+  // 先確定讀得到那本帳、拿到它的分類，才動手機上的資料
+  let remote: Category[] = [];
+  const r = await joinLedger(d.client, plan.target, d.env, {
+    replaceCategories: async (cs) => { remote = [...cs]; },
+    setJoinedSid: async () => {},
+  });
+  if (r.kind !== 'ok') throw new SignInError(joinOutcomeText(r) ?? r.kind);
+
+  if (choice === 'cloud') {
+    await ledgerRepo.clearTxns();
+    await resetLocalMembers();
+    if (remote.length > 0) await ledgerRepo.replaceCategories(remote);
+    await ledgerRepo.setMeta(CATEGORIES_DIRTY_KEY, false);
+  } else {
+    const local = await ledgerRepo.listCategories();
+    const txns = await ledgerRepo.allTxnsForSync();
+    // 那本帳的配置頁是空的（被手動清掉）就沿用手機上的分類，不要把分類清成只剩用到的
+    const m = remote.length > 0
+      ? remapToLedger(local, remote, txns, d.now?.() ?? Date.now())
+      : { categories: local, txns };
+    await ledgerRepo.replaceCategories(m.categories);
+    await ledgerRepo.saveSyncedTxns(m.txns.map((t) => ({ ...t, by: plan.self })));
+    // 帶過去的分類要推上去；成員名稱與顏色以那本帳為準，不拿手機上的蓋過去
+    await ledgerRepo.setMeta(CATEGORIES_DIRTY_KEY, true);
+    await ledgerRepo.setMeta(MEMBERS_DIRTY_KEY, false);
+  }
+  await finishLink(plan.account, plan.target, plan.self);
+  return { kind: 'linked', sid: plan.target };
 }
