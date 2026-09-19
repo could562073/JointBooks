@@ -131,9 +131,19 @@ async function rewriteBy(self: Person): Promise<void> {
   await ledgerRepo.saveSyncedTxns(ts.map((t) => ({ ...t, by: self })));
 }
 
-/** 用手機上的分類開一本新帳本，手機上的帳算建立者的，同步時會推上去 */
-async function createWithLocal(d: AccountDeps, account: Account): Promise<Linked> {
+/**
+ * 用手機上的分類開一本新帳本，手機上的帳算建立者的，同步時會推上去。
+ * discardLocal＝true（改用雲端、沒有既有帳本可接）時開完帳本才清掉手機上的帳：
+ * 建立失敗（離線、配額）不能先把資料清掉，不然帳就沒了（I1）。
+ * 先 bootstrap 再讀分類：全新安裝的分類表還是空的，不然會開出一本沒有分類的帳（M1）。
+ */
+async function createWithLocal(d: AccountDeps, account: Account, discardLocal = false): Promise<Linked> {
+  await ledgerRepo.bootstrap();
   const sid = await createLedger(d.client, await ledgerRepo.listCategories(), yearOf(d), d.env);
+  if (discardLocal) {
+    await ledgerRepo.clearTxns();
+    await resetLocalMembers();
+  }
   await rewriteBy('我');
   await finishLink(account, sid, '我');
   return { kind: 'linked', sid };
@@ -204,13 +214,9 @@ export async function resolveAsk(
     throw new SignInError('手機上的帳有兩個人記的，不能合併。');
   }
 
-  // 這個帳號還沒有帳本：開一本新的。改用雲端＝不帶手機上的帳
+  // 這個帳號還沒有帳本：開一本新的。改用雲端＝不帶手機上的帳，但要等帳本真的建好才清
   if (plan.target === null) {
-    if (choice === 'cloud') {
-      await ledgerRepo.clearTxns();
-      await resetLocalMembers();
-    }
-    return createWithLocal(d, plan.account);
+    return createWithLocal(d, plan.account, choice === 'cloud');
   }
 
   // 先確定讀得到那本帳、拿到它的分類，才動手機上的資料

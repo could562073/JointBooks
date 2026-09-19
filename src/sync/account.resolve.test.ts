@@ -81,6 +81,7 @@ describe('resolveAsk', () => {
     expect(await ledgerRepo.listTxns()).toHaveLength(0);
     expect((await ledgerRepo.listCategories()).map((c) => c.id)).toEqual(['R-FOOD']);
     expect(await joinedSid()).toBe('OWN');
+    expect(await ledgerRepo.getMeta(CATEGORIES_DIRTY_KEY)).toBe(false);
   });
 
   it('目標是 null：合併就用手機上的帳開新帳本；改用雲端就開一本空的', async () => {
@@ -92,6 +93,17 @@ describe('resolveAsk', () => {
     await seedLocal('我');
     await resolveAsk(plan({ target: null }), 'cloud', deps(client([])));
     expect(await ledgerRepo.listTxns()).toHaveLength(0);
+  });
+
+  it('目標是 null、改用雲端、建立帳本失敗：手機上的帳不會先被清掉', async () => {
+    await seedLocal('我');
+    const failing = {
+      get: vi.fn(async () => []),
+      createSpreadsheet: vi.fn(async () => { throw new Error('quota_exceeded'); }),
+      update: vi.fn(async () => ({})),
+    } as unknown as SheetsClient;
+    await expect(resolveAsk(plan({ target: null }), 'cloud', deps(failing))).rejects.toThrow('quota_exceeded');
+    expect(await ledgerRepo.listTxns()).toHaveLength(1);
   });
 
   it('讀不到目標帳本：丟出給人看的錯誤，手機資料不動', async () => {
