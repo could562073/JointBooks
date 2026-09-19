@@ -26,8 +26,9 @@ export function useSignIn(cloud: Cloud | null, onLinked: (sid: string) => void):
     setError(null);
     setBusy(true);
     // connect 必須在這個點擊事件裡同步呼叫，瀏覽器才不會擋掉 Google 視窗；
-    // busyRef 的檢查要排在它前面，第二次點擊才不會又開一次視窗
-    cloud.tokens.connect()
+    // busyRef 的檢查要排在它前面，第二次點擊才不會又開一次視窗。
+    // 帶 select_account：讓使用者選帳號，同意過的舊帳號才會再走一次同意畫面拿到續期憑證
+    cloud.tokens.connect('select_account')
       .then(() => signIn({ client: cloud.client, tokens: cloud.tokens, env: cloud.env }))
       .then((r) => { if (r.kind === 'linked') onLinked(r.sid); else setAsk(r); })
       .catch((e) => {
