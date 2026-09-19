@@ -9,6 +9,7 @@ import type { Person } from '../domain/types';
 import { signIn } from './account';
 import { LAST_LEDGER_KEY, LOCAL_MODE_KEY, lastAccount, rememberAccount } from './accountState';
 import { joinedSid, SELF_KEY, setJoinedSid } from './ledgerId';
+import { MEMBERS_DIRTY_KEY } from './members';
 
 const A = { id: 'PA', email: 'a@gmail.com' };
 
@@ -83,11 +84,13 @@ describe('signIn', () => {
     expect(await joinedSid()).toBeNull();
   });
 
-  it('手機上沒帳、帳號已經有帳本：接上並換成那本的分類', async () => {
+  it('手機上沒帳、帳號已經有帳本：接上並換成那本的分類，成員名稱不再待推（以那本帳為準）', async () => {
     const remote = defaultCategories(() => `r-${Math.random()}`);
     const client = fakeClient({ owned: ['OWN'], sheets: { OWN: remote.flatMap(categoryToRows) } });
+    await ledgerRepo.setMeta(MEMBERS_DIRTY_KEY, true);
     expect(await signIn(deps(client))).toEqual({ kind: 'linked', sid: 'OWN' });
     expect((await ledgerRepo.listCategories()).map((c) => c.id).sort()).toEqual(remote.map((c) => c.id).sort());
+    expect(await ledgerRepo.getMeta(MEMBERS_DIRTY_KEY)).toBe(false);
   });
 
   it('帳號已經有帳本、手機上也有帳：回傳要問的方案，手機資料不動', async () => {

@@ -22,7 +22,8 @@ export function AccountSwitchDialog({ plan, busy = false, error = null, onChoose
     : joining ? '改用對方帳本裡的帳' : '改用這個帳號雲端上的帳';
   const intro = plan.from && plan.from !== plan.to
     ? `上次登入的是 ${plan.from}，這次是 ${plan.to}。`
-    : joining ? '你要加入對方的帳本。' : `${plan.to} 已經有一本帳。`;
+    : joining ? '你要加入對方的帳本。'
+    : plan.target ? `${plan.to} 已經有一本帳。` : `${plan.to} 還沒有帳本。`;
 
   return (
     <div className={dialog.scrim} data-testid="account-switch-scrim">

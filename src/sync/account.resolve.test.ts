@@ -9,7 +9,7 @@ import { resolveAsk, type AskPlan } from './account';
 import { lastAccount } from './accountState';
 import { CATEGORIES_DIRTY_KEY } from './categoriesSync';
 import { joinedSid, SELF_KEY } from './ledgerId';
-import { MEMBERS_DIRTY_KEY } from './members';
+import { MEMBERS_DIRTY_KEY, MEMBERS_KEY } from './members';
 
 const A = { id: 'PA', email: 'a@gmail.com' };
 const plan = (over: Partial<AskPlan> = {}): AskPlan => ({
@@ -59,13 +59,28 @@ describe('resolveAsk', () => {
   it('合併進既有帳本：帳改指向雲端分類、算成自己的身分；分類要推、成員名稱以雲端為準', async () => {
     await seedLocal('我');
     await ledgerRepo.setMeta(MEMBERS_DIRTY_KEY, true);
+    await ledgerRepo.setMeta(MEMBERS_KEY, { 我: { name: '本機改過的名字' } });
     expect(await resolveAsk(plan(), 'merge', deps(client(REMOTE)))).toEqual({ kind: 'linked', sid: 'OWN' });
     const [t] = await ledgerRepo.listTxns();
     expect(t).toMatchObject({ mainId: 'R-FOOD', subId: 'R-LUNCH', by: '我' });
     expect((await ledgerRepo.listCategories()).map((c) => c.id)).toEqual(['R-FOOD']);
     expect(await ledgerRepo.getMeta(CATEGORIES_DIRTY_KEY)).toBe(true);
     expect(await ledgerRepo.getMeta(MEMBERS_DIRTY_KEY)).toBe(false);
+    // 成員名稱整個回到預設（resetLocalMembers），不是只清待推旗標：合併後以那本帳的成員名稱為準
+    expect(await ledgerRepo.getMeta(MEMBERS_KEY)).toBeFalsy();
     expect(await joinedSid()).toBe('OWN');
+  });
+
+  it('合併進既有帳本：刪掉的本機帳（墓碑）不會被帶到對方的帳本', async () => {
+    await seedLocal('我');
+    const gone = await ledgerRepo.addTxn({
+      date: '2026-09-18', mainId: 'L-FOOD', subId: 'L-LUNCH',
+      amountCents: 50, currency: 'CAD', actualCadCents: 50, by: '我', note: '',
+    });
+    await ledgerRepo.deleteTxn(gone!.id);
+    await resolveAsk(plan(), 'merge', deps(client(REMOTE)));
+    const all = await ledgerRepo.allTxnsForSync();
+    expect(all.some((t) => t.id === gone!.id)).toBe(false);
   });
 
   it('訪客加入邀請選合併：手機上的帳都算加入者（妻）', async () => {

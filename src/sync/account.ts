@@ -12,7 +12,7 @@ import { remapToLedger } from './categoryRemap';
 import { connectErrorText } from './cloud';
 import { joinLedger, joinOutcomeText } from './joinLedger';
 import { clearJoinedSid, joinedSid, SELF_KEY, setJoinedSid, setSelfPerson } from './ledgerId';
-import { MEMBERS_DIRTY_KEY, resetLocalMembers } from './members';
+import { resetLocalMembers } from './members';
 
 /**
  * 登入、登出、換帳號（設計見 docs/superpowers/specs/2026-09-18-guest-mode-and-account-design.md）。
@@ -194,6 +194,8 @@ async function carryOut(d: AccountDeps, facts: SignInFacts): Promise<Linked | As
         setJoinedSid: async () => {},
       });
       if (r.kind !== 'ok') throw new SignInError(joinOutcomeText(r) ?? r.kind);
+      // 手機上沒帳但可能改過成員名稱（訪客模式）：接上帳本之後以那本帳的成員為準，不蓋過去
+      await resetLocalMembers();
       await finishLink(facts.account, plan.sid, '我');
       return { kind: 'linked', sid: plan.sid };
     }
@@ -240,16 +242,18 @@ export async function resolveAsk(
     await ledgerRepo.setMeta(CATEGORIES_DIRTY_KEY, false);
   } else {
     const local = await ledgerRepo.listCategories();
-    const txns = await ledgerRepo.allTxnsForSync();
+    // 刪掉的（墓碑）不帶過去：對方的帳本不該收到一筆本來就被刪掉的紀錄
+    const txns = (await ledgerRepo.allTxnsForSync()).filter((t) => !t.deleted);
     // 那本帳的配置頁是空的（被手動清掉）就沿用手機上的分類，不要把分類清成只剩用到的
     const m = remote.length > 0
       ? remapToLedger(local, remote, txns, d.now?.() ?? Date.now())
       : { categories: local, txns };
     await ledgerRepo.replaceCategories(m.categories);
+    await ledgerRepo.clearTxns();
     await ledgerRepo.saveSyncedTxns(m.txns.map((t) => ({ ...t, by: plan.self })));
-    // 帶過去的分類要推上去；成員名稱與顏色以那本帳為準，不拿手機上的蓋過去
+    // 帶過去的分類要推上去；成員名稱與顏色以那本帳為準，不拿手機上改過的蓋過去
     await ledgerRepo.setMeta(CATEGORIES_DIRTY_KEY, true);
-    await ledgerRepo.setMeta(MEMBERS_DIRTY_KEY, false);
+    await resetLocalMembers();
   }
   await finishLink(plan.account, plan.target, plan.self);
   return { kind: 'linked', sid: plan.target };

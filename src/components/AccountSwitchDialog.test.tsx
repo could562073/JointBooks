@@ -39,6 +39,11 @@ describe('AccountSwitchDialog', () => {
     expect(screen.getByTestId('account-switch-merge')).toHaveTextContent('對方的帳本');
   });
 
+  it('沒有上次登入的帳號、這個帳號也還沒有帳本：說「還沒有帳本」', () => {
+    render(<AccountSwitchDialog plan={plan({ target: null, from: null })} onChoose={() => {}} />);
+    expect(screen.getByTestId('account-switch')).toHaveTextContent(`${A.email} 還沒有帳本。`);
+  });
+
   it('處理中按鈕停用；顯示錯誤', () => {
     render(<AccountSwitchDialog plan={plan()} busy error="還讀不到這本帳" onChoose={() => {}} />);
     expect(screen.getByTestId('account-switch-merge')).toBeDisabled();
