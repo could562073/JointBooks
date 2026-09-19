@@ -97,4 +97,14 @@ describe('Gate：開 App 時去哪、登入與登出', () => {
     expect(await ledgerRepo.getMeta(LAST_LEDGER_KEY)).toEqual({ sid: 'S1', self: '我' });
     expect(c.tokens.disconnect).toHaveBeenCalled();
   });
+
+  it('舊安裝升級：接著帳本但還沒記過信箱，配置頁顯示已登入（登出鍵），不是登入 Google', async () => {
+    await setJoinedSid('S1');
+    render(<Gate cloud={cloud()} />);
+    await waitFor(() => expect(screen.getByTestId('daily-screen')).toBeInTheDocument());
+    fireEvent.click(screen.getByTestId('tab-settings'));
+
+    expect(screen.getByTestId('account-sign-out')).toBeInTheDocument();
+    expect(screen.queryByTestId('account-sign-in')).not.toBeInTheDocument();
+  });
 });

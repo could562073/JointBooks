@@ -573,6 +573,9 @@ function Shell({ cloud, sid, account }: { cloud: Cloud | null; sid: string | nul
             {...(cloud && account ? {
               account: {
                 email: account.email,
+                // 登入中看這台手機有沒有接著帳本（sid），不是看記不記得信箱：
+                // 舊安裝升級後 lastAccount 還是空的，直到第一次連上 Google 才補記
+                linked: sid !== null,
                 busy: account.busy,
                 error: account.error,
                 onSignIn: account.onSignIn,

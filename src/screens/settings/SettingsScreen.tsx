@@ -42,6 +42,8 @@ type Props = {
 
 export type AccountSection = {
   email: string | null;
+  /** 這台手機接著一本帳（登入中） */
+  linked: boolean;
   /** 正在連線 Google 或接上帳本 */
   busy?: boolean;
   error?: string | null;
@@ -52,8 +54,12 @@ export type AccountSection = {
 /**
  * 登入／登出（使用者要求：不登入也能用，之後想同步再登入；登入的人也能登出）。
  * 登出後帳留在這台手機、變回本機模式，同一個帳號再登入就接回這本帳。
+ *
+ * 是否「登入中」看 linked（這台手機有沒有接著帳本），不能看 email 是否為 null：
+ * 舊安裝升級後 lastAccount 是空的，直到第一次連上 Google 才補記，這段期間信箱
+ * 拿不到，但手機仍然接著一本帳，畫面要顯示已登入，不能顯示「登入 Google」。
  */
-function AccountCard({ email, busy = false, error = null, onSignIn, onSignOut }: AccountSection) {
+function AccountCard({ email, linked, busy = false, error = null, onSignIn, onSignOut }: AccountSection) {
   const [confirming, setConfirming] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const [failed, setFailed] = useState<string | null>(null);
@@ -72,10 +78,10 @@ function AccountCard({ email, busy = false, error = null, onSignIn, onSignOut }:
     <div className={styles.card} data-testid="account-section">
       <div className={styles.accountRow}>
         <div className={styles.memberText}>
-          <span className={styles.memberName} data-testid="account-email">{email ?? '未登入'}</span>
-          <span className={styles.rowSub}>{email ? '帳會同步到你的 Google 試算表' : '帳只存在這台手機'}</span>
+          <span className={styles.memberName} data-testid="account-email">{linked ? (email ?? 'Google 帳號') : '未登入'}</span>
+          <span className={styles.rowSub}>{linked ? '帳會同步到你的 Google 試算表' : '帳只存在這台手機'}</span>
         </div>
-        {!confirming && (email ? (
+        {!confirming && (linked ? (
           <button
             type="button" className={styles.accountBtn}
             onClick={() => setConfirming(true)} data-testid="account-sign-out"
@@ -107,7 +113,7 @@ function AccountCard({ email, busy = false, error = null, onSignIn, onSignOut }:
         </div>
       )}
 
-      {!email && <p className={styles.accountHint}>登入後帳會存進你的 Google 試算表，才能跟對方共用。</p>}
+      {!linked && <p className={styles.accountHint}>登入後帳會存進你的 Google 試算表，才能跟對方共用。</p>}
       {error && <p className={styles.manageError} role="alert" data-testid="account-error">{error}</p>}
     </div>
   );
@@ -426,7 +432,7 @@ export function SettingsScreen({
                 data-testid="invite-member"
               >
                 <span className={styles.inviteLabel}>邀請成員</span>
-                <span className={styles.inviteHint}>{account && !account.email ? '先登入 ›' : '分享連結 ›'}</span>
+                <span className={styles.inviteHint}>{account && !account.linked ? '先登入 ›' : '分享連結 ›'}</span>
               </button>
             )}
           </div>

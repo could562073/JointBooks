@@ -8,7 +8,7 @@ import { defaultCategories } from '../domain/categories';
 import type { Person } from '../domain/types';
 import { signIn } from './account';
 import { LAST_LEDGER_KEY, LOCAL_MODE_KEY, lastAccount, rememberAccount } from './accountState';
-import { joinedSid, SELF_KEY } from './ledgerId';
+import { joinedSid, SELF_KEY, setJoinedSid } from './ledgerId';
 
 const A = { id: 'PA', email: 'a@gmail.com' };
 
@@ -96,5 +96,12 @@ describe('signIn', () => {
     expect(r).toMatchObject({ kind: 'ask', target: 'OWN', canMerge: true, count: 1 });
     expect(await joinedSid()).toBeNull();
     expect((await ledgerRepo.listTxns())).toHaveLength(1);
+  });
+
+  it('這台手機已經接著一本帳：拒絕重跑登入判斷，不碰帳號資料', async () => {
+    await setJoinedSid('S');
+    const client = fakeClient();
+    await expect(signIn(deps(client))).rejects.toThrow('已經接著一本帳');
+    expect(client.aboutUser).not.toHaveBeenCalled();
   });
 });

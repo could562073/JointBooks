@@ -18,7 +18,7 @@ beforeEach(async () => {
 afterEach(() => vi.unstubAllGlobals());
 
 const BASE = { onInvite: () => {}, syncState: 'local' as const, lastSyncAt: null, onRetrySync: () => {} };
-const account = (over = {}) => ({ email: null, onSignIn: vi.fn(), onSignOut: vi.fn(async () => {}), ...over });
+const account = (over = {}) => ({ email: null, linked: false, onSignIn: vi.fn(), onSignOut: vi.fn(async () => {}), ...over });
 
 describe('配置頁的帳號區', () => {
   it('沒設定 Google（開發的純本機模式）就沒有這一區', () => {
@@ -27,7 +27,7 @@ describe('配置頁的帳號區', () => {
   });
 
   it('本機模式：寫未登入，按登入 Google 回報', () => {
-    const a = account();
+    const a = account({ linked: false });
     render(<SettingsScreen {...BASE} account={a} />);
     expect(screen.getByTestId('account-section')).toHaveTextContent('帳只存在這台手機');
     fireEvent.click(screen.getByTestId('account-sign-in'));
@@ -35,13 +35,13 @@ describe('配置頁的帳號區', () => {
   });
 
   it('連線中：登入按鈕停用並寫連線中', () => {
-    render(<SettingsScreen {...BASE} account={account({ busy: true })} />);
+    render(<SettingsScreen {...BASE} account={account({ linked: false, busy: true })} />);
     expect(screen.getByTestId('account-sign-in')).toBeDisabled();
     expect(screen.getByTestId('account-sign-in')).toHaveTextContent('連線中…');
   });
 
   it('已登入：顯示信箱；登出要先確認，取消就回來', () => {
-    const a = account({ email: 'a@gmail.com' });
+    const a = account({ linked: true, email: 'a@gmail.com' });
     render(<SettingsScreen {...BASE} syncState="synced" account={a} />);
     expect(screen.getByTestId('account-email')).toHaveTextContent('a@gmail.com');
     fireEvent.click(screen.getByTestId('account-sign-out'));
@@ -51,8 +51,16 @@ describe('配置頁的帳號區', () => {
     expect(a.onSignOut).not.toHaveBeenCalled();
   });
 
+  it('已登入但還沒記過信箱（舊安裝升級）：顯示「Google 帳號」，有登出、沒有登入按鈕', () => {
+    const a = account({ linked: true, email: null });
+    render(<SettingsScreen {...BASE} syncState="synced" account={a} />);
+    expect(screen.getByTestId('account-email')).toHaveTextContent('Google 帳號');
+    expect(screen.getByTestId('account-sign-out')).toBeInTheDocument();
+    expect(screen.queryByTestId('account-sign-in')).not.toBeInTheDocument();
+  });
+
   it('確定登出就回報', async () => {
-    const a = account({ email: 'a@gmail.com' });
+    const a = account({ linked: true, email: 'a@gmail.com' });
     render(<SettingsScreen {...BASE} syncState="synced" account={a} />);
     fireEvent.click(screen.getByTestId('account-sign-out'));
     fireEvent.click(screen.getByTestId('account-sign-out-go'));
@@ -60,17 +68,17 @@ describe('配置頁的帳號區', () => {
   });
 
   it('本機模式的「邀請成員」提示要先登入', () => {
-    render(<SettingsScreen {...BASE} account={account()} />);
+    render(<SettingsScreen {...BASE} account={account({ linked: false })} />);
     expect(screen.getByTestId('invite-member')).toHaveTextContent('先登入');
   });
 
   it('顯示登入錯誤', () => {
-    render(<SettingsScreen {...BASE} account={account({ error: '連不到 Google，請確認網路後再試一次。' })} />);
+    render(<SettingsScreen {...BASE} account={account({ linked: false, error: '連不到 Google，請確認網路後再試一次。' })} />);
     expect(screen.getByTestId('account-error')).toHaveTextContent('連不到 Google');
   });
 
   it('登出失敗：留在確認框並說明，不當作已經登出', async () => {
-    const a = account({ email: 'a@gmail.com', onSignOut: vi.fn(async () => { throw new Error('boom'); }) });
+    const a = account({ linked: true, email: 'a@gmail.com', onSignOut: vi.fn(async () => { throw new Error('boom'); }) });
     render(<SettingsScreen {...BASE} syncState="synced" account={a} />);
     fireEvent.click(screen.getByTestId('account-sign-out'));
     fireEvent.click(screen.getByTestId('account-sign-out-go'));

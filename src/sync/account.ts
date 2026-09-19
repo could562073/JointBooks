@@ -144,6 +144,9 @@ async function createWithLocal(d: AccountDeps, account: Account): Promise<Linked
  * 需要使用者選擇時回傳 AskPlan，手機資料都還沒動；選好再交給 resolveAsk。
  */
 export async function signIn(d: AccountDeps): Promise<Linked | AskPlan> {
+  // 已經接著一本帳：這時該做的是重新連線（同步狀態那顆），不是重跑登入判斷——
+  // 否則可能讓人選「改用雲端」「開新帳本」而清掉手機上的帳
+  if (await joinedSid()) throw new SignInError('這台手機已經接著一本帳。');
   const facts: SignInFacts = {
     account: await d.client.aboutUser(),
     lastAccount: await lastAccount(),
