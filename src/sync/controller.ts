@@ -71,6 +71,9 @@ export function createSyncController(d: SyncControllerDeps): SyncController {
   let running: Promise<void> | null = null;
   let again = false;
   let pushTimer: ReturnType<typeof setTimeout> | null = null;
+  // stop() 之後，卡著等這一輪跑完才補跑的 again 不能再啟動新的一輪——
+  // 否則 signOut／換帳號後仍在飛的循環可能在 effect 清乾淨之後才把狀態蓋回去
+  let stopped = false;
 
   async function readRev(sid: string): Promise<string> {
     const rows = await d.client.get(sid, REV_RANGE);
@@ -155,7 +158,7 @@ export function createSyncController(d: SyncControllerDeps): SyncController {
     if (running) { again = true; return running; }
     running = cycle().finally(() => {
       running = null;
-      if (again) { again = false; void syncNow(); }
+      if (again && !stopped) { again = false; void syncNow(); }
     });
     return running;
   }
@@ -178,6 +181,7 @@ export function createSyncController(d: SyncControllerDeps): SyncController {
     document.addEventListener('visibilitychange', onVisibility);
 
     return () => {
+      stopped = true;
       clearInterval(poll);
       if (pushTimer) { clearTimeout(pushTimer); pushTimer = null; }
       window.removeEventListener('online', onOnline);

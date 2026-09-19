@@ -169,6 +169,37 @@ describe('同步控制器', () => {
     expect(s.states.at(-1)).toBe('needs-auth');
   });
 
+  it('停止之後，卡著等補跑的 again 不會再打 API', async () => {
+    const s = setup();
+    const realGet = s.client.get;   // 就是 setup() 裡的 get vi.fn，呼叫次數看它
+    // 只卡住第一次呼叫：讓 syncNow() 排好 again、stop() 也呼叫完之後才放行
+    const gate: { release: (() => void) | null } = { release: null };
+    let gated = true;
+    (s.client as { get: SheetsClient['get'] }).get = ((...a: Parameters<SheetsClient['get']>) => {
+      if (gated) {
+        gated = false;
+        return new Promise<Awaited<ReturnType<SheetsClient['get']>>>((resolve) => {
+          gate.release = () => resolve(realGet(...a));
+        });
+      }
+      return realGet(...a);
+    }) as SheetsClient['get'];
+
+    const stop = s.ctl.start();     // 觸發第一輪，卡在第一次 get
+    const p1 = s.ctl.syncNow();     // 同步中再叫一次：跟第一輪拿到同一個 promise，排成 again
+    stop();                         // 在第一輪結束前停止
+
+    gate.release?.();               // 放行，讓卡住的第一輪繼續跑
+    await p1;                       // 等第一輪連同它 .finally 裡「要不要補跑」的判斷都做完
+    await new Promise((r) => setTimeout(r, 0));   // 如果沒被擋下，補跑的那一輪這裡會跑完
+
+    // 每一輪一開始都會讀一次版本戳記（REV_RANGE），不管後面是不是提早返回：
+    // 卡住等補跑的 again 若沒被 stop() 擋下，這裡就會看到第二次
+    const revCalls = (realGet as ReturnType<typeof vi.fn>).mock.calls.filter((c) => c[1] === REV_RANGE).length;
+    expect(revCalls).toBe(1);
+    expect(s.onSynced).toHaveBeenCalledTimes(1);
+  });
+
   it('同步進行中又叫一次：這一輪結束後補跑一輪，不會兩輪同時跑', async () => {
     const s = setup();
     let inFlight = 0;

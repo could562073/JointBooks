@@ -408,8 +408,11 @@ function Shell({ cloud, sid, account }: { cloud: Cloud | null; sid: string | nul
       tokens: cloud.tokens,
       spreadsheetId: () => sidNow,
       localTxns: () => ledgerRepo.allTxnsForSync(),
-      saveTxns: (ts) => ledgerRepo.saveSyncedTxns(ts),
+      // 這幾個 callback 都要看 alive：登出、換帳號之後這個 effect 已經清乾淨，
+      // 但舊的同步循環可能還飛在半路，回來時不能再把畫面狀態蓋回去（I3）
+      saveTxns: (ts) => (alive ? ledgerRepo.saveSyncedTxns(ts) : Promise.resolve()),
       onPulled: async () => {
+        if (!alive) return;
         await useLedger.getState().load();
         const s = useLedger.getState();
         const fresh = arrivals.next(s.txns, s.self);
@@ -418,8 +421,8 @@ function Shell({ cloud, sid, account }: { cloud: Cloud | null; sid: string | nul
           setPartnerToast({ key: Date.now(), text: partnerToastText(fresh, partner, s.categories) });
         }
       },
-      onState: (s) => useLedger.getState().setSyncState(s),
-      onSynced: (at) => useLedger.getState().markSynced(at),
+      onState: (s) => { if (alive) useLedger.getState().setSyncState(s); },
+      onSynced: (at) => { if (alive) useLedger.getState().markSynced(at); },
       // 成員名稱與饅頭顏色：配置頁改了就推，對方改了就拉
       members: membersSync,
       // 分類與月預算：任一邊改了就推，對方改了就拉
