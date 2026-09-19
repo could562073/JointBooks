@@ -45,12 +45,20 @@ describe('planSignIn', () => {
 
 describe('planJoin：用邀請連結加入時', () => {
   it('手機上沒帳：直接加入', () => {
-    expect(planJoin({ account: A, lastAccount: null, inviteSid: 'INV', local: local(0) })).toEqual({ kind: 'join' });
+    expect(planJoin({ account: A, lastAccount: null, inviteSid: 'INV', local: local(0), lastLedger: null }))
+      .toEqual({ kind: 'join' });
   });
 
   it('手機上有帳：問，目標是對方的帳本，身分是「妻」', () => {
-    expect(planJoin({ account: A, lastAccount: null, inviteSid: 'INV', local: local(2, '我') })).toEqual({
+    expect(planJoin({ account: A, lastAccount: null, inviteSid: 'INV', local: local(2, '我'), lastLedger: null })).toEqual({
       kind: 'ask', from: null, to: 'a@gmail.com', target: 'INV', self: '妻', count: 2, canMerge: true, account: A,
     });
+  });
+
+  it('邀請連結是登出前接著的那本：不問，直接接回去（身分照舊）', () => {
+    expect(planJoin({
+      account: A, lastAccount: null, inviteSid: 'INV',
+      local: local(3, '我', '妻'), lastLedger: { sid: 'INV', self: '妻' },
+    })).toEqual({ kind: 'rejoin', self: '妻' });
   });
 });

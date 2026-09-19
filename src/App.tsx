@@ -26,7 +26,7 @@ import { selectedDate as selectedDateOf, useLedger } from './store/useLedger';
 import {
   finishLink, planJoin, recordAccountIfMissing, resolveAsk, signInErrorText, signOut, type AskPlan,
 } from './sync/account';
-import { enterLocalMode, lastAccount, localFacts, readLink, type Account, type Link } from './sync/accountState';
+import { enterLocalMode, lastAccount, lastLedger, localFacts, readLink, type Account, type Link } from './sync/accountState';
 import { createCloudWithProxy, type Cloud } from './sync/cloud';
 import { isConfigured, readConfig } from './sync/config';
 import { createSyncController, type SyncController } from './sync/controller';
@@ -239,8 +239,24 @@ function Join({ search, cloud }: { search: string; cloud: Cloud | null }) {
         const account: Account = await cloud.client.aboutUser();
         // 已經接著別本帳的走原本的切換流程（先提醒、加入成功才清掉）；沒接著又有帳就先問
         if (!switching) {
-          const plan = planJoin({ account, lastAccount: await lastAccount(), inviteSid: sid, local: await localFacts() });
+          const plan = planJoin({
+            account, lastAccount: await lastAccount(), inviteSid: sid,
+            local: await localFacts(), lastLedger: await lastLedger(),
+          });
           if (plan.kind === 'ask') { setAsk(plan); return; }
+          if (plan.kind === 'rejoin') {
+            // 這條邀請連結正是登出前接著的那本：手機上混著兩人的帳，不能合併也不該被清掉，
+            // 直接接回去，分類不換，交給同步逐一合併（跟 signIn 的 rejoin 一樣）
+            const r = await joinLedger(cloud.client, sid, cloud.env, {
+              replaceCategories: async () => {},
+              setJoinedSid: async () => {},
+            });
+            const msg = joinOutcomeText(r);
+            if (msg) { setError(msg); return; }
+            await finishLink(account, sid, plan.self);
+            goHome();
+            return;
+          }
         }
         const r = await joinLedger(cloud.client, sid, cloud.env, {
           replaceCategories: (cs) => ledgerRepo.replaceCategories(cs),

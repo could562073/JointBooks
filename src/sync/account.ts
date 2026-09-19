@@ -67,10 +67,16 @@ export function planSignIn(f: SignInFacts): SignInPlan {
   };
 }
 
-/** 用邀請連結加入、而手機沒接著別本帳時：手機上有帳就先問 */
+/**
+ * 用邀請連結加入、而手機沒接著別本帳時：手機上有帳就先問。
+ * 但如果這個邀請連結正是登出前接著的那本，不問——手機上的帳這時混著兩個人記的
+ * （登出後任何一方都可能在本機記帳），既不能合併也不該被「改用對方帳本」清掉，
+ * 直接接回去，交給同步逐一合併（I2）。
+ */
 export function planJoin(f: {
-  account: Account; lastAccount: Account | null; inviteSid: string; local: LocalFacts;
-}): { kind: 'join' } | AskPlan {
+  account: Account; lastAccount: Account | null; inviteSid: string; local: LocalFacts; lastLedger: LedgerRef | null;
+}): { kind: 'join' } | { kind: 'rejoin'; self: Person } | AskPlan {
+  if (f.lastLedger?.sid === f.inviteSid) return { kind: 'rejoin', self: f.lastLedger.self };
   if (f.local.count === 0) return { kind: 'join' };
   return {
     kind: 'ask', from: f.lastAccount?.email ?? null, to: f.account.email,
