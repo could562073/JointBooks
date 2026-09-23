@@ -316,6 +316,58 @@ describe('EntrySheet 的刪除（MOTION #37）', () => {
   });
 });
 
+describe('其中稅（對收據用）', () => {
+  it('卡片一直在，預設是 0 的淡色字，沒有稅前那行', () => {
+    render(<EntrySheet {...BASE} />);
+    expect(screen.getByTestId('field-tax')).toBeInTheDocument();
+    expect(screen.queryByTestId('pre-tax')).not.toBeInTheDocument();
+  });
+
+  it('點稅欄之後，數字鍵打進稅欄而不是金額欄', () => {
+    render(<EntrySheet {...BASE} />);
+    typeAmount('48.72');
+    fireEvent.click(screen.getByTestId('field-tax'));
+    typeAmount('2.85');
+    expect(screen.getByTestId('field-amount')).toHaveTextContent('48.72');
+    expect(screen.getByTestId('field-tax')).toHaveTextContent('2.85');
+  });
+
+  it('填了稅就顯示稅前', () => {
+    render(<EntrySheet {...BASE} />);
+    typeAmount('48.72');
+    fireEvent.click(screen.getByTestId('field-tax'));
+    typeAmount('2.85');
+    expect(screen.getByTestId('pre-tax')).toHaveTextContent('稅前 $45.87');
+  });
+
+  it('稅大於金額：出現訊息，儲存鍵按不下去', () => {
+    const onSave = vi.fn();
+    render(<EntrySheet {...BASE} onSave={onSave} />);
+    typeAmount('1000');
+    fireEvent.click(screen.getByTestId('field-tax'));
+    typeAmount('2000');
+    expect(screen.getByTestId('tax-error')).toHaveTextContent('稅不能大於金額');
+    fireEvent.click(screen.getByTestId('key-save'));
+    expect(onSave).not.toHaveBeenCalled();
+  });
+
+  it('存出去的內容帶著稅', () => {
+    const onSave = vi.fn();
+    render(<EntrySheet {...BASE} onSave={onSave} />);
+    typeAmount('48.72');
+    fireEvent.click(screen.getByTestId('field-tax'));
+    typeAmount('2.85');
+    fireEvent.click(screen.getByTestId('key-save'));
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ amountCents: 4_872, taxCents: 285 }));
+  });
+
+  it('編輯一筆有稅的帳，稅帶進來', () => {
+    render(<EntrySheet {...BASE} txn={txn({ amountCents: 4_872, actualCadCents: 4_872, taxCents: 285 })} />);
+    expect(screen.getByTestId('field-tax')).toHaveTextContent('2.85');
+    expect(screen.getByTestId('pre-tax')).toHaveTextContent('稅前 $45.87');
+  });
+});
+
 describe('EntrySheet 的離場（MOTION #2）', () => {
   /** 這一段要看「有動畫」的路徑，所以把 reduced-motion 關掉 */
   function stubNormalMotion() {

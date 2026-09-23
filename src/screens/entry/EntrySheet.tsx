@@ -11,8 +11,8 @@ import type { NewTxnInput } from '../../repo/ledgerRepo';
 import { keyChar, type KeypadKey } from './amountInput';
 import { CategoryPicker } from './CategoryPicker';
 import {
-  actualCadCents, canSave, draftForNew, draftFromTxn, needsCadField,
-  setCurrency, setKind, setMain, toInput, type AmountField, type EntryDraft,
+  actualCadCents, canSave, draftForNew, draftFromTxn, needsCadField, preTaxCents,
+  setCurrency, setKind, setMain, taxError, toInput, type AmountField, type EntryDraft,
 } from './entryDraft';
 import { Keypad } from './Keypad';
 import { KindSegment } from './KindSegment';
@@ -96,12 +96,16 @@ export function EntrySheet({
   // 實扣 CAD 卡：出現時向下滑開、收起時往上收，播完才卸載（跟日期面板同一套）
   const cadPanel = usePresence(showCad, DUR.popIn, reduced);
   const saveable = canSave(draft);
+  const preTax = preTaxCents(draft);
+  const taxErr = taxError(draft);
 
   const key = useCallback((k: KeypadKey) => {
     const c = keyChar(k);
-    setDraft((d) => (d.field === 'cad'
-      ? { ...d, cad: pushDigit(d.cad, c) }
-      : { ...d, amount: pushDigit(d.amount, c) }));
+    setDraft((d) => {
+      if (d.field === 'cad') return { ...d, cad: pushDigit(d.cad, c) };
+      if (d.field === 'tax') return { ...d, tax: pushDigit(d.tax, c) };
+      return { ...d, amount: pushDigit(d.amount, c) };
+    });
   }, []);
 
   const focus = (field: AmountField) => setDraft((d) => ({ ...d, field }));
@@ -258,6 +262,34 @@ export function EntrySheet({
               </button>
             </div>
           </div>
+        )}
+
+        {/* 對收據用：金額裡有多少是稅。統計一律用金額，不碰這一格 */}
+        <button
+          type="button"
+          className={styles.tax}
+          data-focused={draft.field === 'tax' ? '' : undefined}
+          onClick={() => focus('tax')}
+          data-testid="field-tax"
+        >
+          <span className={styles.taxTop}>
+            <span className={styles.cardLabel}>其中稅（可不填）</span>
+            <span className={styles.taxLine}>
+              <span className={styles.dollarSm} aria-hidden="true">$</span>
+              <span className={styles.cadDigits} data-empty={isBlank(draft.tax) ? '' : undefined}>
+                {draft.tax || '0'}
+              </span>
+            </span>
+          </span>
+          {preTax !== null && (
+            <span className={styles.preTax} data-testid="pre-tax">
+              稅前 {formatCad(preTax, 'none')}
+            </span>
+          )}
+        </button>
+
+        {taxErr && (
+          <p className={styles.taxError} data-testid="tax-error">{taxErr}</p>
         )}
 
         <CategoryPicker
