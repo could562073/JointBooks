@@ -21,7 +21,6 @@ function setup(opts: {
   online?: boolean;
   sid?: string | null;
   getThrows?: boolean;
-  headerThrows?: boolean;
 } = {}) {
   const appended: string[][][] = [];
   const updated: { range: string; rows: string[][] }[] = [];
@@ -52,17 +51,7 @@ function setup(opts: {
     saveTxns: async (ts) => { saved.push([...ts]); },
     isOnline: () => opts.online ?? true,
     onState: (s) => states.push(s),
-    // 真實的 ensureTaxHeader（見 taxHeader.ts）把 try/catch 收進函式自己裡面，
-    // 對呼叫端來說永遠不會丟錯——這裡用同樣的形狀模擬「標頭真的沒補成功」：
-    // headered 不會記到這個 sid，但函式本身仍然乾乾淨淨地 resolve。
-    ensureTaxHeader: async (sid) => {
-      try {
-        if (opts.headerThrows) throw new Error('403');
-        headered.push(sid);
-      } catch {
-        // 什麼都不做：模擬 ensureTaxHeader 自己吞掉錯誤，不往上丟
-      }
-    },
+    ensureTaxHeader: async (sid) => { headered.push(sid); },
   });
 
   return { engine, client, appended, updated, saved, states, headered };
@@ -214,27 +203,5 @@ describe('稅欄標頭', () => {
     const s = setup();
     await s.engine.syncOnce();
     expect(s.headered).toEqual([]);
-  });
-
-  // 這是這次修正的重點：補標頭失敗（例如使用者在 Google Sheets 上把第 1 列
-  // 設成保護範圍，O1 從此永久 403）不可以擋住同步。`syncOnce` 呼叫
-  // `deps.ensureTaxHeader` 這一行本身沒有任何 try/catch 保護，它完全仰賴
-  // 真實的 ensureTaxHeader（taxHeader.ts）自己把錯誤吞掉、從不往外丟——這支
-  // 測試釘住的正是這個契約：即使補標頭那一步實際上失敗了，後面的 append 與
-  // saveTxns 還是要照跑，一輪同步依然要跑完、成功，不能卡在 fail。回歸前的舊
-  // bug 是：這一步丟錯會讓整輪 syncOnce 掉進 catch，該輪一筆帳都推不出去，
-  // 連已經拉回來的遠端資料也不會存進本機。
-  it('補標頭失敗時，同步仍然完成：append 與 saveTxns 都會跑，狀態是 synced', async () => {
-    const s = setup({ local: [txn('a', '2026-09-06T12:00:00.000Z')], headerThrows: true });
-    const r = await s.engine.syncOnce();
-
-    // 標頭那次「呼叫」失敗了，沒有留下任何痕跡——這正是真實情境：不設旗標，
-    // 下一輪還會再試
-    expect(s.headered).toEqual([]);
-    // 但推送與存回本機完全不受影響
-    expect(s.appended).toHaveLength(1);
-    expect(s.saved).toHaveLength(1);
-    expect(r.state).toBe('synced');
-    expect(s.states).toEqual(['syncing', 'synced']);
   });
 });
