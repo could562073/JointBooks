@@ -109,13 +109,14 @@ export function taxCents(d: EntryDraft): number {
 }
 
 /**
- * 扣掉稅之後的金額，給面板顯示用，不存。沒填稅、或金額還沒打時回 null：
- * 這時候顯示「稅前 $0.00」只是噪音。
+ * 扣掉稅之後的金額，給面板顯示用，不存。沒填稅、金額還沒打、或稅比金額還大時
+ * 回 null：前兩種情況顯示「稅前 $0.00」只是噪音，第三種則是錯誤狀態，
+ * 這時候不論顯示負數還是絕對值都沒有意義（旁邊已經有一行紅字在講了）。
  */
 export function preTaxCents(d: EntryDraft): number | null {
   const amount = toCents(d.amount);
   const tax = taxCents(d);
-  if (amount === 0 || tax === 0) return null;
+  if (amount === 0 || tax === 0 || tax > amount) return null;
   return amount - tax;
 }
 

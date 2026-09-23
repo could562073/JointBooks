@@ -347,8 +347,16 @@ describe('其中稅（對收據用）', () => {
     fireEvent.click(screen.getByTestId('field-tax'));
     typeAmount('2000');
     expect(screen.getByTestId('tax-error')).toHaveTextContent('稅不能大於金額');
+    // 錯誤狀態下不該有稅前那行：那個數字（不論正負）都會誤導，旁邊已經有紅字在講了
+    expect(screen.queryByTestId('pre-tax')).not.toBeInTheDocument();
     fireEvent.click(screen.getByTestId('key-save'));
     expect(onSave).not.toHaveBeenCalled();
+  });
+
+  it('只打了金額、還沒填稅：沒有稅前那行', () => {
+    render(<EntrySheet {...BASE} />);
+    typeAmount('48.72');
+    expect(screen.queryByTestId('pre-tax')).not.toBeInTheDocument();
   });
 
   it('存出去的內容帶著稅', () => {
