@@ -5,7 +5,7 @@ import { openApp, setMeta, settle } from './helpers';
  * App 外殼：啟動畫面（原本手動清單 I48）與返回鍵先關面板（I51）。
  */
 
-test('打開時先蓋啟動畫面，約 2.6 秒後消失；載入前的底色就是同一個淡紫（I48）', async ({ page }) => {
+test('打開時先蓋啟動畫面，約 1.2 秒後消失；載入前的底色就是同一個淡紫（I48）', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('/');
@@ -14,7 +14,7 @@ test('打開時先蓋啟動畫面，約 2.6 秒後消失；載入前的底色就
   await expect(splash).toContainText('饅頭記帳');
   await expect(splash).toContainText('our little money book');
   expect(await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor)).toBe('rgb(237, 233, 250)');
-  await expect(splash).toHaveCount(0, { timeout: 4_000 });
+  await expect(splash).toHaveCount(0, { timeout: 2_500 });
   expect(errors).toEqual([]);
 });
 
@@ -22,7 +22,7 @@ test('減少動態效果時啟動畫面照樣出現、照樣消失', async ({ pa
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
   await expect(page.getByTestId('launch-screen')).toBeVisible();
-  await expect(page.getByTestId('launch-screen')).toHaveCount(0, { timeout: 3_500 });
+  await expect(page.getByTestId('launch-screen')).toHaveCount(0, { timeout: 2_000 });
 });
 
 test('?debug= 展示頁不蓋啟動畫面', async ({ page }) => {

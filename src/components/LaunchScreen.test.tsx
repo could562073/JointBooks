@@ -23,9 +23,10 @@ describe('啟動畫面（原型 v2）', () => {
     expect(s.querySelector('[role="progressbar"], [data-testid="launch-progress"]')).toBeNull();
   });
 
-  it('時間軸跟原型一樣：2.15 秒開始淡出，淡出 0.46 秒', () => {
-    expect(DUR.bootHold).toBe(2150);
-    expect(DUR.bootOut).toBe(460);
+  // 動畫 0.74 秒就跑完，原本停到 2.15 秒是乾等（使用者要求縮短到接近 LINE 的啟動頁）
+  it('0.9 秒開始淡出，淡出 0.3 秒', () => {
+    expect(DUR.bootHold).toBe(900);
+    expect(DUR.bootOut).toBe(300);
   });
 
   it('停留後開始淡出，淡出播完自己卸載', () => {
