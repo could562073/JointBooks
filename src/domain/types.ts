@@ -45,6 +45,11 @@ export type Txn = {
   currency: Currency;
   /** 實際扣款 CAD，整數分。所有統計一律用這個欄位 */
   actualCadCents: number;
+  /**
+   * 這筆金額裡屬於稅的部分（GST、PST／HST、押金、環保費全部加起來），整數分，
+   * 幣別同 amountCents。只為了對收據，不參與任何統計；沒填就沒有這個欄位。
+   */
+  taxCents?: number;
   by: Person;
   note: string;
   /** ISO 8601，新增時寫入一次，之後永不變動；§4 明細依此升冪排序 */

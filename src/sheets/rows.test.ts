@@ -19,10 +19,10 @@ function txn(over: Partial<Txn> = {}): Txn {
   };
 }
 
-describe('紀錄頁欄序（增補檔 C-3）', () => {
-  it('A–N 共 14 欄', () => {
-    expect(TXN_HEADER).toHaveLength(14);
-    expect(txnToRow(txn())).toHaveLength(14);
+describe('紀錄頁欄序（增補檔 C-3，外加 O 欄「稅」）', () => {
+  it('A–O 共 15 欄', () => {
+    expect(TXN_HEADER).toHaveLength(15);
+    expect(txnToRow(txn())).toHaveLength(15);
   });
 
   it('欄位對到正確的位置', () => {
@@ -33,6 +33,11 @@ describe('紀錄頁欄序（增補檔 C-3）', () => {
     expect(r[8]).toBe('tx-1');             // I id
     expect(r[10]).toBe('c-food');          // K 主分類ID
     expect(r[12]).toBe('FALSE');           // M deleted
+  });
+
+  // 稅接在最後面而不是插在金額旁邊：舊版 App 寫的是 A:N，插在中間會讓它把別的欄位寫錯位
+  it('稅是最後一欄', () => {
+    expect(TXN_HEADER[14]).toBe('稅');
   });
 });
 
@@ -62,6 +67,19 @@ describe('txnToRow', () => {
     expect(r[3]).toBe('1280.00');
     expect(r[4]).toBe('TWD');
     expect(r[5]).toBe('58.00');
+  });
+
+  it('有稅時寫成兩位小數，和其他金額同一個格式', () => {
+    expect(txnToRow(txn({ taxCents: 285 }))[14]).toBe('2.85');
+  });
+
+  // 空字串而不是 0.00：Sheet 上一眼看得出哪幾筆有稅，也和加這一欄之前的舊列長得一樣
+  it('沒填稅時寫空字串', () => {
+    expect(txnToRow(txn())[14]).toBe('');
+  });
+
+  it('稅是 0 也當成沒填', () => {
+    expect(txnToRow(txn({ taxCents: 0 }))[14]).toBe('');
   });
 });
 
@@ -114,6 +132,23 @@ describe('rowToTxn', () => {
 
   it('列比預期短也不會炸掉', () => {
     expect(rowToTxn(['2026-09-06', '外食'])).toBeNull();
+  });
+
+  it('讀得回稅', () => {
+    const r = txnToRow(txn({ taxCents: 285 }));
+    expect(rowToTxn(r)!.taxCents).toBe(285);
+  });
+
+  // 加這一欄之前寫下的列只有 14 格，不能因此冒出一個 taxCents: 0
+  it('只有 14 欄的舊列讀回來沒有稅', () => {
+    const r = txnToRow(txn()).slice(0, 14);
+    expect('taxCents' in rowToTxn(r)!).toBe(false);
+  });
+
+  it('稅欄空白的列也沒有稅', () => {
+    const r = txnToRow(txn());
+    r[14] = '';
+    expect('taxCents' in rowToTxn(r)!).toBe(false);
   });
 });
 

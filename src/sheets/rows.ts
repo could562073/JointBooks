@@ -2,10 +2,10 @@ import type { IconKey } from '../components/Icon';
 import { toCents } from '../domain/money';
 import type { Category, Currency, Person, SubCategory, Txn } from '../domain/types';
 
-/** 增補檔 C-3 紀錄頁欄序（A–N）。順序就是寫入順序，不要在別處重排 */
+/** 增補檔 C-3 紀錄頁欄序（A–O）。順序就是寫入順序，不要在別處重排 */
 export const TXN_HEADER = [
   '日期', '主分類', '子分類', '金額', '幣別', '實扣 CAD', '記帳人', '備註',
-  'id', 'updatedAt', '主分類ID', '子分類ID', 'deleted', 'createdAt',
+  'id', 'updatedAt', '主分類ID', '子分類ID', 'deleted', 'createdAt', '稅',
 ] as const;
 
 /**
@@ -68,6 +68,8 @@ export function txnToRow(t: Txn): string[] {
     t.subId,
     bool(t.deleted),
     t.createdAt,
+    // 沒填或 0 都寫空字串：Sheet 上留白比一整排 0.00 好對帳
+    t.taxCents ? amount(t.taxCents) : '',
   ];
 }
 
@@ -89,6 +91,9 @@ export function rowToTxn(row: readonly string[]): Txn | null {
   const actualRaw = (row[5] ?? '').trim();
   const actualCadCents = actualRaw ? parseAmount(actualRaw) : amountCents;
 
+  const taxRaw = (row[14] ?? '').trim();
+  const taxCents = taxRaw ? parseAmount(taxRaw) : 0;
+
   return {
     id,
     date,
@@ -104,6 +109,7 @@ export function rowToTxn(row: readonly string[]): Txn | null {
     subId: row[11] ?? '',
     deleted: parseBool(row[12]),
     createdAt: row[13] || (row[9] ?? ''),
+    ...(taxCents > 0 ? { taxCents } : {}),
   };
 }
 
