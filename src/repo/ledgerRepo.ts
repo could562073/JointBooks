@@ -12,6 +12,8 @@ export type NewTxnInput = {
   actualCadCents: number;
   by: Person;
   note: string;
+  /** 金額裡屬於稅的部分，整數分，幣別同 currency。沒有就是 undefined */
+  taxCents?: number;
 };
 
 /**

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { ledgerRepo } from './ledgerRepo';
+import { ledgerRepo, type NewTxnInput } from './ledgerRepo';
 import { db, resetDb } from '../db/schema';
 import { totalsIn } from '../domain/aggregate';
 import { rangeOf } from '../domain/date';
@@ -235,5 +235,36 @@ describe('listTxns', () => {
     }
     const rows = await ledgerRepo.listTxns(rangeOf('month', '2026-09-15'));
     expect(rows.map((r) => r.date)).toEqual(['2026-09-01']);
+  });
+});
+
+describe('稅', () => {
+  // cat() 與 cats 是這個檔案 beforeEach 已經準備好的，直接用
+  const input = (over: Partial<NewTxnInput> = {}): NewTxnInput => {
+    const c = cat('外食');
+    return {
+      date: '2026-09-05', mainId: c.id, subId: c.subs[0]!.id,
+      amountCents: 4_872, currency: 'CAD', actualCadCents: 4_872, by: '我', note: '',
+      ...over,
+    };
+  };
+
+  it('新增時存得進去', async () => {
+    const t = await ledgerRepo.addTxn(input({ taxCents: 285 }));
+    expect(t!.taxCents).toBe(285);
+    expect((await ledgerRepo.listTxns())[0]!.taxCents).toBe(285);
+  });
+
+  it('編輯時改得掉', async () => {
+    const t = await ledgerRepo.addTxn(input({ taxCents: 285 }));
+    const next = await ledgerRepo.updateTxn(t!.id, { taxCents: 100 });
+    expect(next.taxCents).toBe(100);
+  });
+
+  // 編輯一筆本來有稅的帳、把稅刪掉：patch 帶的是 undefined，舊值不能留著
+  it('編輯時清得掉', async () => {
+    const t = await ledgerRepo.addTxn(input({ taxCents: 285 }));
+    const next = await ledgerRepo.updateTxn(t!.id, { taxCents: undefined });
+    expect(next.taxCents).toBeUndefined();
   });
 });

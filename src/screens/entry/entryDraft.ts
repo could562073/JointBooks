@@ -4,8 +4,8 @@ import type { NewTxnInput } from '../../repo/ledgerRepo';
 import { toCents } from '../../domain/money';
 import { centsToInput } from './amountInput';
 
-/** 數字鍵盤打在哪一個欄位上（§5：兩個欄位共用同一組鍵盤） */
-export type AmountField = 'amount' | 'cad';
+/** 數字鍵盤打在哪一個欄位上（§5：這些欄位共用同一組鍵盤） */
+export type AmountField = 'amount' | 'cad' | 'tax';
 
 export type EntryDraft = {
   kind: CategoryKind;
@@ -13,6 +13,8 @@ export type EntryDraft = {
   amount: string;
   /** 實扣 CAD 的顯示字串；currency === 'CAD' 時用不到 */
   cad: string;
+  /** 其中稅的顯示字串，可不填。跟 amount 同一個幣別 */
+  tax: string;
   currency: Currency;
   mainId: string;
   subId: string;
@@ -36,7 +38,7 @@ function firstOf(cats: Category[], kind: CategoryKind): { mainId: string; subId:
 export function draftForNew(cats: Category[], date: string, by: Person = '我'): EntryDraft {
   return {
     kind: 'expense',
-    amount: '', cad: '',
+    amount: '', cad: '', tax: '',
     currency: 'CAD',
     ...firstOf(cats, 'expense'),
     date, by, note: '',
@@ -52,6 +54,8 @@ export function draftFromTxn(cats: Category[], t: Txn): EntryDraft {
     amount: centsToInput(t.amountCents),
     // CAD 的紀錄沒有獨立的實扣欄位，帶空字串免得切到外幣時看到一個來路不明的數字
     cad: t.currency === 'CAD' ? '' : centsToInput(t.actualCadCents),
+    // 沒有稅的舊帳帶成空字串，不要憑空生一個 0
+    tax: t.taxCents ? centsToInput(t.taxCents) : '',
     currency: t.currency,
     mainId: t.mainId, subId: t.subId,
     date: t.date, by: t.by, note: t.note,
@@ -75,11 +79,14 @@ export function setMain(d: EntryDraft, cats: Category[], mainId: string): EntryD
 }
 
 /**
- * 換幣別。切回 CAD 時把實扣欄位清掉並把焦點收回金額欄——
- * CAD 模式下實扣欄位不存在，焦點留在上面會變成打字沒有任何反應。
+ * 換幣別。切回 CAD 時把實扣欄位清掉——CAD 模式下它不存在，焦點留在上面會變成
+ * 打字沒有任何反應。稅不清：稅跟著金額的幣別走，換幣別本來就要重打金額，
+ * 稅留著讓使用者自己改比清掉少一次意外。
  */
 export function setCurrency(d: EntryDraft, currency: Currency): EntryDraft {
-  if (currency === 'CAD') return { ...d, currency, cad: '', field: 'amount' };
+  if (currency === 'CAD') {
+    return { ...d, currency, cad: '', field: d.field === 'cad' ? 'amount' : d.field };
+  }
   return { ...d, currency };
 }
 
@@ -96,6 +103,34 @@ export function actualCadCents(d: EntryDraft): number {
   return d.currency === 'CAD' ? toCents(d.amount) : toCents(d.cad);
 }
 
+/** 其中稅的分。沒填就是 0 */
+export function taxCents(d: EntryDraft): number {
+  return toCents(d.tax);
+}
+
+/**
+ * 扣掉稅之後的金額，給面板顯示用，不存。沒填稅、或金額還沒打時回 null：
+ * 這時候顯示「稅前 $0.00」只是噪音。
+ */
+export function preTaxCents(d: EntryDraft): number | null {
+  const amount = toCents(d.amount);
+  const tax = taxCents(d);
+  if (amount === 0 || tax === 0) return null;
+  return amount - tax;
+}
+
+/**
+ * 稅欄的錯誤訊息；沒問題回 null。
+ *
+ * 金額還沒打時一律不報錯：使用者可能先點稅欄，這時候亮「稅不能大於金額」是
+ * 噪音不是資訊。儲存還是會被擋下來——canSave 本來就不讓金額 0 的帳寫入。
+ */
+export function taxError(d: EntryDraft): string | null {
+  const amount = toCents(d.amount);
+  if (amount === 0) return null;
+  return taxCents(d) > amount ? '稅不能大於金額' : null;
+}
+
 /**
  * §5：金額為 0 時不寫入。外幣還要求實扣也不是 0，否則會存進一筆
  * 在所有統計裡都等於零的紀錄（統計一律用 actualCadCents）。
@@ -103,6 +138,7 @@ export function actualCadCents(d: EntryDraft): number {
 export function canSave(d: EntryDraft): boolean {
   if (!d.mainId || !d.subId) return false;
   if (toCents(d.amount) === 0) return false;
+  if (taxError(d)) return false;
   return actualCadCents(d) !== 0;
 }
 
@@ -116,5 +152,7 @@ export function toInput(d: EntryDraft): NewTxnInput {
     actualCadCents: actualCadCents(d),
     by: d.by,
     note: d.note,
+    // 一定要帶這個鍵：編輯時把稅刪掉，patch 少了它舊值就會留著
+    taxCents: taxCents(d) || undefined,
   };
 }
