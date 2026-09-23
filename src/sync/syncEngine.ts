@@ -15,6 +15,8 @@ export type SyncDeps = {
   saveTxns(ts: readonly Txn[]): Promise<void>;
   isOnline(): boolean;
   onState(s: SyncState): void;
+  /** 第一次推送前補寫紀錄頁的稅欄標頭；已經補過就什麼都不做 */
+  ensureTaxHeader(sid: string): Promise<void>;
 };
 
 export type SyncResult = {
@@ -68,6 +70,9 @@ export function createSyncEngine(deps: SyncDeps) {
       const local = await deps.localTxns();
       const { merged, toPush } = mergeTxns(local, remote);
       const remoteIds = new Set(remote.map((t) => t.id));
+
+      // 舊帳本的 O1 是空的。只有真的要推東西才補，免得每 5 秒輪詢都多打一次 API
+      if (toPush.length > 0) await deps.ensureTaxHeader(sid);
 
       for (const t of toPush) {
         if (needsAppend(t.id, remoteIds)) {

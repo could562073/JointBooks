@@ -26,6 +26,7 @@ function setup(opts: {
   const updated: { range: string; rows: string[][] }[] = [];
   const saved: Txn[][] = [];
   const states: string[] = [];
+  const headered: string[] = [];
 
   const client = {
     get: vi.fn(async () => {
@@ -50,9 +51,10 @@ function setup(opts: {
     saveTxns: async (ts) => { saved.push([...ts]); },
     isOnline: () => opts.online ?? true,
     onState: (s) => states.push(s),
+    ensureTaxHeader: async (sid) => { headered.push(sid); },
   });
 
-  return { engine, client, appended, updated, saved, states };
+  return { engine, client, appended, updated, saved, states, headered };
 }
 
 describe('syncOnce 的狀態機', () => {
@@ -186,5 +188,20 @@ describe('syncOnce 的合併結果', () => {
     await s.engine.syncOnce();
     expect(s.client.get).toHaveBeenCalledWith('SID', TXN_RANGE);
     expect(TXN_RANGE).toContain('A2');
+  });
+});
+
+describe('稅欄標頭', () => {
+  it('有東西要推時，推之前先補標頭', async () => {
+    const s = setup({ local: [txn('a', '2026-09-06T12:00:00.000Z')] });
+    await s.engine.syncOnce();
+    expect(s.headered).toEqual(['SID']);
+  });
+
+  // 只是輪詢拉資料的那幾十次不該為了一格標頭多打 API
+  it('沒東西要推時不補', async () => {
+    const s = setup();
+    await s.engine.syncOnce();
+    expect(s.headered).toEqual([]);
   });
 });

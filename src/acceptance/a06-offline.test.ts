@@ -49,6 +49,8 @@ function engineOn(sheet: ReturnType<typeof fakeSheet>, online: () => boolean) {
     saveTxns: async (ts) => { await db.txns.bulkPut([...ts]); },
     isOnline: online,
     onState: () => {},
+    // 這份驗收測試不管稅欄標頭，跟 controller 的預設值一樣給空函式
+    ensureTaxHeader: async () => {},
   });
 }
 

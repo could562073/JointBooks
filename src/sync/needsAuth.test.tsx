@@ -46,6 +46,8 @@ describe('同步引擎遇到 token 過期', () => {
     const engine = createSyncEngine({
       client, spreadsheetId: () => 'S', localTxns: async () => [], saveTxns,
       isOnline: () => true, onState,
+      // 兩個案例都在推送迴圈之前就丟錯，永遠不會呼叫到，給空函式湊滿必填欄位
+      ensureTaxHeader: async () => {},
     });
     return { engine, onState, saveTxns };
   }

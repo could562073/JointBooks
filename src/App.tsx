@@ -38,6 +38,7 @@ import { findInvitee, removeInvitees } from './sync/invitee';
 import { DEFAULT_MEMBERS } from './domain/members';
 import { otherPerson } from './domain/people';
 import { createArrivalWatcher, partnerToastText } from './sync/partnerArrivals';
+import { ensureTaxHeader } from './sync/taxHeader';
 import styles from './App.module.css';
 
 // 只在 dev 模式下才會走到這裡；production 建置時 import.meta.env.DEV 會被
@@ -407,6 +408,8 @@ function Shell({ cloud, sid, account }: { cloud: Cloud | null; sid: string | nul
       client: cloud.client,
       tokens: cloud.tokens,
       spreadsheetId: () => sidNow,
+      // 舊帳本的紀錄頁沒有稅欄的標頭，第一次推送前補一次
+      ensureTaxHeader: (sid) => ensureTaxHeader(cloud.client, sid),
       localTxns: () => ledgerRepo.allTxnsForSync(),
       // 這幾個 callback 都要看 alive：登出、換帳號之後這個 effect 已經清乾淨，
       // 但舊的同步循環可能還飛在半路，回來時不能再把畫面狀態蓋回去（I3）

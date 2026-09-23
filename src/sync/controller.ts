@@ -33,6 +33,8 @@ export type SyncControllerDeps = {
   members?: MembersSync;
   /** 分類與月預算；不給就不同步分類 */
   categories?: CategoriesSync;
+  /** 補寫紀錄頁的稅欄標頭；不給就不補（測試與舊呼叫點） */
+  ensureTaxHeader?(sid: string): Promise<void>;
   /** 同步完成後讓畫面重讀本機資料 */
   onPulled(): Promise<void> | void;
   onState(s: SyncState): void;
@@ -63,6 +65,7 @@ export function createSyncController(d: SyncControllerDeps): SyncController {
     saveTxns: d.saveTxns,
     isOnline: online,
     onState: d.onState,
+    ensureTaxHeader: d.ensureTaxHeader ?? (async () => {}),
   });
 
   // 剛打開 App 時本機可能有離線期間記的帳，第一輪一定完整同步
