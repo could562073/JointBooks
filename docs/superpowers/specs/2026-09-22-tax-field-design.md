@@ -70,7 +70,10 @@ IndexedDB 不用 migration。Dexie 存的是整個物件，索引（`id, date, m
 `taxHeaderSid` 不等於目前接著的 sid 就寫一次，寫完存起來。
 
 放在推送前而不是啟動時：沒有要推的東西就不必為了一格標頭多打一次 API。
-`createLedger` 建的新帳本一開始就有標頭，建完直接把 sid 存進去。
+
+剛建好的新帳本雖然已經有標頭，第一次推送仍會多寫一次同樣的值。這是刻意的：
+`createLedger` 有兩個呼叫點（`sync/account.ts` 與 `sync/cloud.ts`），在那裡各補一次
+設定旗標，就多了兩個會被忘記的地方；一整本帳多打一次 API 換掉這個風險划算。
 
 ## 記一筆面板
 
