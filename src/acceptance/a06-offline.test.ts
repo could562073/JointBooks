@@ -182,6 +182,6 @@ describe('§15.1-22 附帶：outbox 與本地寫入是同一個 transaction', ()
   });
 
   it('紀錄範圍固定從第 2 列起算，標頭不會被當成資料', async () => {
-    expect(TXN_RANGE).toBe('紀錄!A2:N');
+    expect(TXN_RANGE).toBe('紀錄!A2:O');
   });
 });

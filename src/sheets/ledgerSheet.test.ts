@@ -41,14 +41,14 @@ describe('createLedger', () => {
     const f = fakeClient();
     await createLedger(f.client, CATS, 2026, 'dev');
     expect(f.client.append).not.toHaveBeenCalled();
-    expect(f.updates[0]!.range).toBe(`${SHEET.txns}!A1:N1`);
+    expect(f.updates[0]!.range).toBe(`${SHEET.txns}!A1:O1`);
   });
 
   it('三張表的標頭都寫進去', async () => {
     const f = fakeClient();
     await createLedger(f.client, CATS, 2026, 'dev');
     const ranges = f.updates.map((u) => u.range);
-    expect(ranges).toContain(`${SHEET.txns}!A1:N1`);
+    expect(ranges).toContain(`${SHEET.txns}!A1:O1`);
     expect(ranges).toContain(`${SHEET.config}!A1:K1`);
     expect(ranges).toContain(`${SHEET.chart}!A1:D1`);
     expect(f.updates.find((u) => u.range.startsWith(SHEET.chart))!.rows[0])
@@ -92,6 +92,14 @@ describe('createLedger', () => {
     const marker = f.updates.find((u) => u.range === `${SHEET.config}!L1:M2`)!;
     expect(marker.rows).toEqual([['版本', '環境'], ['', 'prod']]);
     expect(ENV_RANGE).toBe(`${SHEET.config}!M2`);
+  });
+
+  it('紀錄頁的標頭寫到 O 欄', async () => {
+    const f = fakeClient();
+    await createLedger(f.client, CATS, 2026, 'dev');
+    const header = f.updates.find((u) => u.range.startsWith('紀錄!A1'))!;
+    expect(header.range).toBe('紀錄!A1:O1');
+    expect(header.rows[0]).toHaveLength(15);
   });
 });
 

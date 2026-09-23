@@ -83,7 +83,7 @@ export async function createLedger(
 ): Promise<string> {
   const id = await client.createSpreadsheet(ledgerTitle(env), SHEET_TITLES);
 
-  await client.update(id, `${SHEET.txns}!A1:N1`, [[...TXN_HEADER]]);
+  await client.update(id, `${SHEET.txns}!A1:O1`, [[...TXN_HEADER]]);
   await client.update(id, `${SHEET.config}!A1:K1`, [[...CATEGORY_HEADER]]);
   await client.update(id, `${SHEET.chart}!A1:D1`, [[...CHART_HEADER]]);
 

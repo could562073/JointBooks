@@ -125,7 +125,15 @@ describe('syncOnce 的推送', () => {
     });
     await s.engine.syncOnce();
     // 第 1 列是標頭，b 是資料第 2 筆 → 第 3 列
-    expect(s.updated[0]!.range).toBe('紀錄!A3:N3');
+    expect(s.updated[0]!.range).toBe('紀錄!A3:O3');
+  });
+
+  // 少了 O 欄，稅推上去會被切掉；多一欄也不能，會蓋到右邊的空白
+  it('推送用的範圍含稅欄', async () => {
+    expect(TXN_RANGE).toBe('紀錄!A2:O');
+    const s = setup({ local: [txn('a', '2026-09-06T12:00:00.000Z')] });
+    await s.engine.syncOnce();
+    expect(s.client.append).toHaveBeenCalledWith('SID', '紀錄!A2:O', expect.anything());
   });
 
   it('遠端較新時不推，避免把新的蓋回去', async () => {

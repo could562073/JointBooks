@@ -5,8 +5,8 @@ import type { SheetsClient } from '../sheets/client';
 import { mergeTxns, needsAppend } from './merge';
 import { nextState, type SyncState } from './state';
 
-/** 紀錄頁的資料範圍。第 1 列是標頭，所以從第 2 列起算 */
-export const TXN_RANGE = '紀錄!A2:N';
+/** 紀錄頁的資料範圍。第 1 列是標頭，所以從第 2 列起算；O 欄是稅 */
+export const TXN_RANGE = '紀錄!A2:O';
 
 export type SyncDeps = {
   client: SheetsClient;
@@ -74,7 +74,7 @@ export function createSyncEngine(deps: SyncDeps) {
           await deps.client.append(sid, TXN_RANGE, [txnToRow(t)]);
         } else {
           const line = rowOf.get(t.id)!;
-          await deps.client.update(sid, `紀錄!A${line}:N${line}`, [txnToRow(t)]);
+          await deps.client.update(sid, `紀錄!A${line}:O${line}`, [txnToRow(t)]);
         }
       }
 
