@@ -409,7 +409,7 @@ function Shell({ cloud, sid, account }: { cloud: Cloud | null; sid: string | nul
       tokens: cloud.tokens,
       spreadsheetId: () => sidNow,
       // 舊帳本的紀錄頁沒有稅欄的標頭，第一次推送前補一次
-      ensureTaxHeader: (sid) => ensureTaxHeader(cloud.client, sid),
+      ensureTaxHeader: (s) => ensureTaxHeader(cloud.client, s),
       localTxns: () => ledgerRepo.allTxnsForSync(),
       // 這幾個 callback 都要看 alive：登出、換帳號之後這個 effect 已經清乾淨，
       // 但舊的同步循環可能還飛在半路，回來時不能再把畫面狀態蓋回去（I3）

@@ -320,6 +320,7 @@ describe('其中稅（對收據用）', () => {
   it('卡片一直在，預設是 0 的淡色字，沒有稅前那行', () => {
     render(<EntrySheet {...BASE} />);
     expect(screen.getByTestId('field-tax')).toBeInTheDocument();
+    expect(screen.getByTestId('field-tax').querySelector('[data-empty]')).not.toBeNull();
     expect(screen.queryByTestId('pre-tax')).not.toBeInTheDocument();
   });
 

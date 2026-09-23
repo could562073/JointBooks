@@ -19,6 +19,13 @@ export const TAX_HEADER_KEY = 'taxHeaderSid';
  */
 export async function ensureTaxHeader(client: SheetsClient, sid: string): Promise<void> {
   if (await ledgerRepo.getMeta<string>(TAX_HEADER_KEY) === sid) return;
-  await client.update(sid, `${SHEET.txns}!O1`, [[TXN_HEADER[14]]]);
+  try {
+    await client.update(sid, `${SHEET.txns}!O1`, [[TXN_HEADER[14]]]);
+  } catch {
+    // 標頭純粹是給人看的，寫不進去不該擋住真正的資料——呼叫它的是同步的推送
+    // 路徑，往上丟會讓整輪 syncOnce 失敗，連拉回來的帳都存不進本機。
+    // 不設旗標，下一次推送會再試一次。
+    return;
+  }
   await ledgerRepo.setMeta(TAX_HEADER_KEY, sid);
 }

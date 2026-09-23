@@ -33,4 +33,12 @@ describe('ensureTaxHeader', () => {
     expect(c.update).toHaveBeenCalledTimes(2);
     expect(await ledgerRepo.getMeta(TAX_HEADER_KEY)).toBe('S2');
   });
+
+  // 標頭寫不進去（例如使用者在 Sheets 上把第 1 列設成保護範圍）不該擋住推送：
+  // 這個函式跑在 syncOnce 的必經路徑上，往上丟會讓整輪同步失敗
+  it('寫不進去時不往上丟，也不記旗標，下次還會再試', async () => {
+    const c = { update: vi.fn(async () => { throw new Error('403'); }) } as unknown as SheetsClient;
+    await expect(ensureTaxHeader(c, 'S1')).resolves.toBeUndefined();
+    expect(await ledgerRepo.getMeta(TAX_HEADER_KEY)).toBeUndefined();
+  });
 });

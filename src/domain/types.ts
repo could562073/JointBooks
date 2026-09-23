@@ -47,7 +47,9 @@ export type Txn = {
   actualCadCents: number;
   /**
    * 這筆金額裡屬於稅的部分（GST、PST／HST、押金、環保費全部加起來），整數分，
-   * 幣別同 amountCents。只為了對收據，不參與任何統計；沒填就沒有這個欄位。
+   * 幣別同 amountCents。只為了對收據，不參與任何統計；沒填時是 `undefined`
+   * （本機剛記的帳 key 還在，值是 undefined；從 Sheet 讀回來的帳則連 key 都
+   * 沒有——`rowToTxn` 用條件展開，兩者不能用 `'taxCents' in t` 混著判斷）。
    */
   taxCents?: number;
   by: Person;

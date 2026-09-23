@@ -10,6 +10,7 @@ describe('toCents / fromCents', () => {
     expect(toCents('0.01')).toBe(1);
     expect(toCents('2050')).toBe(205_000);
     expect(toCents('')).toBe(0);
+    expect(toCents('0')).toBe(0);
   });
 
   it('避免浮點誤差（§14.7）', () => {

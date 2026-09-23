@@ -2,7 +2,14 @@ import type { IconKey } from '../components/Icon';
 import { toCents } from '../domain/money';
 import type { Category, Currency, Person, SubCategory, Txn } from '../domain/types';
 
-/** 增補檔 C-3 紀錄頁欄序（A–O）。順序就是寫入順序，不要在別處重排 */
+/**
+ * 增補檔 C-3 紀錄頁欄序（A–O）。順序就是寫入順序，不要在別處重排。
+ *
+ * 稅接在最後一欄而不是插在金額旁邊，是刻意的：
+ * (a) 舊版 App 寫入用的是 `A:N`，插在中間會讓它把後面的欄位全部寫錯位；
+ * (b) `src/sheets/ledgerSheet.ts` 的年報表 SUMIFS 用 `紀錄!F:F`／`B:B`／
+ *     `A:A`／`M:M` 這種絕對欄參照，插在中間會讓那三行公式全部指錯欄。
+ */
 export const TXN_HEADER = [
   '日期', '主分類', '子分類', '金額', '幣別', '實扣 CAD', '記帳人', '備註',
   'id', 'updatedAt', '主分類ID', '子分類ID', 'deleted', 'createdAt', '稅',
