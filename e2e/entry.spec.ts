@@ -131,6 +131,32 @@ test.describe('記一筆面板（§5、MOTION #1–#4 #35–#38）', () => {
     expect(rows.some((a) => a.duration === 320)).toBe(true);
   });
 
+  test('記一筆有稅的帳：稅前算給你看，存完再打開稅還在', async ({ page }) => {
+    await openSheet(page);
+    await page.getByTestId('key-4').click();
+    await page.getByTestId('key-8').click();
+    await page.getByTestId('key-.').click();
+    await page.getByTestId('key-7').click();
+    await page.getByTestId('key-2').click();
+
+    await page.getByTestId('field-tax').click();
+    await page.getByTestId('key-2').click();
+    await page.getByTestId('key-.').click();
+    await page.getByTestId('key-8').click();
+    await page.getByTestId('key-5').click();
+    await expect(page.getByTestId('pre-tax')).toHaveText('稅前 $45.87');
+
+    await page.getByTestId('key-save').click();
+    await expect(page.getByTestId('entry-sheet')).toHaveCount(0, { timeout: 2_000 });
+
+    // 月曆展開時明細那一列在小手機上會落到分頁列底下，先收起來
+    await page.getByTestId('calendar-handle').click();
+    await settle(page);
+    await page.getByTestId('txn-list').locator('li').first().click();
+    await expect(page.getByTestId('field-tax')).toContainText('2.85');
+    await expect(page.getByTestId('pre-tax')).toHaveText('稅前 $45.87');
+  });
+
   test('編輯模式按垃圾桶：確認窗彈出並寫出這筆；確認後面板關閉、該筆收合消失（E14、E15）', async ({ page }) => {
     await seedTxns(page, [{ cents: 4_218 }]);
     await openApp(page);
