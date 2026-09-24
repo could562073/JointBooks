@@ -58,21 +58,22 @@ describe('TxnList 的每一列', () => {
         ]}
       />
     );
-    // 原型的明細金額不帶 $：右下角已經標了幣別
-    expect(screen.getByTestId('txn-t1')).toHaveTextContent('-12.50');
-    expect(screen.getByTestId('txn-t1').textContent).not.toContain('$');
-    expect(screen.getByTestId('txn-t2')).toHaveTextContent('+3,000.00');
+    // 右下角的幣別小字拿掉之後，金額自己帶錢字號（全部都是 CAD，不會認錯）
+    expect(screen.getByTestId('txn-t1')).toHaveTextContent('-$12.50');
+    expect(screen.getByTestId('txn-t2')).toHaveTextContent('+$3,000.00');
   });
 
-  it('CAD 只顯示 CAD，外幣顯示原幣金額', () => {
+  // 只記 CAD 之後那行小字沒有意義了；舊的外幣紀錄顯示的一直是實扣 CAD
+  it('不再顯示幣別，舊的外幣紀錄顯示實扣 CAD', () => {
     render(
       <TxnList
         {...BASE}
         txns={[txn(), txn({ id: 't2', amountCents: 128_000, currency: 'TWD', actualCadCents: 5_800 })]}
       />
     );
-    expect(screen.getByTestId('txn-t1')).toHaveTextContent('CAD');
-    expect(screen.getByTestId('txn-t2')).toHaveTextContent('1,280 TWD');
+    expect(screen.getByTestId('txn-t1').textContent).not.toContain('CAD');
+    expect(screen.getByTestId('txn-t2').textContent).not.toContain('TWD');
+    expect(screen.getByTestId('txn-t2')).toHaveTextContent('-$58.00');
   });
 
   it('分類被刪掉時退回交易上的名稱快照，不會整列消失', () => {

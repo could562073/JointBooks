@@ -1,4 +1,3 @@
-import type { Currency } from './types';
 import {
   AMOUNT_MAX_DECIMALS, AMOUNT_MAX_LEN, CALENDAR_COMPACT_THRESHOLD_CENTS,
 } from './constants';
@@ -77,28 +76,6 @@ export function formatCompact(cents: number): string {
     return `$${(abs / 100_000).toFixed(1)}k`;
   }
   return `$${Math.round(abs / 100)}`;
-}
-
-/**
- * §4 明細下方小字：CAD 就只顯示 "CAD"，其他顯示原幣金額 + 幣別
- * 整數金額不顯示小數（如 1,280 TWD），有小數時顯示兩位（如 49.99 USD）
- * 輸入視為幅度（無符號）；金額的正負來自交易分類而非幣值
- */
-export function formatOriginal(cents: number, cur: Currency): string {
-  if (cur === 'CAD') return 'CAD';
-
-  const abs = Math.abs(cents);
-  const dollars = Math.floor(abs / 100);
-  const centsFraction = abs % 100;
-
-  // 只在有小數時顯示小數；避免浮點運算
-  if (centsFraction === 0) {
-    return `${dollars.toLocaleString('en-CA')} ${cur}`;
-  }
-
-  // 整數部分 + 千分位 + 小數點 + 補零的小數部分
-  const formatted = `${dollars.toLocaleString('en-CA')}.${String(centsFraction).padStart(2, '0')}`;
-  return `${formatted} ${cur}`;
 }
 
 /**

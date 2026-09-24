@@ -1,7 +1,7 @@
 import { Icon } from '../../components/Icon';
 import { Mantou } from '../../components/Mantou';
 import { colorSetOf } from '../../domain/palette';
-import { formatCents, formatOriginal } from '../../domain/money';
+import { formatCad } from '../../domain/money';
 import type { Category, Txn } from '../../domain/types';
 import { DUR } from '../../lib/motion';
 import { useReducedMotion } from '../../lib/useReducedMotion';
@@ -99,15 +99,10 @@ function TxnRow({ txn, category, showWhoTags, onEdit, delayMs, collapsing }: Row
 
         <span className={styles.right}>
           <span className={styles.amountBox}>
-            {/* 原型的金額不帶 $：右下角已經標了幣別，錢字號是多餘的 */}
+            {/* 全部都是 CAD，右下角不再標幣別，所以金額自己帶錢字號 */}
             <span className={isIncome ? styles.income : styles.expense}>
-              {isIncome ? '+' : '-'}{formatCents(txn.actualCadCents)}
+              {formatCad(txn.actualCadCents, isIncome ? 'plus' : 'minus')}
             </span>
-            {/*
-              CAD 只顯示幣別（原型如此）；外幣要連原幣金額一起顯示，
-              否則「實際扣款 CAD」那個欄位記下來的資訊在列表上就看不到了。
-            */}
-            <span className={styles.currency}>{formatOriginal(txn.amountCents, txn.currency)}</span>
           </span>
 
           {/* 關掉設定時用 opacity 藏起來而不是不渲染，讓每列的右緣對齊不變 */}

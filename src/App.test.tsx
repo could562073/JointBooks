@@ -91,7 +91,7 @@ describe('App 的記一筆面板', () => {
     fireEvent.click(screen.getByTestId('key-save'));
 
     await waitFor(() => expect(screen.getByTestId('txn-list')).toBeInTheDocument());
-    expect(screen.getByTestId('txn-list')).toHaveTextContent('-12.50');
+    expect(screen.getByTestId('txn-list')).toHaveTextContent('-$12.50');
     expect(screen.queryByTestId('entry-sheet')).not.toBeInTheDocument();
   });
 
@@ -120,7 +120,7 @@ describe('App 的記一筆面板', () => {
     fireEvent.click(screen.getByTestId('key-back'));   // 12.50 → 12
     fireEvent.click(screen.getByTestId('key-save'));
 
-    await waitFor(() => expect(screen.getByTestId('txn-list')).toHaveTextContent('-12.00'));
+    await waitFor(() => expect(screen.getByTestId('txn-list')).toHaveTextContent('-$12.00'));
     expect(screen.getByTestId('txn-list').children).toHaveLength(1);
   });
 

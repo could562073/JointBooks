@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  toCents, fromCents, formatCents, formatCad, formatCompact, formatOriginal, pushDigit,
+  toCents, fromCents, formatCents, formatCad, formatCompact, pushDigit,
 } from './money';
 
 describe('toCents / fromCents', () => {
@@ -63,12 +63,6 @@ describe('格式化', () => {
     expect(formatCompact(0)).toBe('');            // 沒有支出就不顯示
   });
 
-  it('formatOriginal：CAD 顯示 CAD，其他顯示金額 + 幣別（§4）', () => {
-    expect(formatOriginal(520, 'CAD')).toBe('CAD');
-    expect(formatOriginal(128_000, 'TWD')).toBe('1,280 TWD');
-    expect(formatOriginal(4_999, 'USD')).toBe('49.99 USD');
-    expect(formatOriginal(-128_000, 'TWD')).toBe('1,280 TWD');  // 負值視為幅度
-  });
 });
 
 describe('pushDigit：數字鍵盤輸入規則（§5）', () => {

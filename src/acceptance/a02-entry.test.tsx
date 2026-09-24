@@ -22,7 +22,7 @@ describe('§15.1-5 記一筆：金額 → 分類 → 儲存', () => {
     fireEvent.click(screen.getByTestId('key-save'));
 
     await settledTxns(1);
-    expect(listedRows()[0]).toContain('-42.50');
+    expect(listedRows()[0]).toContain('-$42.50');
     expect(listedRows()[0]).toContain(second.name);
     // 總額是 count-up 的（MOTION #31／#11），reduced-motion 下一步到位，但那
     // 一步是在 effect 裡做的——store 更新之後還要等一次 effect flush 才看得到
@@ -165,7 +165,7 @@ describe('§15.1-10b 改日期後紀錄落在該日期', () => {
     expect(screen.getByTestId('txn-empty')).toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId('cell-18'));
-    expect(listedRows()[0]).toContain('-9.00');
+    expect(listedRows()[0]).toContain('-$9.00');
   });
 });
 
