@@ -145,7 +145,7 @@ test.describe.fixme('V1 §15.1-23 可點元素的命中區至少 44×44', () => 
     await page.getByTestId('fab').click();
     await page.getByTestId('entry-sheet').waitFor();
     await settle(page);
-    const hits = await hitAreas(page, '[data-testid^="key-"], [data-testid^="currency-"], [data-testid^="by-"], [data-testid="entry-close"]');
+    const hits = await hitAreas(page, '[data-testid^="key-"], [data-testid^="by-"], [data-testid="entry-close"]');
     expect(tooSmall(hits)).toEqual([]);
   });
 

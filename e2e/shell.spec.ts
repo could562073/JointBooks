@@ -36,7 +36,9 @@ test('記一筆面板：按返回先關面板、留在 App；用 ✕ 關掉時�
   const sheet = page.getByTestId('entry-sheet');
   await page.getByTestId('fab').click();
   await expect(sheet).toBeVisible();
-  expect(await page.evaluate(() => Boolean(history.state?.jbLayer))).toBe(true);
+  // 面板佔的那一格歷史是在 useEffect 裡推進去的，比「面板可見」晚一步。
+  // 不等它就按返回，退掉的會是上一次頁面載入，整個 App 被導離（長期偶發的原因）
+  await page.waitForFunction(() => Boolean((history.state as { jbLayer?: string } | null)?.jbLayer));
 
   await page.goBack();
   await expect(sheet).toHaveCount(0, { timeout: 3_000 });
@@ -58,6 +60,9 @@ test('邀請面板：按返回先關面板、留在配置頁（I51）', async ({
   await page.getByTestId('tab-settings').click();
   await page.getByTestId('invite-member').click();
   await expect(page.getByTestId('invite-panel')).toBeVisible();
+  // 面板佔的那一格歷史是在 useEffect 裡推進去的，比「面板可見」晚一步。
+  // 不等它就按返回，退掉的會是上一次頁面載入，整個 App 被導離（長期偶發的原因）
+  await page.waitForFunction(() => Boolean((history.state as { jbLayer?: string } | null)?.jbLayer));
   await page.goBack();
   await expect(page.getByTestId('invite-panel')).toHaveCount(0, { timeout: 3_000 });
   await expect(page.getByTestId('settings-screen')).toBeVisible();

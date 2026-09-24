@@ -288,6 +288,7 @@ inotify 事件，dev server 會一直服舊模組；`vite.config.ts` 已在偵�
 - **App 在「測試中」狀態時，Google 的同意授權每 7 天過期一次**，到時會再看到一次同意畫面。登入端點換到的 refresh token 也一樣 7 天失效，到時要重新登入一次；同意畫面發布成正式版之後才會長期有效。
 - **部署在 GitHub Pages**（2026-09-13）：網址 `https://could562073.github.io/JointBooks/`，repo 改為公開（使用者同意；部署前查過 git 歷史沒有 `.env` 與用戶端密碼）。`.github/workflows/deploy.yml` 在推到 main 時先跑單元測試，通過才用 `BASE_PATH=/JointBooks/` 建置並發布；用戶端 ID 放在 repo 的 Variables（`VITE_GOOGLE_CLIENT_ID`）。站內路徑一律經過 `lib/basePath`（路由判斷、回首頁、邀請連結），建置時把 `index.html` 複製成 `404.html`，直接打開 `/JointBooks/join?…` 才不會停在 GitHub 的 404 頁。Google Cloud Console 的「已授權的 JavaScript 來源」要加 `https://could562073.github.io`。正式建置是 `prod` 環境，會建一本新的「饅頭共享記帳」，不會碰開發帳本。
 - 真實 Google 帳號與兩支手機的流程沒有自動化測試（2026-09-15 起不再列管，見 MANUAL-TESTS「不再列管」）；同步與加入的邏輯由假 Sheets API 的單元測試驗。
+- **稅前輸入、只記加幣、明細列拿掉幣別**（使用者要求，2026-09-23，v1.4.0）：金額欄改成填**稅前**，右邊多一格「稅費」（`field-tax`，收入沒有這格），下方提示未填稅時顯示「金額請填稅前」、填了稅顯示「含稅合計 $17.75」（`amount-hint`）。**存進 Sheet 的仍是含稅合計**（`amountCents = 稅前 + 稅`），跟改版前存的數字意思一樣，統計、年報表 SUMIFS 與既有資料都不受影響，只有輸入方式變了。記一筆面板拿掉多幣別介面（CAD／TWD／USD 選單與「實扣加幣金額」欄），新紀錄一律 `currency: 'CAD'`；`Txn.currency`／`actualCadCents` 欄位保留在資料層，以後要加回多幣別不必動 Sheet 格式。舊的外幣紀錄打開編輯時，金額欄顯示的是當初記的實扣加幣金額，一存檔就轉成 CAD（原幣金額不再保留，使用者裁決）。日常頁明細列拿掉幣別小字，金額帶回錢字號（`-$16.75`）。啟動畫面停留從 2.15 秒縮到 0.9 秒、整段（含淡出）從約 2.6 秒縮到約 1.2 秒（`DUR.bootHold`／`bootOut`）——彈起與字標動畫本身 0.74 秒就跑完，原本後半段只是乾等。`e2e/entry.spec.ts` 的稅務測試改寫成驗這整套新流程（輸入稅前金額、加稅、看合計、存檔重開仍看得到）；順手修掉 `e2e/shell.spec.ts` 兩支返回鍵測試的長期偶發競態——面板佔的那格歷史是在 `useEffect` 裡才推進去，比「面板可見」晚一步，测试原本一看到面板可見就按返回，偶爾會退掉上一次頁面載入而不是面板那格；改成先等歷史真的有那一格再按。
 
 ---
 
