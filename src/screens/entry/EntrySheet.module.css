@@ -136,14 +136,11 @@
   display: flex;
   align-items: baseline;
   gap: 5px;
-  /* 稅費卡是 flex: none，中間沒有第三個元素分掉剩餘空間；金額卡要撐滿才不會
-     隨數字長度伸縮（支出）或整行只剩一顆靠左的小白片（收入，稅費卡不渲染） */
-  flex: 1 1 auto;
   min-width: 0;
   border: 0;
-  background: var(--c-card);
+  background: none;
   border-radius: 14px;
-  padding: 8px 12px;
+  padding: 2px 10px;
   cursor: pointer;
 }
 
