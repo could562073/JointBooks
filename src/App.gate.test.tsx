@@ -59,6 +59,14 @@ beforeEach(async () => {
 });
 afterEach(() => vi.unstubAllGlobals());
 
+/*
+ * 點了配置分頁之後一律先 await 配置頁出現，才去找上面的元素。
+ * 換頁帶著 420ms 的滑入轉場，而且 Gate 開場還有幾個非同步的載入在飛；
+ * 同步 getByTestId 在 CI 上偶發地會在畫面還停在日常頁時就去找配置頁的元素
+ * （2026-09-18 與 2026-09-23 各發生一次，都擋下了部署）。
+ * 等的是「配置頁真的畫出來了」這個明確狀態，所以如果哪天換頁真的壞掉，
+ * 這裡仍然會紅，只是訊息會直接指向換頁而不是某個找不到的按鈕。
+ */
 describe('Gate：開 App 時去哪、登入與登出', () => {
   it('沒記過任何東西：開始畫面；按「先不登入」進 App，狀態寫只存在這台手機', async () => {
     render(<Gate cloud={cloud()} />);
@@ -73,6 +81,7 @@ describe('Gate：開 App 時去哪、登入與登出', () => {
     render(<Gate cloud={cloud()} />);
     await waitFor(() => expect(screen.getByTestId('daily-screen')).toBeInTheDocument());
     fireEvent.click(screen.getByTestId('tab-settings'));
+    await screen.findByTestId('settings-screen');
     fireEvent.click(screen.getByTestId('account-sign-in'));
 
     await waitFor(() => expect(screen.getByTestId('account-email')).toHaveTextContent('a@gmail.com'));
@@ -87,6 +96,7 @@ describe('Gate：開 App 時去哪、登入與登出', () => {
     render(<Gate cloud={c} />);
     await waitFor(() => expect(screen.getByTestId('daily-screen')).toBeInTheDocument());
     fireEvent.click(screen.getByTestId('tab-settings'));
+    await screen.findByTestId('settings-screen');
     expect(screen.getByTestId('account-email')).toHaveTextContent('a@gmail.com');
 
     fireEvent.click(screen.getByTestId('account-sign-out'));
@@ -103,6 +113,7 @@ describe('Gate：開 App 時去哪、登入與登出', () => {
     render(<Gate cloud={cloud()} />);
     await waitFor(() => expect(screen.getByTestId('daily-screen')).toBeInTheDocument());
     fireEvent.click(screen.getByTestId('tab-settings'));
+    await screen.findByTestId('settings-screen');
 
     expect(screen.getByTestId('account-sign-out')).toBeInTheDocument();
     expect(screen.queryByTestId('account-sign-in')).not.toBeInTheDocument();
