@@ -51,15 +51,15 @@ export function draftForNew(cats: Category[], date: string, by: Person = '我'):
 /**
  * 編輯模式金額欄要顯示的分。存進去的是含稅合計，畫面上要顯示的是稅前。
  *
- * 三種情況分開處理：
- * - 收入：原樣。v1.3.0 的稅費欄在收入時也看得見，可能已經有一筆帶稅的收入，
- *   減掉的話那筆收入會在編輯時無聲地變小。
- * - 舊的外幣紀錄：顯示實際扣款的 CAD。原幣金額不再出現在畫面上，存檔後也不保留。
- * - 其餘：合計扣掉稅就是稅前。
+ * 判斷順序不能換：幣別要排在收支類型前面。舊的外幣紀錄不論收入或支出，
+ * 畫面上要的都是當初實際扣款／入帳的加幣；先看 kind 的話，外幣收入會把
+ * 原幣金額當成加幣帶進來，存一次就把那筆放大成匯率倍數。
  */
 function editableAmountCents(kind: CategoryKind, t: Txn): number {
-  if (kind === 'income') return t.amountCents;
+  // 舊的外幣紀錄（收入、支出都一樣）：原幣金額不再出現在畫面上，存檔後也不保留
   if (t.currency !== 'CAD') return t.actualCadCents;
+  // 收入：原樣帶入不減稅。v1.3.0 的稅費欄在收入時也看得見，可能已經有一筆帶稅的收入
+  if (kind === 'income') return t.amountCents;
   return t.amountCents - (t.taxCents ?? 0);
 }
 
@@ -110,6 +110,17 @@ export function totalCents(d: EntryDraft): number {
 }
 
 /**
+ * 金額欄下面要不要顯示「含稅合計」提示。
+ *
+ * 只看稅是不夠的：先點稅費欄打字的人，金額還是空的時候稅就已經 > 0，
+ * 這時候顯示合計只等於把稅費欄的數字重講一次（「含稅合計 $1.00」），
+ * 看起來像是總額，其實金額根本還沒填。兩個欄位都要有值才算真的算出了合計。
+ */
+export function showsTotal(d: EntryDraft): boolean {
+  return taxCents(d) > 0 && toCents(d.amount) > 0;
+}
+
+/**
  * §5：金額為 0 時不寫入。
  * 稅是外加的，沒有上限，也不參與這個判斷——稅打得比金額大是合法的
  * （例如只買了一個押金品項）。
@@ -127,7 +138,9 @@ export function toInput(d: EntryDraft): NewTxnInput {
     subId: d.subId,
     // 畫面上打稅前，存進去的是實付總額：Sheet 的金額欄、年報表的 SUMIFS 與所有統計的意思都不變
     amountCents: total,
-    currency: 'CAD',
+    // 讀 d.currency 而不是寫死 'CAD'：今天兩個 draft 工廠函式都只會給 'CAD'，
+    // 行為不變，但這個欄位就名副其實——以後加回多幣別介面時，這裡不必再改
+    currency: d.currency,
     actualCadCents: total,
     by: d.by,
     note: d.note,

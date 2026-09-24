@@ -15,7 +15,7 @@
   will-change: opacity, transform;
 }
 
-/* 2.15 秒後：放大一點點淡出 */
+/* 停留結束後：放大一點點淡出（時長由 --out 帶進來） */
 .leaving { animation: bootOut var(--out) ease-in both; }
 .reduced.leaving { animation-name: bootFade; }
 

@@ -81,6 +81,8 @@ describe('§15.1-7 小數最多兩位、總長 9 字', () => {
   });
 });
 
+// §15.1-8 是新的驗收項，不是原本那個「幣別選 TWD 出現實際扣款 CAD 欄位」——
+// 那一項隨幣別介面下架，見 docs/HANDOFF-AMENDMENTS.md 的「A. 已移除的範圍」
 describe('§15.1-8 金額填稅前，存進去的是含稅合計', () => {
   it('打稅前與稅費，明細列顯示的是合計', async () => {
     await openApp();
@@ -91,7 +93,7 @@ describe('§15.1-8 金額填稅前，存進去的是含稅合計', () => {
     fireEvent.click(screen.getByTestId('key-save'));
 
     await settledTxns(1);
-    expect(listedRows()[0]!).toContain('17.75');
+    expect(listedRows()[0]!).toContain('-$17.75');
   });
 });
 

@@ -79,7 +79,7 @@ describe('EntrySheet 的兩種模式', () => {
   });
 });
 
-describe('EntrySheet 的金額與幣別', () => {
+describe('EntrySheet 的金額', () => {
   it('數字鍵打在金額欄', () => {
     render(<EntrySheet {...BASE} />);
     typeAmount('123');
@@ -307,6 +307,13 @@ describe('稅費與含稅合計', () => {
     fireEvent.click(screen.getByTestId('field-tax'));
     typeAmount('1.00');
     expect(screen.getByTestId('amount-hint')).toHaveTextContent('含稅合計 $17.75');
+  });
+
+  it('只點了稅費、金額還沒打：提示仍是「金額請填稅前」', () => {
+    render(<EntrySheet {...BASE} />);
+    fireEvent.click(screen.getByTestId('field-tax'));
+    typeAmount('1.00');
+    expect(screen.getByTestId('amount-hint')).toHaveTextContent('金額請填稅前');
   });
 
   // 畫面上打稅前，存進去的是實付總額

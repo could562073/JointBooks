@@ -228,4 +228,16 @@ describe('編輯模式帶入的金額', () => {
     expect(d.tax).toBe('');
     expect(d.currency).toBe('CAD');
   });
+
+  // 舊版的幣別 chip 沒有依收支類型隱藏，所以外幣收入是記得出來的。
+  // 先看 kind 的話會把 1,280 TWD 當成加幣帶進來，存一次那筆收入就被放大成匯率倍數
+  it('舊的外幣收入：一樣帶入實扣 CAD，不是原幣金額', () => {
+    const d = draftFromTxn(CATS, txn({
+      mainId: INCOME[0]!.id, subId: INCOME[0]!.subs[0]!.id,
+      amountCents: 128_000, currency: 'TWD', actualCadCents: 5_800,
+    }));
+    expect(d.kind).toBe('income');
+    expect(d.amount).toBe('58.00');
+    expect(d.currency).toBe('CAD');
+  });
 });

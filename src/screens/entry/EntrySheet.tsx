@@ -11,7 +11,7 @@ import type { NewTxnInput } from '../../repo/ledgerRepo';
 import { keyChar, type KeypadKey } from './amountInput';
 import { CategoryPicker } from './CategoryPicker';
 import {
-  canSave, draftForNew, draftFromTxn, setKind, setMain, taxCents, toInput, totalCents,
+  canSave, draftForNew, draftFromTxn, setKind, setMain, showsTotal, toInput, totalCents,
   type AmountField, type EntryDraft,
 } from './entryDraft';
 import { Keypad } from './Keypad';
@@ -93,7 +93,6 @@ export function EntrySheet({
   const saveable = canSave(draft);
   // 收入沒有稅：稅費卡與含稅合計那行都不出現
   const showTax = draft.kind === 'expense';
-  const tax = taxCents(draft);
 
   const key = useCallback((k: KeypadKey) => {
     const c = keyChar(k);
@@ -220,10 +219,10 @@ export function EntrySheet({
           )}
         </div>
 
-        {/* 加拿大的標價不含稅，所以金額欄要的是稅前；填了稅就把實付的總額算給使用者看 */}
+        {/* 加拿大的標價不含稅，所以金額欄要的是稅前；填了稅、金額也有值才把實付總額算給使用者看 */}
         {showTax && (
           <p className={styles.hint} data-testid="amount-hint">
-            {tax > 0 ? `含稅合計 ${formatCad(totalCents(draft), 'none')}` : '金額請填稅前'}
+            {showsTotal(draft) ? `含稅合計 ${formatCad(totalCents(draft), 'none')}` : '金額請填稅前'}
           </p>
         )}
 
