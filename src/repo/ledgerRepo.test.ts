@@ -268,3 +268,22 @@ describe('稅', () => {
     expect(next.taxCents).toBeUndefined();
   });
 });
+
+describe('舊的外幣紀錄編輯後轉成 CAD', () => {
+  it('金額與實扣一致，幣別變成 CAD', async () => {
+    const c = cat('外食');
+    const t = await ledgerRepo.addTxn({
+      date: '2026-09-05', mainId: c.id, subId: c.subs[0]!.id,
+      amountCents: 128_000, currency: 'TWD', actualCadCents: 5_800, by: '我', note: '',
+    });
+
+    // 面板送出的 patch：一律 CAD，金額與實扣都是含稅合計
+    const next = await ledgerRepo.updateTxn(t!.id, {
+      amountCents: 5_800, currency: 'CAD', actualCadCents: 5_800, taxCents: undefined,
+    });
+
+    expect(next.currency).toBe('CAD');
+    expect(next.amountCents).toBe(5_800);
+    expect(next.actualCadCents).toBe(5_800);
+  });
+});

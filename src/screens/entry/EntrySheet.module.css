@@ -124,10 +124,9 @@
   color: rgba(74, 63, 54, .45);
 }
 
-/* 金額大字在左、幣別藥丸在右，兩者底部對齊 */
 .amountRow {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: 10px;
   margin: 15px 0 3px;
@@ -139,15 +138,15 @@
   gap: 5px;
   min-width: 0;
   border: 0;
-  background: none;
+  background: var(--c-card);
   border-radius: 14px;
-  padding: 2px 10px;
+  padding: 8px 12px;
   cursor: pointer;
 }
 
 /* §5：正在輸入的那個金額欄位套紫色外框。inset 不改變盒子尺寸，不會位移 */
 .amount[data-focused],
-.cad[data-focused] {
+.tax[data-focused] {
   box-shadow: inset 0 0 0 2px var(--c-primary);
 }
 
@@ -174,59 +173,11 @@
 
 .digits[data-empty] { color: rgba(74, 63, 54, .25); }
 
-.currencies {
-  display: flex;
-  gap: 4px;
-  flex: none;
-}
-
-.currency {
-  flex: none;
-  border: 0;
-  border-radius: var(--r-pill);
-  padding: 5px 10px;
-  background: rgba(74, 63, 54, .07);
-  font-family: var(--f-num);
-  font-size: 11.5px;
-  font-weight: 700;
-  color: rgba(74, 63, 54, .55);
-  cursor: pointer;
-  /* 換幣別時原本的選中色淡出、新的淡入（使用者要求） */
-  transition:
-    background-color var(--fade) var(--ease-exit),
-    color var(--fade) var(--ease-exit);
-}
-
-.currency[data-selected] {
-  background: var(--c-text);
-  color: var(--c-bg);
-}
-
 .hint {
   margin: 0 0 10px 10px;
   font-family: var(--f-body);
   font-size: 11.5px;
   color: rgba(74, 63, 54, .5);
-}
-
-/* 非 CAD 時才出現的實扣 CAD 欄位：跟日期卡同一種白卡 */
-.cad {
-  display: block;
-  width: 100%;
-  margin-bottom: 12px;
-  border: 0;
-  border-radius: var(--r-sm);
-  background: var(--c-card);
-  padding: 10px 13px;
-  text-align: left;
-  cursor: pointer;
-}
-
-.cadLine {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-  margin-top: 2px;
 }
 
 .dollarSm {
@@ -236,61 +187,34 @@
   color: rgba(74, 63, 54, .35);
 }
 
-.cadDigits {
+/* 稅費：跟金額同一排的小白卡，共用同一組鍵盤 */
+.tax {
+  flex: none;
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: var(--c-card);
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.taxLabel {
+  font-family: var(--f-body);
+  font-size: 11.5px;
+  color: var(--c-text-3);
+}
+
+.taxDigits {
   font-family: var(--f-num);
   font-weight: 700;
-  font-size: 22px;
+  font-size: 18px;
   color: var(--c-text);
   font-variant-numeric: tabular-nums;
 }
 
-.cadDigits[data-empty] { color: rgba(74, 63, 54, .25); }
-
-/* 其中稅：跟實扣 CAD 同一種白卡，但標籤和數字並排，下面一行是算出來的稅前 */
-.tax {
-  display: block;
-  width: 100%;
-  margin-bottom: 12px;
-  border: 0;
-  border-radius: var(--r-sm);
-  background: var(--c-card);
-  padding: 10px 13px;
-  text-align: left;
-  cursor: pointer;
-}
-
-.tax[data-focused] {
-  box-shadow: inset 0 0 0 2px var(--c-primary);
-}
-
-.taxTop {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-/* 和 .cadLine 一樣，但不要它的 margin-top：這裡是並排不是換行 */
-.taxLine {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-}
-
-.preTax {
-  display: block;
-  margin-top: 2px;
-  font-family: var(--f-body);
-  font-size: 11.5px;
-  color: var(--c-text-2);
-}
-
-.taxError {
-  margin: -6px 0 10px 10px;
-  font-family: var(--f-body);
-  font-size: 11.5px;
-  color: var(--c-expense);
-}
+.taxDigits[data-empty] { color: rgba(74, 63, 54, .25); }
 
 /* 日期與誰記的：兩張並排的白卡 */
 .cards {
@@ -384,37 +308,6 @@
   overflow: hidden;
   /* 下緣多留 3px，小月曆卡片的實體陰影才不會被 overflow 切掉 */
   padding: 8px 0 3px;
-}
-
-/*
- * 實扣 CAD 卡：外層用 grid-rows 0fr↔1fr 做高度，內層切掉溢出。
- * 出現時從上方往下滑開，收起時往上收（使用者要求）。
- */
-.cadPanel {
-  display: grid;
-  grid-template-rows: 1fr;
-}
-
-.cadClip {
-  min-height: 0;
-  overflow: hidden;
-}
-
-.cadEnter { animation: cadExpand var(--pop) var(--ease-enter) both; }
-
-.cadExit {
-  animation: cadCollapse var(--pop) var(--ease-exit) both;
-  pointer-events: none;
-}
-
-@keyframes cadExpand {
-  from { grid-template-rows: 0fr; opacity: 0; transform: translateY(-10px); }
-  to   { grid-template-rows: 1fr; opacity: 1; transform: none; }
-}
-
-@keyframes cadCollapse {
-  from { grid-template-rows: 1fr; opacity: 1; transform: none; }
-  to   { grid-template-rows: 0fr; opacity: 0; transform: translateY(-10px); }
 }
 
 .calendarEnter { animation: calendarExpand var(--pop) var(--ease-enter) both; }

@@ -86,38 +86,6 @@ describe('EntrySheet 的金額與幣別', () => {
     expect(screen.getByTestId('field-amount')).toHaveTextContent('123');
   });
 
-  it('CAD 時沒有實扣欄位，提示是「主幣別 CAD · 直接記錄」', () => {
-    render(<EntrySheet {...BASE} />);
-    expect(screen.queryByTestId('field-cad')).not.toBeInTheDocument();
-    expect(screen.getByTestId('currency-hint')).toHaveTextContent('主幣別 CAD · 直接記錄');
-  });
-
-  it('切到外幣才出現實扣欄位與對應提示', () => {
-    render(<EntrySheet {...BASE} />);
-    fireEvent.click(screen.getByTestId('currency-TWD'));
-    expect(screen.getByTestId('field-cad')).toBeInTheDocument();
-    expect(screen.getByTestId('currency-hint')).toHaveTextContent('不用匯率換算');
-  });
-
-  it('點實扣欄位後數字鍵改打在那一欄', () => {
-    render(<EntrySheet {...BASE} />);
-    fireEvent.click(screen.getByTestId('currency-TWD'));
-    typeAmount('1280');
-    fireEvent.click(screen.getByTestId('field-cad'));
-    typeAmount('58');
-    expect(screen.getByTestId('field-amount')).toHaveTextContent('1280');
-    expect(screen.getByTestId('field-cad')).toHaveTextContent('58');
-  });
-
-  it('切回 CAD 時實扣欄位消失，焦點回到金額欄', () => {
-    render(<EntrySheet {...BASE} />);
-    fireEvent.click(screen.getByTestId('currency-TWD'));
-    fireEvent.click(screen.getByTestId('field-cad'));
-    fireEvent.click(screen.getByTestId('currency-CAD'));
-    expect(screen.queryByTestId('field-cad')).not.toBeInTheDocument();
-    typeAmount('9');
-    expect(screen.getByTestId('field-amount')).toHaveTextContent('9');
-  });
 });
 
 describe('EntrySheet 的支出／收入切換', () => {
@@ -231,13 +199,6 @@ describe('EntrySheet 的儲存', () => {
     }));
   });
 
-  it('外幣沒填實扣時不給存', () => {
-    render(<EntrySheet {...BASE} />);
-    typeAmount('1280');
-    fireEvent.click(screen.getByTestId('currency-TWD'));
-    expect(screen.getByTestId('key-save')).toBeDisabled();
-  });
-
   it('儲存後關閉面板', () => {
     const onClose = vi.fn();
     render(<EntrySheet {...BASE} onClose={onClose} />);
@@ -316,64 +277,63 @@ describe('EntrySheet 的刪除（MOTION #37）', () => {
   });
 });
 
-describe('其中稅（對收據用）', () => {
-  it('卡片一直在，預設是 0 的淡色字，沒有稅前那行', () => {
+describe('稅費與含稅合計', () => {
+  it('支出時有稅費卡，預設是 0 的淡色字，提示是「金額請填稅前」', () => {
     render(<EntrySheet {...BASE} />);
     expect(screen.getByTestId('field-tax')).toBeInTheDocument();
     expect(screen.getByTestId('field-tax').querySelector('[data-empty]')).not.toBeNull();
-    expect(screen.queryByTestId('pre-tax')).not.toBeInTheDocument();
+    expect(screen.getByTestId('amount-hint')).toHaveTextContent('金額請填稅前');
   });
 
-  it('點稅欄之後，數字鍵打進稅欄而不是金額欄', () => {
+  it('點稅費卡之後，數字鍵打進稅費而不是金額', () => {
     render(<EntrySheet {...BASE} />);
-    typeAmount('48.72');
+    typeAmount('16.75');
     fireEvent.click(screen.getByTestId('field-tax'));
-    typeAmount('2.85');
-    expect(screen.getByTestId('field-amount')).toHaveTextContent('48.72');
-    expect(screen.getByTestId('field-tax')).toHaveTextContent('2.85');
+    typeAmount('1.00');
+    expect(screen.getByTestId('field-amount')).toHaveTextContent('16.75');
+    expect(screen.getByTestId('field-tax')).toHaveTextContent('1.00');
   });
 
-  it('填了稅就顯示稅前', () => {
+  it('填了稅費，提示變成含稅合計', () => {
     render(<EntrySheet {...BASE} />);
-    typeAmount('48.72');
+    typeAmount('16.75');
     fireEvent.click(screen.getByTestId('field-tax'));
-    typeAmount('2.85');
-    expect(screen.getByTestId('pre-tax')).toHaveTextContent('稅前 $45.87');
+    typeAmount('1.00');
+    expect(screen.getByTestId('amount-hint')).toHaveTextContent('含稅合計 $17.75');
   });
 
-  it('稅大於金額：出現訊息，儲存鍵按不下去', () => {
+  // 畫面上打稅前，存進去的是實付總額
+  it('存出去的金額是含稅合計', () => {
     const onSave = vi.fn();
     render(<EntrySheet {...BASE} onSave={onSave} />);
-    typeAmount('1000');
+    typeAmount('16.75');
     fireEvent.click(screen.getByTestId('field-tax'));
-    typeAmount('2000');
-    expect(screen.getByTestId('tax-error')).toHaveTextContent('稅不能大於金額');
-    // 錯誤狀態下不該有稅前那行：那個數字（不論正負）都會誤導，旁邊已經有紅字在講了
-    expect(screen.queryByTestId('pre-tax')).not.toBeInTheDocument();
+    typeAmount('1.00');
     fireEvent.click(screen.getByTestId('key-save'));
-    expect(onSave).not.toHaveBeenCalled();
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
+      amountCents: 1_775, taxCents: 100, currency: 'CAD', actualCadCents: 1_775,
+    }));
   });
 
-  it('只打了金額、還沒填稅：沒有稅前那行', () => {
+  it('收入沒有稅費卡，也沒有那行提示', () => {
     render(<EntrySheet {...BASE} />);
-    typeAmount('48.72');
-    expect(screen.queryByTestId('pre-tax')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('kind-income'));
+    expect(screen.queryByTestId('field-tax')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('amount-hint')).not.toBeInTheDocument();
   });
 
-  it('存出去的內容帶著稅', () => {
-    const onSave = vi.fn();
-    render(<EntrySheet {...BASE} onSave={onSave} />);
-    typeAmount('48.72');
-    fireEvent.click(screen.getByTestId('field-tax'));
-    typeAmount('2.85');
-    fireEvent.click(screen.getByTestId('key-save'));
-    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ amountCents: 4_872, taxCents: 285 }));
+  it('編輯一筆有稅的帳：金額欄顯示稅前，稅費欄顯示稅', () => {
+    render(<EntrySheet {...BASE} txn={txn({ amountCents: 1_775, actualCadCents: 1_775, taxCents: 100 })} />);
+    expect(screen.getByTestId('field-amount')).toHaveTextContent('16.75');
+    expect(screen.getByTestId('field-tax')).toHaveTextContent('1.00');
+    expect(screen.getByTestId('amount-hint')).toHaveTextContent('含稅合計 $17.75');
   });
 
-  it('編輯一筆有稅的帳，稅帶進來', () => {
-    render(<EntrySheet {...BASE} txn={txn({ amountCents: 4_872, actualCadCents: 4_872, taxCents: 285 })} />);
-    expect(screen.getByTestId('field-tax')).toHaveTextContent('2.85');
-    expect(screen.getByTestId('pre-tax')).toHaveTextContent('稅前 $45.87');
+  it('畫面上沒有幣別切換，也沒有實扣 CAD 欄', () => {
+    render(<EntrySheet {...BASE} />);
+    expect(screen.queryByTestId('currencies')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('currency-TWD')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('field-cad')).not.toBeInTheDocument();
   });
 });
 

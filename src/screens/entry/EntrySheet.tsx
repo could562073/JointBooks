@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { formatCad, pushDigit } from '../../domain/money';
-import type { Category, Currency, Txn } from '../../domain/types';
+import type { Category, Txn } from '../../domain/types';
 import { DUR, EASE } from '../../lib/motion';
 import { usePresence } from '../../lib/usePresence';
 import { Mantou } from '../../components/Mantou';
@@ -11,8 +11,8 @@ import type { NewTxnInput } from '../../repo/ledgerRepo';
 import { keyChar, type KeypadKey } from './amountInput';
 import { CategoryPicker } from './CategoryPicker';
 import {
-  actualCadCents, canSave, draftForNew, draftFromTxn, needsCadField, preTaxCents,
-  setCurrency, setKind, setMain, taxError, toInput, type AmountField, type EntryDraft,
+  canSave, draftForNew, draftFromTxn, setKind, setMain, taxCents, toInput, totalCents,
+  type AmountField, type EntryDraft,
 } from './entryDraft';
 import { Keypad } from './Keypad';
 import { KindSegment } from './KindSegment';
@@ -20,8 +20,6 @@ import { MiniCalendar } from './MiniCalendar';
 import { useSheetDismiss } from './useSheetDismiss';
 import { useBackToClose } from '../../lib/useBackToClose';
 import styles from './EntrySheet.module.css';
-
-const CURRENCIES: Currency[] = ['CAD', 'TWD', 'USD'];
 
 /** 金額還是 0（或只打了 0.）時用淡色字，跟原型的空狀態一樣 */
 function isBlank(v: string): boolean {
@@ -92,20 +90,16 @@ export function EntrySheet({
 
   const main = categories.find((c) => c.id === draft.mainId);
   const sub = main?.subs.find((s) => s.id === draft.subId);
-  const showCad = needsCadField(draft);
-  // 實扣 CAD 卡：出現時向下滑開、收起時往上收，播完才卸載（跟日期面板同一套）
-  const cadPanel = usePresence(showCad, DUR.popIn, reduced);
   const saveable = canSave(draft);
-  const preTax = preTaxCents(draft);
-  const taxErr = taxError(draft);
+  // 收入沒有稅：稅費卡與含稅合計那行都不出現
+  const showTax = draft.kind === 'expense';
+  const tax = taxCents(draft);
 
   const key = useCallback((k: KeypadKey) => {
     const c = keyChar(k);
-    setDraft((d) => {
-      if (d.field === 'cad') return { ...d, cad: pushDigit(d.cad, c) };
-      if (d.field === 'tax') return { ...d, tax: pushDigit(d.tax, c) };
-      return { ...d, amount: pushDigit(d.amount, c) };
-    });
+    setDraft((d) => (d.field === 'tax'
+      ? { ...d, tax: pushDigit(d.tax, c) }
+      : { ...d, amount: pushDigit(d.amount, c) }));
   }, []);
 
   const focus = (field: AmountField) => setDraft((d) => ({ ...d, field }));
@@ -208,88 +202,29 @@ export function EntrySheet({
             </span>
           </button>
 
-          <div
-            className={styles.currencies}
-            style={{ ['--fade' as string]: reduced ? '0ms' : `${DUR.popIn}ms` }}
-            data-testid="currencies"
-          >
-            {CURRENCIES.map((c) => (
-              <button
-                key={c}
-                type="button"
-                className={styles.currency}
-                data-selected={draft.currency === c ? '' : undefined}
-                aria-pressed={draft.currency === c}
-                onClick={() => setDraft((d) => setCurrency(d, c))}
-                data-testid={`currency-${c}`}
-              >{c}</button>
-            ))}
-          </div>
-        </div>
-
-        <p className={styles.hint} data-testid="currency-hint">
-          {showCad
-            ? '非 CAD：請填銀行實際扣款的 CAD 金額（不用匯率換算）'
-            : '主幣別 CAD · 直接記錄'}
-        </p>
-
-        {/* §5：非 CAD 時才出現實扣 CAD 欄位；出現時向下滑開（使用者要求） */}
-        {cadPanel.mounted && (
-          <div
-            className={[
-              styles.cadPanel,
-              reduced ? '' : cadPanel.exiting ? styles.cadExit : styles.cadEnter,
-            ].filter(Boolean).join(' ')}
-            style={{ ['--pop' as string]: `${DUR.popIn}ms` }}
-            data-exiting={cadPanel.exiting ? '' : undefined}
-            data-testid="cad-panel"
-          >
-            <div className={styles.cadClip}>
-              <button
-                type="button"
-                className={styles.cad}
-                data-focused={draft.field === 'cad' ? '' : undefined}
-                onClick={() => focus('cad')}
-                data-testid="field-cad"
-              >
-                <span className={styles.cardLabel}>實際扣款 CAD</span>
-                <span className={styles.cadLine}>
-                  <span className={styles.dollarSm} aria-hidden="true">$</span>
-                  <span className={styles.cadDigits} data-empty={isBlank(draft.cad) ? '' : undefined}>
-                    {draft.cad || '0'}
-                  </span>
-                </span>
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* 對收據用：金額裡有多少是稅。統計一律用金額，不碰這一格 */}
-        <button
-          type="button"
-          className={styles.tax}
-          data-focused={draft.field === 'tax' ? '' : undefined}
-          onClick={() => focus('tax')}
-          data-testid="field-tax"
-        >
-          <span className={styles.taxTop}>
-            <span className={styles.cardLabel}>其中稅（可不填）</span>
-            <span className={styles.taxLine}>
+          {/* 稅費：跟金額同一排、共用同一組鍵盤。收入沒有稅，整格不出現 */}
+          {showTax && (
+            <button
+              type="button"
+              className={styles.tax}
+              data-focused={draft.field === 'tax' ? '' : undefined}
+              onClick={() => focus('tax')}
+              data-testid="field-tax"
+            >
+              <span className={styles.taxLabel}>稅費</span>
               <span className={styles.dollarSm} aria-hidden="true">$</span>
-              <span className={styles.cadDigits} data-empty={isBlank(draft.tax) ? '' : undefined}>
+              <span className={styles.taxDigits} data-empty={isBlank(draft.tax) ? '' : undefined}>
                 {draft.tax || '0'}
               </span>
-            </span>
-          </span>
-          {preTax !== null && (
-            <span className={styles.preTax} data-testid="pre-tax">
-              稅前 {formatCad(preTax, 'none')}
-            </span>
+            </button>
           )}
-        </button>
+        </div>
 
-        {taxErr && (
-          <p className={styles.taxError} data-testid="tax-error">{taxErr}</p>
+        {/* 加拿大的標價不含稅，所以金額欄要的是稅前；填了稅就把實付的總額算給使用者看 */}
+        {showTax && (
+          <p className={styles.hint} data-testid="amount-hint">
+            {tax > 0 ? `含稅合計 ${formatCad(totalCents(draft), 'none')}` : '金額請填稅前'}
+          </p>
         )}
 
         <CategoryPicker
@@ -382,7 +317,8 @@ export function EntrySheet({
           subject={
             <>
               <span>{main?.name ?? txn.mainName} · {sub?.name ?? txn.subName}</span>
-              <span>{formatCad(actualCadCents(draft), 'minus')}</span>
+              {/* actualCadCents(draft) 已隨這次改動移除；currency 一律 CAD，含稅合計即實扣金額 */}
+              <span>{formatCad(totalCents(draft), 'minus')}</span>
             </>
           }
           description="刪除後無法復原，對方的手機也會同步移除。"

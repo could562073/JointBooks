@@ -81,33 +81,17 @@ describe('§15.1-7 小數最多兩位、總長 9 字', () => {
   });
 });
 
-describe('§15.1-8 幣別選 TWD 出現實際扣款 CAD 欄位', () => {
-  it('選 TWD 出現、選回 CAD 消失', async () => {
+describe('§15.1-8 金額填稅前，存進去的是含稅合計', () => {
+  it('打稅前與稅費，明細列顯示的是合計', async () => {
     await openApp();
     fireEvent.click(screen.getByTestId('fab'));
-    expect(screen.queryByTestId('field-cad')).not.toBeInTheDocument();
-
-    fireEvent.click(screen.getByTestId('currency-TWD'));
-    expect(screen.getByTestId('field-cad')).toBeInTheDocument();
-    expect(screen.getByTestId('currency-hint')).toHaveTextContent('銀行實際扣款');
-
-    fireEvent.click(screen.getByTestId('currency-CAD'));
-    expect(screen.queryByTestId('field-cad')).not.toBeInTheDocument();
-  });
-
-  it('存下去的是 CAD 欄位的金額，不是原幣金額', async () => {
-    await openApp();
-    fireEvent.click(screen.getByTestId('fab'));
-    typeAmount('1000');                                   // TWD 1000
-    fireEvent.click(screen.getByTestId('currency-TWD'));
-    fireEvent.click(screen.getByTestId('field-cad'));
-    typeAmount('44');                                     // 實際扣款 CAD 44
+    typeAmount('16.75');
+    fireEvent.click(screen.getByTestId('field-tax'));
+    typeAmount('1.00');
     fireEvent.click(screen.getByTestId('key-save'));
 
     await settledTxns(1);
-    const row = listedRows()[0]!;
-    expect(row).toContain('-44.00');
-    expect(row).toContain('1,000');                        // 原幣金額仍留著顯示
+    expect(listedRows()[0]!).toContain('17.75');
   });
 });
 

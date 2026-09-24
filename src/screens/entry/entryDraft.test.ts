@@ -2,8 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { defaultCategories } from '../../domain/categories';
 import type { Category, Txn } from '../../domain/types';
 import {
-  actualCadCents, canSave, draftForNew, draftFromTxn, needsCadField, preTaxCents,
-  setCurrency, setKind, setMain, taxCents, taxError, toInput,
+  canSave, draftForNew, draftFromTxn, setKind, setMain, taxCents, toInput, totalCents,
 } from './entryDraft';
 
 let n = 0;
@@ -60,16 +59,6 @@ describe('draftFromTxn', () => {
     expect(d.kind).toBe('income');
   });
 
-  it('外幣的紀錄帶入實扣金額', () => {
-    const d = draftFromTxn(CATS, txn({ amountCents: 128_000, currency: 'TWD', actualCadCents: 5_800 }));
-    expect(d.amount).toBe('1280.00');
-    expect(d.cad).toBe('58.00');
-  });
-
-  it('CAD 的紀錄不帶實扣欄位，免得切到外幣時看到來路不明的數字', () => {
-    expect(draftFromTxn(CATS, txn()).cad).toBe('');
-  });
-
   it('分類已被刪掉時退回支出，不會炸掉', () => {
     expect(draftFromTxn(CATS, txn({ mainId: 'gone' })).kind).toBe('expense');
   });
@@ -119,27 +108,6 @@ describe('setMain', () => {
   });
 });
 
-describe('幣別與實扣 CAD', () => {
-  it('CAD 時不出現實扣欄位，實扣就等於原幣金額', () => {
-    const d = { ...NEW(), amount: '20.50' };
-    expect(needsCadField(d)).toBe(false);
-    expect(actualCadCents(d)).toBe(2050);
-  });
-
-  it('非 CAD 時才出現實扣欄位，且實扣用使用者填的數字', () => {
-    const d = setCurrency({ ...NEW(), amount: '1280' }, 'TWD');
-    expect(needsCadField(d)).toBe(true);
-    expect(actualCadCents({ ...d, cad: '58' })).toBe(5800);
-  });
-
-  it('切回 CAD 會清掉實扣欄位並把鍵盤焦點收回金額欄', () => {
-    const foreign = { ...setCurrency(NEW(), 'USD'), cad: '58', field: 'cad' as const };
-    const back = setCurrency(foreign, 'CAD');
-    expect(back.cad).toBe('');
-    expect(back.field).toBe('amount');
-  });
-});
-
 describe('canSave', () => {
   it('金額 0 不給存（§5：金額為 0 時不寫入）', () => {
     expect(canSave(NEW())).toBe(false);
@@ -149,12 +117,6 @@ describe('canSave', () => {
 
   it('CAD 有金額就能存', () => {
     expect(canSave({ ...NEW(), amount: '12.34' })).toBe(true);
-  });
-
-  it('外幣沒填實扣不給存，否則統計上會是一筆零元', () => {
-    const d = setCurrency({ ...NEW(), amount: '1280' }, 'TWD');
-    expect(canSave(d)).toBe(false);
-    expect(canSave({ ...d, cad: '58' })).toBe(true);
   });
 
   it('沒有分類不給存', () => {
@@ -172,92 +134,98 @@ describe('toInput', () => {
     });
   });
 
-  it('外幣：原幣與實扣各自獨立', () => {
-    const d = setCurrency({ ...NEW(), amount: '1280' }, 'TWD');
-    const i = toInput({ ...d, cad: '58' });
-    expect(i.amountCents).toBe(128_000);
-    expect(i.actualCadCents).toBe(5_800);
-  });
-
   it('備註留空時存空字串，不是 undefined', () => {
     expect(toInput({ ...NEW(), amount: '12' }).note).toBe('');
   });
 });
 
-describe('其中稅', () => {
-  const withTax = (tax: string, amount = '48.72') => ({ ...NEW(), amount, tax });
+describe('稅前輸入', () => {
+  const draft = (amount: string, tax = '') => ({ ...NEW(), amount, tax });
 
-  it('新增模式預設沒有稅', () => {
+  it('新增模式金額與稅都是空的', () => {
+    expect(NEW().amount).toBe('');
     expect(NEW().tax).toBe('');
-    expect(taxCents(NEW())).toBe(0);
   });
 
-  it('稅前是金額減稅', () => {
-    expect(preTaxCents(withTax('2.85'))).toBe(4_587);
+  it('含稅合計是稅前加稅', () => {
+    expect(totalCents(draft('16.75', '1.00'))).toBe(1_775);
   });
 
-  it('沒填稅時沒有稅前可以顯示', () => {
-    expect(preTaxCents(withTax(''))).toBeNull();
+  it('沒填稅時合計就是金額', () => {
+    expect(totalCents(draft('16.75'))).toBe(1_675);
   });
 
-  it('金額還沒打時也沒有稅前', () => {
-    expect(preTaxCents(withTax('2.85', ''))).toBeNull();
+  // 畫面上打稅前，存進去的是實付總額：Sheet 的金額欄與所有統計的意思都不變
+  it('存出去的金額是含稅合計，不是打進去的稅前', () => {
+    const i = toInput(draft('16.75', '1.00'));
+    expect(i.amountCents).toBe(1_775);
+    expect(i.actualCadCents).toBe(1_775);
+    expect(i.taxCents).toBe(100);
+    expect(i.currency).toBe('CAD');
   });
 
-  it('稅剛好等於金額是合法的（整筆都是押金之類）', () => {
-    const d = withTax('48.72');
-    expect(taxError(d)).toBeNull();
-    expect(canSave(d)).toBe(true);
-    expect(preTaxCents(d)).toBe(0);
-  });
-
-  it('稅大於金額：擋下儲存並給訊息', () => {
-    const d = withTax('50.00');
-    expect(taxError(d)).toBe('稅不能大於金額');
-    expect(canSave(d)).toBe(false);
-  });
-
-  // 錯誤狀態下那個數字沒有意義；顯示負數或絕對值都會誤導
-  it('稅大於金額時沒有稅前可以顯示', () => {
-    expect(preTaxCents(withTax('50.00'))).toBeNull();
-  });
-
-  // 先點稅欄、金額還沒打時亮紅字只是噪音；存不存得了本來就由金額 0 那條規則決定
-  it('金額還沒打時不報稅的錯，但也還是存不了', () => {
-    const d = withTax('2.85', '');
-    expect(taxError(d)).toBeNull();
-    expect(canSave(d)).toBe(false);
-  });
-
-  it('toInput 有稅時帶整數分', () => {
-    expect(toInput(withTax('2.85')).taxCents).toBe(285);
-  });
-
-  // 編輯一筆本來有稅的帳、把稅刪掉時，patch 一定要含這個鍵，否則舊值會留著
-  it('toInput 沒稅時帶 undefined，而不是漏掉這個鍵', () => {
-    const i = toInput(withTax(''));
+  it('沒填稅時 taxCents 帶 undefined，而不是漏掉這個鍵', () => {
+    const i = toInput(draft('16.75'));
     expect('taxCents' in i).toBe(true);
     expect(i.taxCents).toBeUndefined();
   });
 
-  it('編輯模式把稅帶回字串', () => {
-    expect(draftFromTxn(CATS, txn({ taxCents: 285 })).tax).toBe('2.85');
+  // 稅現在是外加的，不再是金額裡的一部分，沒有上限可言
+  it('稅比金額還大也能存', () => {
+    const d = draft('1.00', '50.00');
+    expect(canSave(d)).toBe(true);
+    expect(toInput(d).amountCents).toBe(5_100);
   });
 
-  it('沒有稅的舊帳帶回空字串，不是 0', () => {
-    expect(draftFromTxn(CATS, txn()).tax).toBe('');
+  it('金額 0 還是存不了', () => {
+    expect(canSave(draft('', '1.00'))).toBe(false);
   });
 
-  // 換幣別本來就要重打金額，稅留著讓使用者自己改比清掉少一次意外
-  it('換幣別不清掉稅', () => {
-    expect(setCurrency(withTax('2.85'), 'USD').tax).toBe('2.85');
-    expect(setCurrency({ ...withTax('2.85'), currency: 'USD' }, 'CAD').tax).toBe('2.85');
+  it('收入沒有稅：打了也不算，也不會存進去', () => {
+    const income = { ...setKind(NEW(), CATS, 'income'), amount: '100', tax: '5.00' };
+    expect(taxCents(income)).toBe(0);
+    expect(totalCents(income)).toBe(10_000);
+    expect(toInput(income).taxCents).toBeUndefined();
   });
 
-  it('切回 CAD 時焦點在稅欄就留在稅欄，只有停在實扣欄才收回金額', () => {
-    const onTax = { ...withTax('2.85'), currency: 'USD' as const, field: 'tax' as const };
-    expect(setCurrency(onTax, 'CAD').field).toBe('tax');
-    const onCad = { ...withTax('2.85'), currency: 'USD' as const, field: 'cad' as const };
-    expect(setCurrency(onCad, 'CAD').field).toBe('amount');
+  // 收入沒有稅費欄，焦點留在那裡會變成打字沒有任何反應
+  it('切到收入時焦點從稅欄收回金額欄', () => {
+    const onTax = { ...NEW(), field: 'tax' as const };
+    expect(setKind(onTax, CATS, 'income').field).toBe('amount');
+  });
+});
+
+describe('編輯模式帶入的金額', () => {
+  it('CAD 的帳：金額欄顯示稅前，稅費欄顯示稅', () => {
+    const d = draftFromTxn(CATS, txn({ amountCents: 1_775, actualCadCents: 1_775, taxCents: 100 }));
+    expect(d.amount).toBe('16.75');
+    expect(d.tax).toBe('1.00');
+  });
+
+  it('沒有稅的帳：金額欄就是原值，稅費欄空著', () => {
+    const d = draftFromTxn(CATS, txn({ amountCents: 1_250, actualCadCents: 1_250 }));
+    expect(d.amount).toBe('12.50');
+    expect(d.tax).toBe('');
+  });
+
+  // v1.3.0 的稅費欄在收入時也看得見，可能已經記過一筆帶稅的收入。
+  // 減掉的話那筆收入會在編輯時無聲地變小
+  it('帶稅的收入：金額原樣帶入，不減掉稅', () => {
+    const inc = txn({
+      mainId: INCOME[0]!.id, subId: INCOME[0]!.subs[0]!.id,
+      amountCents: 10_000, actualCadCents: 10_000, taxCents: 500,
+    });
+    const d = draftFromTxn(CATS, inc);
+    expect(d.kind).toBe('income');
+    expect(d.amount).toBe('100.00');
+    expect(d.tax).toBe('');
+  });
+
+  // 使用者裁決：舊的外幣紀錄一編輯就轉成 CAD，原幣金額不保留
+  it('舊的外幣紀錄：帶入實扣 CAD，幣別變成 CAD', () => {
+    const d = draftFromTxn(CATS, txn({ amountCents: 128_000, currency: 'TWD', actualCadCents: 5_800 }));
+    expect(d.amount).toBe('58.00');
+    expect(d.tax).toBe('');
+    expect(d.currency).toBe('CAD');
   });
 });
