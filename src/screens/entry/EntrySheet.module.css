@@ -171,7 +171,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-.digits[data-empty] { color: rgba(74, 63, 54, .25); }
+.digits[data-empty] { color: var(--c-text-5); }
 
 .hint {
   margin: 0 0 10px 10px;
@@ -214,7 +214,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-.taxDigits[data-empty] { color: rgba(74, 63, 54, .25); }
+.taxDigits[data-empty] { color: var(--c-text-5); }
 
 /* 日期與誰記的：兩張並排的白卡 */
 .cards {

@@ -256,6 +256,13 @@ describe('EntrySheet 的刪除（MOTION #37）', () => {
     expect(subject).toHaveTextContent('-$12.50');
   });
 
+  // 確認窗的金額走的是 totalCents：稅前 16.75 + 稅 1.00 要顯示成含稅的 17.75，不是稅前
+  it('有稅的帳：確認窗顯示的是含稅合計，不是稅前', () => {
+    render(<EntrySheet {...BASE} txn={txn({ amountCents: 1_775, actualCadCents: 1_775, taxCents: 100 })} />);
+    fireEvent.click(screen.getByTestId('entry-delete'));
+    expect(screen.getByTestId('delete-confirm-subject')).toHaveTextContent('-$17.75');
+  });
+
   it('取消不刪，回到面板', () => {
     const onDelete = vi.fn();
     render(<EntrySheet {...BASE} txn={txn()} onDelete={onDelete} />);
