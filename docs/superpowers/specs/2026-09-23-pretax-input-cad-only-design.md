@@ -58,8 +58,9 @@ v1.3.0 讓一筆帳可以記稅，但金額欄填的是收據總額、稅是「�
 - 金額卡與稅費卡並排，共用同一組鍵盤；點哪一格焦點就去哪一格（沿用現有的
   `EntryDraft.field` 機制，`AmountField` 從三態縮回 `'amount' | 'tax'`）。
 - 金額卡下面那一行（現在的 `currency-hint`）改名為 `amount-hint`，兩種文案：
-  - 稅費是 0 或空白：**`金額請填稅前`**
-  - 稅費 > 0：**`含稅合計 $17.75`**
+  - 稅費是 0 或空白、**或金額還是空的**：**`金額請填稅前`**（先點稅費欄打字的人，
+    金額還沒填之前不該看到一個只有稅、沒有本金的「合計」）
+  - 稅費 > 0 且金額 > 0：**`含稅合計 $17.75`**
 - **收入**：稅費卡不出現，金額卡佔滿整行；`amount-hint` 也不顯示（收入沒有稅前稅後之分）。
 - **移除**：幣別 chip 那一排（`currency-CAD` / `currency-TWD` / `currency-USD`）、
   「實際扣款 CAD」卡與它的展開動畫（`field-cad`、`cad-panel`）。
@@ -99,12 +100,17 @@ export function totalCents(d: EntryDraft): number {
 - `actualCadCents(d)`：回 `totalCents(d)`（一律 CAD，不再分幣別）。
 - `toInput(d)`：`amountCents` 與 `actualCadCents` 都是 `totalCents(d)`，`currency: 'CAD'`，
   `taxCents: taxCents(d) || undefined`。
-- `draftFromTxn(cats, t)`，依序判斷：
+- `draftFromTxn(cats, t)`，依序判斷（**順序不能換：幣別要排在收支類型前面**——
+  舊的外幣紀錄不論收入或支出，畫面上要的都是當初實際扣款／入帳的加幣；先看
+  收支類型的話，外幣收入會落到「收入」那條分支，把原幣金額當成加幣帶進來，
+  使用者存一次就把那筆放大成匯率倍數。v1.3.0 的幣別 chip 是無條件渲染的，
+  不分收支類型，所以外幣收入是記得出來的，這個情境會實際發生）：
+  - **`t.currency !== 'CAD'`（舊的外幣紀錄，收入、支出都一樣）**：
+    `amount = centsToInput(t.actualCadCents)`，稅留空
   - **收入**：`amount = centsToInput(t.amountCents)`，稅留空。不可以減掉 `taxCents`——
     v1.3.0 的稅費卡在收入時也看得見，雪雪大人有可能已經記過一筆帶稅的收入；
     減掉的話那筆收入會在編輯時無聲地變小。這樣帶入之後再存一次，那個不該存在的稅也順手清掉了。
   - **支出、`t.currency === 'CAD'`**：`amount = centsToInput(t.amountCents − (t.taxCents ?? 0))`
-  - **支出、其他幣別（舊紀錄）**：`amount = centsToInput(t.actualCadCents)`，稅留空
   - 三種情況 `currency` 都帶 `'CAD'`——存下去就完成轉換，原幣不留（使用者選的）
 - `canSave(d)`：金額 0 擋下；不再檢查 `taxError`。外幣那條「實扣不能是 0」隨幣別介面一起消失。
 
