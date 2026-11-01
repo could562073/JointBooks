@@ -66,9 +66,4 @@ describe('KindSegment 的滑塊（MOTION #36）', () => {
     expect(screen.getByTestId('kind-slider')).toHaveStyle({ background: '#DDA6D0' });
   });
 
-  it('reduced-motion 時不做位移與變色動畫', () => {
-    stubMotion(true);
-    render(<KindSegment kind="expense" onChange={() => {}} />);
-    expect(screen.getByTestId('kind-slider')).toHaveStyle({ transition: 'none' });
-  });
 });

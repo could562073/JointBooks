@@ -111,33 +111,6 @@ export async function settle(page: Page): Promise<void> {
   );
 }
 
-/** 計算後的 transform 拆成位移、縮放、旋轉角度 */
-export async function matrixOf(el: Locator): Promise<{ x: number; y: number; sx: number; sy: number; angle: number }> {
-  return el.evaluate((n) => {
-    const t = getComputedStyle(n).transform;
-    if (t === 'none') return { x: 0, y: 0, sx: 1, sy: 1, angle: 0 };
-    const v = t.slice(t.indexOf('(') + 1, -1).split(',').map((s) => Number(s.trim()));
-    const [a, b, c, d] = t.startsWith('matrix3d') ? [v[0]!, v[1]!, v[4]!, v[5]!] : [v[0]!, v[1]!, v[2]!, v[3]!];
-    const [x, y] = t.startsWith('matrix3d') ? [v[12]!, v[13]!] : [v[4]!, v[5]!];
-    return { x, y, sx: Math.hypot(a, b), sy: Math.hypot(c, d), angle: Math.round((Math.atan2(b, a) * 180) / Math.PI) };
-  });
-}
-
-export type AnimInfo = { duration: number; delay: number; iterations: number; from: string; to: string };
-
-/** 元素（含子孫）身上的 CSS 動畫：時長、延遲、第一格與最後一格的 transform／opacity */
-export async function animationsOf(el: Locator, subtree = false): Promise<AnimInfo[]> {
-  return el.evaluate((n, subtree) => n.getAnimations({ subtree }).map((a) => {
-    const t = a.effect!.getComputedTiming();
-    const kf = (a.effect as KeyframeEffect).getKeyframes();
-    const pick = (k: Keyframe | undefined) => `${k?.transform ?? ''} ${k?.opacity ?? ''} ${k?.strokeDashoffset ?? ''}`.trim();
-    return {
-      duration: Number(t.duration), delay: Number(t.delay), iterations: Number(t.iterations),
-      from: pick(kf[0]), to: pick(kf[kf.length - 1]),
-    };
-  }), subtree);
-}
-
 /**
  * 用真實 pointer 事件拖曳（分段移動才會觸發 pointermove）。
  *
@@ -163,41 +136,4 @@ export async function drag(
   }
   if (opts.release !== false) await page.mouse.up();
   return { x: x + dx, y: y + dy };
-}
-
-/** 一段時間內每一格畫面取一次文字（count-up 有沒有真的在跑） */
-export function sampleText(el: Locator, ms: number): Promise<string[]> {
-  return el.evaluate((n, ms) => new Promise<string[]>((resolve) => {
-    const out: string[] = [];
-    const t0 = performance.now();
-    const tick = () => {
-      out.push(n.textContent ?? '');
-      if (performance.now() - t0 < ms) requestAnimationFrame(tick);
-      else resolve(out);
-    };
-    tick();
-  }), ms);
-}
-
-/** CSS 秒數字串（"0.42s, 0.34s"）裡有沒有這個毫秒數 */
-export function hasDuration(css: string, ms: number): boolean {
-  return css.split(',').some((s) => Math.round(parseFloat(s) * 1000) === ms);
-}
-
-/**
- * 開始記錄畫面上有沒有出現過某個屬性。短暫的動畫狀態（例如 300ms 的 data-popping）
- * 輪詢容易錯過，而且可能是新長出來的元素本身就帶著，所以屬性與子節點變動都要看
- */
-export async function watchAttribute(page: Page, attr: string): Promise<void> {
-  await page.evaluate((attr) => {
-    const w = window as unknown as { __seen?: Record<string, boolean> };
-    w.__seen = { ...(w.__seen ?? {}), [attr]: document.querySelector(`[${attr}]`) !== null };
-    new MutationObserver(() => {
-      if (document.querySelector(`[${attr}]`)) w.__seen![attr] = true;
-    }).observe(document.body, { attributes: true, childList: true, subtree: true });
-  }, attr);
-}
-
-export async function sawAttribute(page: Page, attr: string): Promise<boolean> {
-  return page.evaluate((attr) => (window as unknown as { __seen?: Record<string, boolean> }).__seen?.[attr] === true, attr);
 }

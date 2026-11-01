@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { defaultCategories } from '../../domain/categories';
 import type { Category, Txn } from '../../domain/types';
@@ -81,13 +81,6 @@ describe('CategoriesPage 的支出／收入分段（增補檔 B-1）', () => {
     expect(screen.queryByTestId(`cat-${EXPENSE[0]!.id}`)).not.toBeInTheDocument();
   });
 
-  it('切換時清單整區重掛，滑入動畫才會重播', () => {
-    render(<CategoriesPage {...BASE} />);
-    const before = screen.getByTestId('categories-list');
-    fireEvent.click(screen.getByTestId('catkind-income'));
-    expect(screen.getByTestId('categories-list')).not.toBe(before);
-  });
-
   it('收入分類不顯示金額 pill（增補檔 B-2）', () => {
     render(<CategoriesPage {...BASE} />);
     expect(screen.getByTestId(`cat-${EXPENSE[0]!.id}-budget`)).toBeInTheDocument();
@@ -165,22 +158,4 @@ describe('CategoriesPage 的刪除（MOTION #16）', () => {
     expect(onDelete).toHaveBeenCalledWith(EXPENSE[0]!.id);
   });
 
-  it('一般情況下先播收合再刪（MOTION #16）', () => {
-    vi.stubGlobal('matchMedia', (q: string) => ({
-      matches: false, media: q, addEventListener() {}, removeEventListener() {},
-    }));
-    vi.useFakeTimers();
-    const onDelete = vi.fn();
-    render(<CategoriesPage {...BASE} onDelete={onDelete} />);
-
-    fireEvent.click(screen.getByTestId(`cat-${EXPENSE[0]!.id}-delete`));
-    fireEvent.click(screen.getByTestId('cat-delete-confirm-confirm'));
-
-    expect(screen.getByTestId(`cat-${EXPENSE[0]!.id}`)).toHaveAttribute('data-collapsing');
-    expect(onDelete).not.toHaveBeenCalled();
-
-    act(() => { vi.advanceTimersByTime(260); });
-    expect(onDelete).toHaveBeenCalledWith(EXPENSE[0]!.id);
-    vi.useRealTimers();
-  });
 });

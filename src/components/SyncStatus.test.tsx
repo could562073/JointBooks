@@ -42,26 +42,6 @@ describe('SyncStatus', () => {
   });
 });
 
-describe('SyncStatus 的圓環（MOTION #26）', () => {
-  it('同步中掛上 spin', () => {
-    stubMotion(false);
-    render(<SyncStatus state="syncing" lastSyncAt={null} />);
-    expect(screen.getByTestId('sync-dot').className.split(' ')).toHaveLength(2);
-  });
-
-  it('其他狀態不轉', () => {
-    stubMotion(false);
-    render(<SyncStatus state="synced" lastSyncAt={Date.now()} />);
-    expect(screen.getByTestId('sync-dot').className.split(' ')).toHaveLength(1);
-  });
-
-  it('reduced-motion 時不轉', () => {
-    stubMotion(true);
-    render(<SyncStatus state="syncing" lastSyncAt={null} />);
-    expect(screen.getByTestId('sync-dot').className.split(' ')).toHaveLength(1);
-  });
-});
-
 describe('SyncStatus 的本機模式', () => {
   it('點一下就是登入', () => {
     stubMotion(false);

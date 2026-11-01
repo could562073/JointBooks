@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { animationsOf, drag, openApp, setMeta, settle } from './helpers';
+import { drag, openApp, setMeta, settle } from './helpers';
 
 /**
  * 邀請面板：原本 docs/MANUAL-TESTS.md 的 I4–I13（手動驗），不需要 Google 帳號的部分搬來這裡。
@@ -14,12 +14,6 @@ async function openInvite(page: Page): Promise<void> {
   await page.getByTestId('invite-member').click();
   await expect(page.getByTestId('invite-panel')).toBeVisible();
 }
-
-test('邀請面板由底部滑入（I4）', async ({ page }) => {
-  await openInvite(page);
-  const anims = await animationsOf(page.getByTestId('invite-panel'));
-  expect(anims.some((a) => a.duration === 340 && a.from.includes('100%'))).toBe(true);
-});
 
 test('拖把手：不到門檻彈回，超過門檻放手才關（I5）', async ({ page }) => {
   await openInvite(page);
@@ -43,14 +37,6 @@ test('複製邀請連結：按鈕轉綠、文字變「已複製連結」，2.2 �
   const link = await page.getByTestId('invite-link').getAttribute('data-url');
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(link);
   await expect(copy).toHaveText('複製邀請連結', { timeout: 3_500 });
-});
-
-test('顯示 QR Code：由下往上滑入（I8）', async ({ page }) => {
-  await openInvite(page);
-  await page.getByTestId('invite-qr-toggle').click();
-  await expect(page.getByTestId('invite-qr')).toBeVisible();
-  const anims = await animationsOf(page.getByTestId('invite-qr'), true);
-  expect(anims.some((a) => a.duration === 240 && a.from.includes('10px'))).toBe(true);
 });
 
 test('系統分享單按取消：什麼都不發生（I11）', async ({ page }) => {

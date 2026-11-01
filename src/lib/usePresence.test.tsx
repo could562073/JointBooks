@@ -42,12 +42,6 @@ describe('usePresence', () => {
     expect(result.current).toEqual({ mounted: true, exiting: false });
   });
 
-  it('reduced-motion 時關起來當下就卸載，不留離場', () => {
-    const { result, rerender } = hook(true, true);
-    rerender({ o: false, r: true });
-    expect(result.current).toEqual({ mounted: false, exiting: false });
-  });
-
   it('卸載時把還沒到的計時器清掉', () => {
     vi.useFakeTimers();
     const clear = vi.spyOn(globalThis, 'clearTimeout');

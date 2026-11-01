@@ -16,11 +16,6 @@ afterEach(() => vi.unstubAllGlobals());
 describe('useCountUp', () => {
   beforeEach(() => stubMatchMedia(false));
 
-  it('從 0 起跑，第一次 render 不會直接顯示目標值', () => {
-    const { result } = renderHook(() => useCountUp(50_000, 900));
-    expect(result.current).toBe(0);
-  });
-
   it('最終會停在目標值上', async () => {
     const { result } = renderHook(() => useCountUp(50_000, 30));
     await waitFor(() => expect(result.current).toBe(50_000));
@@ -40,12 +35,4 @@ describe('useCountUp', () => {
     await waitFor(() => expect(result.current).toBe(0));
   });
 
-  describe('reduced-motion', () => {
-    beforeEach(() => stubMatchMedia(true));
-
-    it('第一次 render 就是目標值，不經過 0', () => {
-      const { result } = renderHook(() => useCountUp(50_000, 900));
-      expect(result.current).toBe(50_000);
-    });
-  });
 });

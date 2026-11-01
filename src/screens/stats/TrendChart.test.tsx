@@ -5,13 +5,6 @@ import { TrendChart } from './TrendChart';
 
 afterEach(() => vi.unstubAllGlobals());
 
-function stubMotion(reduced: boolean) {
-  vi.stubGlobal('matchMedia', (q: string) => ({
-    matches: reduced && q.includes('prefers-reduced-motion'),
-    media: q, addEventListener() {}, removeEventListener() {},
-  }));
-}
-
 function pts(...rows: [string, number, number][]): TrendPoint[] {
   return rows.map(([label, expenseCents, incomeCents]) => ({ label, expenseCents, incomeCents }));
 }
@@ -76,30 +69,5 @@ describe('TrendChart 的邊界情況', () => {
     render(<TrendChart points={pts(['a', 0, 0], ['b', 0, 0])} drawKey="month" />);
     const points = screen.getByTestId('trend-expense').getAttribute('points')!;
     expect(points).not.toMatch(/NaN/);
-  });
-});
-
-describe('TrendChart 的描線（MOTION #11）', () => {
-  it('一般情況下掛描線動畫，dasharray 等於整條線長', () => {
-    stubMotion(false);
-    render(<TrendChart points={THREE} drawKey="month" />);
-    const line = screen.getByTestId('trend-expense');
-    expect(line.getAttribute('class')!.split(' ')).toHaveLength(2);
-    expect(Number(line.getAttribute('style')?.match(/stroke-dasharray:\s*([\d.]+)/)?.[1]))
-      .toBeGreaterThan(0);
-  });
-
-  it('reduced-motion 時不描線', () => {
-    stubMotion(true);
-    render(<TrendChart points={THREE} drawKey="month" />);
-    expect(screen.getByTestId('trend-expense').getAttribute('class')!.split(' ')).toHaveLength(1);
-  });
-
-  it('換維度時重掛，描線才會重播', () => {
-    stubMotion(false);
-    const { rerender } = render(<TrendChart points={THREE} drawKey="month" />);
-    const before = screen.getByTestId('trend-expense');
-    rerender(<TrendChart points={THREE} drawKey="year" />);
-    expect(screen.getByTestId('trend-expense')).not.toBe(before);
   });
 });

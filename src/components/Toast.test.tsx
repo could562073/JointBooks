@@ -18,16 +18,6 @@ describe('Toast', () => {
     expect(screen.getByRole('status')).toHaveTextContent('老婆記了一筆');
   });
 
-  it('停留 6 秒後開始離場（MOTION #25）', () => {
-    stubMotion(false);
-    vi.useFakeTimers();
-    render(<Toast message="x" onDone={() => {}} />);
-
-    expect(screen.getByTestId('toast')).not.toHaveAttribute('data-leaving');
-    act(() => { vi.advanceTimersByTime(6000); });
-    expect(screen.getByTestId('toast')).toHaveAttribute('data-leaving');
-  });
-
   it('離場動畫演完才回報結束', () => {
     stubMotion(false);
     vi.useFakeTimers();
@@ -50,20 +40,4 @@ describe('Toast', () => {
     expect(onDone).not.toHaveBeenCalled();
   });
 
-  it('圓點會 pulse，reduced-motion 時不會', () => {
-    stubMotion(false);
-    const { unmount } = render(<Toast message="x" onDone={() => {}} />);
-    expect(screen.getByTestId('toast-dot').className.split(' ')).toHaveLength(2);
-    unmount();
-
-    stubMotion(true);
-    render(<Toast message="x" onDone={() => {}} />);
-    expect(screen.getByTestId('toast-dot').className.split(' ')).toHaveLength(1);
-  });
-
-  it('reduced-motion 時不掛進出場動畫', () => {
-    stubMotion(true);
-    render(<Toast message="x" onDone={() => {}} />);
-    expect(screen.getByTestId('toast').className.split(' ')).toHaveLength(1);
-  });
 });

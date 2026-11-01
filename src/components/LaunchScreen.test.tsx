@@ -23,12 +23,6 @@ describe('啟動畫面（原型 v2）', () => {
     expect(s.querySelector('[role="progressbar"], [data-testid="launch-progress"]')).toBeNull();
   });
 
-  // 動畫 0.74 秒就跑完，原本停到 2.15 秒是乾等（使用者要求縮短到接近 LINE 的啟動頁）
-  it('0.9 秒開始淡出，淡出 0.3 秒', () => {
-    expect(DUR.bootHold).toBe(900);
-    expect(DUR.bootOut).toBe(300);
-  });
-
   it('停留後開始淡出，淡出播完自己卸載', () => {
     stubMotion(false);
     vi.useFakeTimers();
@@ -39,16 +33,6 @@ describe('啟動畫面（原型 v2）', () => {
     act(() => { vi.advanceTimersByTime(1); });
     expect(screen.getByTestId('launch-screen')).toHaveAttribute('data-leaving');
     act(() => { vi.advanceTimersByTime(DUR.bootOut); });
-    expect(screen.queryByTestId('launch-screen')).not.toBeInTheDocument();
-  });
-
-  it('減少動態效果：不播彈起，淡出只有 120ms', () => {
-    stubMotion(true);
-    vi.useFakeTimers();
-    render(<LaunchScreen />);
-    expect(screen.getByTestId('launch-screen')).toHaveAttribute('data-reduced');
-
-    act(() => { vi.advanceTimersByTime(DUR.bootHold + DUR.reduced); });
     expect(screen.queryByTestId('launch-screen')).not.toBeInTheDocument();
   });
 

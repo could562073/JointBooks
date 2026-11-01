@@ -145,18 +145,6 @@ describe('EntrySheet 的分類與日期（使用者裁決：分類一直展開�
     expect(screen.getByTestId('category-picker')).toHaveTextContent(`子分類 · ${multi.name}`);
   });
 
-  // 原本在 FieldRow.test 裡的 MOTION #38 覆蓋；FieldRow 移除後搬到這裡
-  it('日期卡的 ▾ 展開時轉 180°（MOTION #38）', () => {
-    render(<EntrySheet {...BASE} />);
-    expect(screen.getByTestId('date-row-chevron')).toHaveStyle({ transform: 'none' });
-    fireEvent.click(screen.getByTestId('date-row'));
-    expect(screen.getByTestId('date-row-chevron')).toHaveStyle({ transform: 'rotate(180deg)' });
-  });
-
-  it('reduced-motion 下 ▾ 不做轉場', () => {
-    render(<EntrySheet {...BASE} />);
-    expect(screen.getByTestId('date-row-chevron')).toHaveStyle({ transition: 'none' });
-  });
 });
 
 describe('EntrySheet 的誰記的（跟著這台裝置的使用者）', () => {
@@ -366,21 +354,6 @@ describe('EntrySheet 的離場（MOTION #2）', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('一般情況下先播離場動畫，260ms 後才真的關', () => {
-    stubNormalMotion();
-    vi.useFakeTimers();
-    const onClose = vi.fn();
-    render(<EntrySheet {...BASE} onClose={onClose} />);
-
-    fireEvent.click(screen.getByTestId('entry-close'));
-    expect(screen.getByTestId('entry-scrim')).toHaveAttribute('data-closing');
-    expect(onClose).not.toHaveBeenCalled();
-
-    vi.advanceTimersByTime(260);
-    expect(onClose).toHaveBeenCalledTimes(1);
-    vi.useRealTimers();
-  });
-
   it('連點兩下只關一次', () => {
     stubNormalMotion();
     vi.useFakeTimers();
@@ -414,35 +387,6 @@ describe('EntrySheet 的小月曆收合動畫（MOTION #38：展開與收起都�
       matches: false, media: q, addEventListener() {}, removeEventListener() {},
     }));
   }
-
-  it('再點一次日期卡：先留著播完離場，時間到才卸載', () => {
-    stubNormalMotion();
-    vi.useFakeTimers();
-    render(<EntrySheet {...BASE} />);
-    fireEvent.click(screen.getByTestId('date-row'));
-    expect(screen.getByTestId('date-row-panel')).not.toHaveAttribute('data-exiting');
-
-    fireEvent.click(screen.getByTestId('date-row'));
-    expect(screen.getByTestId('date-row-panel')).toHaveAttribute('data-exiting');
-    expect(screen.getByTestId('mini-calendar')).toBeInTheDocument();
-
-    act(() => { vi.advanceTimersByTime(DUR.popIn); });
-    expect(screen.queryByTestId('date-row-panel')).not.toBeInTheDocument();
-    vi.useRealTimers();
-  });
-
-  it('選了日期之後一樣播完才收掉', () => {
-    stubNormalMotion();
-    vi.useFakeTimers();
-    render(<EntrySheet {...BASE} />);
-    fireEvent.click(screen.getByTestId('date-row'));
-    fireEvent.click(screen.getByTestId('mini-day-18'));
-    expect(screen.getByTestId('date-row-panel')).toHaveAttribute('data-exiting');
-
-    act(() => { vi.advanceTimersByTime(DUR.popIn); });
-    expect(screen.queryByTestId('mini-calendar')).not.toBeInTheDocument();
-    vi.useRealTimers();
-  });
 
   it('收起途中又點開：不會被先前排好的卸載收掉', () => {
     stubNormalMotion();

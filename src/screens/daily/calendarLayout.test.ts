@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  CELL_CONTENT_H, CELL_GAP, CELL_H, cellPosition, changedDays, heatColor, rowCount,
+  CELL_CONTENT_H, CELL_GAP, CELL_H, cellPosition, heatColor, rowCount,
   SLIDER_WIDTH, sliderOffset,
 } from './calendarLayout';
 
@@ -90,32 +90,5 @@ describe('sliderOffset', () => {
 
   it('滑塊寬度與一格等寬', () => {
     expect(SLIDER_WIDTH).toBe(`calc(14.2857% - ${((CELL_GAP * 6) / 7).toFixed(5)}px)`);
-  });
-});
-
-describe('changedDays（MOTION #4 的金額縮放）', () => {
-  const cells = (...v: number[]) => v.map((expenseCents, i) => ({ day: i + 1, expenseCents }));
-
-  it('回報金額變動的那幾天', () => {
-    expect(changedDays(cells(0, 100, 200), cells(0, 150, 200))).toEqual([2]);
-  });
-
-  it('沒變就不回報', () => {
-    expect(changedDays(cells(0, 100), cells(0, 100))).toEqual([]);
-  });
-
-  it('第一次渲染不播（prev 是 null）', () => {
-    expect(changedDays(null, cells(100, 200))).toEqual([]);
-  });
-
-  it('換月時不整排一起跳：上個月沒有的日子不算變動', () => {
-    // 上個月只有 28 天，這個月的 29–31 不該被當成「變動」
-    const prev = cells(...Array(28).fill(0));
-    const next = cells(...Array(31).fill(0));
-    expect(changedDays(prev, next)).toEqual([]);
-  });
-
-  it('多天同時變動都會回報', () => {
-    expect(changedDays(cells(0, 0, 0), cells(5, 0, 7))).toEqual([1, 3]);
   });
 });

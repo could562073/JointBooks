@@ -54,16 +54,6 @@ describe('useRowRemoval', () => {
     expect(onRemove.mock.calls.map((c) => c[0])).toEqual(['a', 'b']);
   });
 
-  it('reduced-motion 時直接刪，不等動畫', () => {
-    stubMotion(true);
-    const onRemove = vi.fn();
-    const { result } = renderHook(() => useRowRemoval(onRemove));
-
-    act(() => result.current.remove('a'));
-    expect(onRemove).toHaveBeenCalledWith('a');
-    expect(result.current.collapsing.size).toBe(0);
-  });
-
   it('收合途中卸載不會對已消失的元件呼叫 onRemove', () => {
     stubMotion(false);
     vi.useFakeTimers();

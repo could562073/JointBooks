@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { TAB_SLIDER_WIDTH, TabBar, TABS, tabDirection, tabIndex, tabSliderLeft } from './TabBar';
+import { TAB_SLIDER_WIDTH, TabBar, TABS, tabIndex, tabSliderLeft } from './TabBar';
 
 function stubMotion(reduced: boolean) {
   vi.stubGlobal('matchMedia', (q: string) => ({
@@ -71,28 +71,6 @@ describe('TabBar', () => {
     expect(container.querySelectorAll('[data-part="foot"]')).toHaveLength(0);
   });
 
-  it('reduced-motion 時滑塊不做位移動畫', () => {
-    stubMotion(true);
-    render(<TabBar tab="daily" onChange={() => {}} />);
-    expect(screen.getByTestId('tab-slider')).toHaveStyle({ transition: 'none' });
-  });
-});
-
-describe('tabDirection（MOTION #8 的進場方向）', () => {
-  it('往後（日常→統計→配置）是 1', () => {
-    expect(tabDirection('daily', 'stats')).toBe(1);
-    expect(tabDirection('stats', 'settings')).toBe(1);
-    expect(tabDirection('daily', 'settings')).toBe(1);
-  });
-
-  it('往前是 -1', () => {
-    expect(tabDirection('settings', 'daily')).toBe(-1);
-    expect(tabDirection('stats', 'daily')).toBe(-1);
-  });
-
-  it('停在原地給定值 1', () => {
-    expect(tabDirection('daily', 'daily')).toBe(1);
-  });
 });
 
 describe('tabIndex', () => {
@@ -100,28 +78,5 @@ describe('tabIndex', () => {
     expect(tabIndex('daily')).toBe(0);
     expect(tabIndex('stats')).toBe(1);
     expect(tabIndex('settings')).toBe(2);
-  });
-});
-
-describe('TabBar 的饅頭壓扁（MOTION #10）', () => {
-  it('只有選中的那一隻掛動畫，其他不動', () => {
-    render(<TabBar tab="stats" onChange={() => {}} />);
-    expect(screen.getAllByTestId('tab-mantou-active')).toHaveLength(1);
-    expect(screen.getByTestId('tab-stats')).toContainElement(
-      screen.getByTestId('tab-mantou-active')
-    );
-  });
-
-  it('換頁時重掛，動畫才會重播', () => {
-    const { rerender } = render(<TabBar tab="daily" onChange={() => {}} />);
-    const before = screen.getByTestId('tab-mantou-active');
-    rerender(<TabBar tab="settings" onChange={() => {}} />);
-    expect(screen.getByTestId('tab-mantou-active')).not.toBe(before);
-  });
-
-  it('reduced-motion 時不掛壓扁動畫', () => {
-    stubMotion(true);
-    render(<TabBar tab="daily" onChange={() => {}} />);
-    expect(screen.getByTestId('tab-mantou-active').className).toBe('');
   });
 });

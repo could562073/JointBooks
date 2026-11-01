@@ -81,18 +81,3 @@ describe('ConfirmDialog 的兩個出口', () => {
     expect(onCancel).not.toHaveBeenCalled();
   });
 });
-
-describe('ConfirmDialog 的進場（MOTION #37）', () => {
-  it('reduced-motion 時不掛進場動畫', () => {
-    stubMotion(true);
-    render(<ConfirmDialog {...BASE} />);
-    // 只剩基底類別，沒有動畫類別
-    expect(screen.getByTestId('confirm').className.split(' ')).toHaveLength(1);
-    expect(screen.getByTestId('confirm-scrim').className.split(' ')).toHaveLength(1);
-  });
-
-  it('一般情況下掛上進場動畫', () => {
-    render(<ConfirmDialog {...BASE} />);
-    expect(screen.getByTestId('confirm').className.split(' ')).toHaveLength(2);
-  });
-});

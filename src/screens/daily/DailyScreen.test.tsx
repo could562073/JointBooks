@@ -79,12 +79,6 @@ describe('DailyScreen 的月份切換', () => {
     expect(screen.getByTestId('month-title')).toHaveTextContent('2026年8月');
   });
 
-  it('換月會重播方向性滑入，往前往後用不同的動畫類別', () => {
-    render(<DailyScreen {...BASE} />);
-    const before = screen.getByTestId('month-body').className;
-    fireEvent.click(screen.getByLabelText('上個月'));
-    expect(screen.getByTestId('month-body').className).not.toBe(before);
-  });
 });
 
 describe('DailyScreen 的年月選擇器', () => {

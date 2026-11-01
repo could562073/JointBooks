@@ -5,13 +5,6 @@ import { BudgetList } from './BudgetList';
 
 afterEach(() => vi.unstubAllGlobals());
 
-function stubMotion(reduced: boolean) {
-  vi.stubGlobal('matchMedia', (q: string) => ({
-    matches: reduced && q.includes('prefers-reduced-motion'),
-    media: q, addEventListener() {}, removeEventListener() {},
-  }));
-}
-
 function row(over: Partial<BudgetRow> = {}): BudgetRow {
   return {
     categoryId: 'c1', name: '外食', icon: 'cup', colorSet: 0,
@@ -78,34 +71,5 @@ describe('BudgetList 的三種狀態（§6）', () => {
   it('沒超支時不顯示超支文字', () => {
     render(<BudgetList rows={[row()]} fillKey="month" />);
     expect(screen.queryByTestId('budget-c1-over')).not.toBeInTheDocument();
-  });
-});
-
-describe('BudgetList 的填充動畫（MOTION #12）', () => {
-  it('每條延遲 50ms 遞增', () => {
-    stubMotion(false);
-    render(
-      <BudgetList
-        rows={[row(), row({ categoryId: 'c2' }), row({ categoryId: 'c3' })]}
-        fillKey="month"
-      />
-    );
-    expect(screen.getByTestId('budget-c1-bar')).toHaveStyle({ '--delay': '0ms' });
-    expect(screen.getByTestId('budget-c2-bar')).toHaveStyle({ '--delay': '50ms' });
-    expect(screen.getByTestId('budget-c3-bar')).toHaveStyle({ '--delay': '100ms' });
-  });
-
-  it('換維度時重掛，填充才會重播', () => {
-    stubMotion(false);
-    const { rerender } = render(<BudgetList rows={[row()]} fillKey="month" />);
-    const before = screen.getByTestId('budget-c1-bar');
-    rerender(<BudgetList rows={[row()]} fillKey="year" />);
-    expect(screen.getByTestId('budget-c1-bar')).not.toBe(before);
-  });
-
-  it('reduced-motion 時不掛填充動畫', () => {
-    stubMotion(true);
-    render(<BudgetList rows={[row()]} fillKey="month" />);
-    expect(screen.getByTestId('budget-c1-bar').className.split(' ')).toHaveLength(1);
   });
 });

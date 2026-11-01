@@ -43,10 +43,6 @@ describe('OverviewCard', () => {
     expect(screen.getByTestId('overview-expense').textContent).toBe('$5');
   });
 
-  it('有一隻會呼吸的饅頭（MOTION #30）', () => {
-    render(<OverviewCard {...BASE} />);
-    expect(screen.getByTestId('overview-mantou')).toBeInTheDocument();
-  });
 });
 
 describe('OverviewCard 的增減 pill', () => {

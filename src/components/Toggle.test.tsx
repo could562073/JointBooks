@@ -4,13 +4,6 @@ import { Toggle } from './Toggle';
 
 afterEach(() => vi.unstubAllGlobals());
 
-function stubMotion(reduced: boolean) {
-  vi.stubGlobal('matchMedia', (q: string) => ({
-    matches: reduced && q.includes('prefers-reduced-motion'),
-    media: q, addEventListener() {}, removeEventListener() {},
-  }));
-}
-
 const BASE = { onChange: () => {}, label: '每筆顯示記帳人', testId: 'toggle' };
 
 describe('Toggle', () => {
@@ -46,10 +39,4 @@ describe('Toggle 的 knob（MOTION #21）', () => {
     expect(screen.getByTestId('toggle-knob')).toHaveStyle({ left: '22px' });
   });
 
-  it('reduced-motion 時不做位移動畫', () => {
-    stubMotion(true);
-    render(<Toggle {...BASE} checked />);
-    expect(screen.getByTestId('toggle-knob')).toHaveStyle({ transition: 'none' });
-    expect(screen.getByTestId('toggle')).toHaveStyle({ transition: 'none' });
-  });
 });

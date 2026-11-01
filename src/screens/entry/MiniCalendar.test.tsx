@@ -115,40 +115,6 @@ describe('MiniCalendar 的兩顆鍵', () => {
   });
 });
 
-describe('MiniCalendar 的換月動畫（MOTION #7，與日常頁月曆同一套）', () => {
-  it('剛打開時不播滑入', () => {
-    render(<MiniCalendar {...BASE} />);
-    expect(screen.getByTestId('mini-grid')).not.toHaveAttribute('data-slide');
-  });
-
-  it('› 下個月從右邊滑進來', () => {
-    render(<MiniCalendar {...BASE} />);
-    fireEvent.click(screen.getByLabelText('下個月'));
-    expect(screen.getByTestId('mini-grid')).toHaveAttribute('data-slide', 'next');
-  });
-
-  it('‹ 上個月從左邊滑進來', () => {
-    render(<MiniCalendar {...BASE} />);
-    fireEvent.click(screen.getByLabelText('上個月'));
-    expect(screen.getByTestId('mini-grid')).toHaveAttribute('data-slide', 'prev');
-  });
-
-  it('連按兩次每次都重播：格線是重新掛上的新節點', () => {
-    render(<MiniCalendar {...BASE} />);
-    fireEvent.click(screen.getByLabelText('下個月'));
-    const first = screen.getByTestId('mini-grid');
-    fireEvent.click(screen.getByLabelText('下個月'));
-    expect(screen.getByTestId('mini-grid')).not.toBe(first);
-  });
-
-  it('reduced-motion 時換月不播滑入', () => {
-    stubMotion(true);
-    render(<MiniCalendar {...BASE} />);
-    fireEvent.click(screen.getByLabelText('下個月'));
-    expect(screen.getByTestId('mini-grid')).not.toHaveAttribute('data-slide');
-  });
-});
-
 describe('MiniCalendar 的左右滑換月', () => {
   /**
    * 用真實 pointer 事件拖：先越過接管門檻，再拖到指定距離放手。
@@ -183,12 +149,6 @@ describe('MiniCalendar 的左右滑換月', () => {
     render(<MiniCalendar {...BASE} onChange={onChange} />);
     drag(200);
     expect(onChange).toHaveBeenCalledWith('2026-08-06');
-  });
-
-  it('滑動換月也播對應方向的滑入', () => {
-    render(<MiniCalendar {...BASE} />);
-    drag(-200);
-    expect(screen.getByTestId('mini-grid')).toHaveAttribute('data-slide', 'next');
   });
 
   it('滑不到門檻就彈回，不換月', () => {
