@@ -1,0 +1,344 @@
+/*
+ * 搜尋頁：全螢幕，蓋過日常頁與分頁列（20），在記一筆面板（50）之下。
+ * 外層不捲動，只有內容區捲——搜尋列與分類篩選列固定在上面。
+ */
+.screen {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  background: var(--c-bg);
+  padding-top: calc(12px + env(safe-area-inset-top));
+  /* 規格：從下方上滑進場 */
+  animation: searchIn 260ms var(--ease-enter) both;
+}
+
+@keyframes searchIn {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.top {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+}
+
+.field {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 6px 0 14px;
+  border-radius: var(--r-pill);
+  background: var(--c-card);
+  box-shadow: var(--sh-card);
+}
+
+.glyph {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  color: var(--c-text-3);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  outline: 0;
+  background: none;
+  padding: 0;
+  font-family: var(--f-body);
+  /* 16px 以上 iPhone 才不會在聚焦時自動放大整頁 */
+  font-size: 16px;
+  color: var(--c-text);
+}
+
+.input::placeholder { color: var(--c-text-3); }
+
+/* type=search 的瀏覽器內建 × 拿掉，用自己的清除鈕 */
+.input::-webkit-search-cancel-button,
+.input::-webkit-search-decoration { -webkit-appearance: none; appearance: none; }
+
+.clear {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(74, 63, 54, .08);
+  color: var(--c-text-2);
+  cursor: pointer;
+}
+
+.cancel {
+  flex: none;
+  min-height: 32px;
+  border: 0;
+  background: none;
+  padding: 0;
+  font-family: var(--f-body);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--c-primary-deep);
+  cursor: pointer;
+}
+
+.chips {
+  flex: none;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  /* 陰影在膠囊下面 3px，留空間免得被切掉 */
+  padding: 14px 16px 4px;
+  scrollbar-width: none;
+}
+
+.chips::-webkit-scrollbar { display: none; }
+
+.chip {
+  flex: none;
+  height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--c-card);
+  box-shadow: var(--sh-card);
+  font-family: var(--f-body);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--c-text-2);
+  cursor: pointer;
+}
+
+.chipOn {
+  background: var(--c-text);
+  color: var(--c-bg);
+  box-shadow: none;
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 12px 16px calc(28px + env(safe-area-inset-bottom));
+}
+
+.label {
+  margin: 6px 4px 10px;
+  font-family: var(--f-body);
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--c-text-3);
+}
+
+.recent {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.recentChip {
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: rgba(74, 63, 54, .06);
+  font-family: var(--f-body);
+  font-size: 13.5px;
+  color: var(--c-text);
+  cursor: pointer;
+}
+
+.clock {
+  width: 13px;
+  height: 13px;
+  color: var(--c-text-3);
+}
+
+.summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 4px 4px 14px;
+}
+
+.count {
+  font-family: var(--f-body);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--c-text-3);
+}
+
+.total {
+  font-family: var(--f-body);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--c-primary-deep);
+}
+
+.total,
+.groupTotal { font-variant-numeric: tabular-nums; }
+
+.group + .group { margin-top: 18px; }
+
+.groupHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 6px 8px;
+}
+
+.groupLeft {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.groupTitle {
+  font-family: var(--f-title);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--c-text);
+}
+
+.groupCount,
+.groupTotal {
+  font-family: var(--f-body);
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--c-text-3);
+}
+
+.card {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-radius: var(--r-md);
+  background: var(--c-card);
+  box-shadow: var(--sh-card-lg);
+  overflow: hidden;
+}
+
+.item + .item { border-top: 1px solid rgba(74, 63, 54, .06); }
+
+.row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px 13px 16px;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.date {
+  flex: none;
+  width: 34px;
+  font-family: var(--f-num);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--c-text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.mid {
+  flex: 1;
+  min-width: 0;
+}
+
+.line1 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.pill {
+  flex: none;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  font-family: var(--f-body);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* 品項只有一行，超出顯示省略號 */
+.sub {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--f-body);
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--c-text);
+}
+
+.note {
+  display: block;
+  margin-top: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--f-body);
+  font-size: 11.5px;
+  color: rgba(74, 63, 54, .55);
+}
+
+.expense,
+.income {
+  flex: none;
+  font-family: var(--f-num);
+  font-weight: 700;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.expense { color: var(--c-text); }
+.income  { color: var(--c-search-income); }
+
+.dot {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+}
+
+.mark {
+  background: var(--c-search-mark);
+  color: inherit;
+  border-radius: 3px;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 48px 0;
+}
+
+.emptyText {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--c-text-3);
+}

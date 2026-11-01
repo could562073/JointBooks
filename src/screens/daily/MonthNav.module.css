@@ -76,3 +76,23 @@
   margin-top: -2px;
   text-align: left;
 }
+
+/* 搜尋入口：月份列右側 40px 白色圓鈕，紫色放大鏡 */
+.search {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--c-card);
+  box-shadow: 0 2px 0 rgba(74, 63, 54, .08);
+  color: var(--c-tint-ink);
+  cursor: pointer;
+}
+
+.searchGlyph {
+  width: 20px;
+  height: 20px;
+}

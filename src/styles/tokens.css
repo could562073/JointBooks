@@ -32,6 +32,11 @@
   --c-income-mark: #7DB89D;
   --c-expense: #B85F42;
   --c-expense-bg: #FBEBE4;
+  /* 搜尋頁的收入綠（設計稿給的值，比明細的 --c-income 亮一點） */
+  --c-search-income: #3E8A64;
+  --c-search-income-bg: #E6F4EE;
+  /* 搜尋關鍵字標亮的黃底 */
+  --c-search-mark: #FFE49A;
 
   /* 老婆那顆饅頭（原型外殼的頭像對、明細頭像） */
   --c-partner: #DDA6D0;

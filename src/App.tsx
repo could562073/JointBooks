@@ -20,6 +20,8 @@ import { ledgerRepo } from './repo/ledgerRepo';
 import { DailyScreen } from './screens/daily/DailyScreen';
 import { createMain, createSub } from './screens/entry/entryCategories';
 import { EntrySheet } from './screens/entry/EntrySheet';
+import { SearchScreen } from './screens/search/SearchScreen';
+import { parseDate } from './domain/date';
 import { SettingsScreen } from './screens/settings/SettingsScreen';
 import { StatsScreen } from './screens/stats/StatsScreen';
 import { selectedDate as selectedDateOf, useLedger } from './store/useLedger';
@@ -332,6 +334,8 @@ function Shell({ cloud, sid, account }: { cloud: Cloud | null; sid: string | nul
 
   // null = 面板關著；'new' = 新增；Txn = 編輯那一筆
   const [entry, setEntry] = useState<'new' | Txn | null>(null);
+  // 搜尋頁開著沒。每次開都是新的掛載，關鍵字與篩選自然重置
+  const [searching, setSearching] = useState(false);
   // null = 面板關著。開著時 url 可能仍是 null——那代表這台裝置還沒有雲端帳本
   const [invite, setInvite] = useState<{ url: string | null; sharedWith: string | null } | null>(null);
   // 帳本分享給了誰（受邀者）。先用本機記下的，連上 Google 後以雲端的共用設定為準
@@ -568,6 +572,7 @@ function Shell({ cloud, sid, account }: { cloud: Cloud | null; sid: string | nul
           <DailyScreen
             onEdit={(t) => setEntry(t)}
             onAdd={() => setEntry('new')}
+            onSearch={() => setSearching(true)}
             collapsingTxns={txnRemoval.collapsing}
           />
         )}
@@ -612,6 +617,21 @@ function Shell({ cloud, sid, account }: { cloud: Cloud | null; sid: string | nul
 
       {partnerToast && (
         <Toast key={partnerToast.key} message={partnerToast.text} onDone={clearPartnerToast} />
+      )}
+
+      {searching && (
+        <SearchScreen
+          onClose={() => setSearching(false)}
+          onPick={(t) => {
+            // 回到日常頁，切到那筆的月份並選中那天
+            const d = parseDate(t.date);
+            const s = useLedger.getState();
+            s.setTab('daily');
+            s.setMonth(d.getFullYear(), d.getMonth());
+            s.selectDay(d.getDate());
+            setSearching(false);
+          }}
+        />
       )}
 
       {/*

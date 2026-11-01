@@ -159,3 +159,34 @@ describe('App 的記一筆面板', () => {
         .toHaveAttribute('aria-pressed', 'true'));
   });
 });
+
+describe('App 的搜尋頁', () => {
+  it('從日常頁的放大鏡開啟；點結果後關掉搜尋頁，日常頁切到那筆的月份並選中那天', async () => {
+    const mart = useLedger.getState().categories.find((c) => c.kind === 'expense')!;
+    await useLedger.getState().addTxn({
+      date: '2025-03-17', mainId: mart.id, subId: mart.subs[0]!.id,
+      amountCents: 4_480, currency: 'CAD', actualCadCents: 4_480, by: '我', note: 'Costco',
+    });
+    render(<App />);
+    await waitFor(() => expect(screen.getByTestId('search-open')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByTestId('search-open'));
+    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'costco' } });
+    fireEvent.click(await screen.findByText('Costco', { selector: 'mark' }));
+
+    expect(screen.queryByTestId('search-screen')).not.toBeInTheDocument();
+    const s = useLedger.getState();
+    expect([s.year, s.month, s.selectedDay]).toEqual([2025, 2, 17]);
+    expect(screen.getByTestId('month-title')).toHaveTextContent('2025年3月');
+  });
+
+  it('每次開啟都重置關鍵字', async () => {
+    render(<App />);
+    await waitFor(() => expect(screen.getByTestId('search-open')).toBeInTheDocument());
+    fireEvent.click(screen.getByTestId('search-open'));
+    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'abc' } });
+    fireEvent.click(screen.getByTestId('search-cancel'));
+    fireEvent.click(screen.getByTestId('search-open'));
+    expect(screen.getByTestId('search-input')).toHaveValue('');
+  });
+});

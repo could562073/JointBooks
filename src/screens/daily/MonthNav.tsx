@@ -1,4 +1,5 @@
 import { DUR, EASE } from '../../lib/motion';
+import { SearchGlyph } from '../search/SearchScreen';
 import styles from './MonthNav.module.css';
 import { monthLabel } from './labels';
 
@@ -10,6 +11,8 @@ type Props = {
   onPrev(): void;
   onNext(): void;
   onTogglePicker(): void;
+  /** 右側放大鏡：開搜尋頁。沒給就不顯示 */
+  onSearch?(): void;
 };
 
 /**
@@ -18,7 +21,7 @@ type Props = {
  * 這一層不自己算月份進退——跨年的正確性屬於 store 的 goMonth，已在
  * useLedger.test.ts 驗過，這裡重算一次只會多一個會分岔的來源。
  */
-export function MonthNav({ year, month, pickerOpen, onPrev, onNext, onTogglePicker }: Props) {
+export function MonthNav({ year, month, pickerOpen, onPrev, onNext, onTogglePicker, onSearch }: Props) {
   const { zh, en } = monthLabel(year, month);
 
   return (
@@ -53,6 +56,12 @@ export function MonthNav({ year, month, pickerOpen, onPrev, onNext, onTogglePick
 
         <button className={styles.arrow} onClick={onNext} aria-label="下個月">›</button>
       </div>
+
+      {onSearch && (
+        <button className={styles.search} onClick={onSearch} aria-label="搜尋紀錄" data-testid="search-open">
+          <SearchGlyph className={styles.searchGlyph} />
+        </button>
+      )}
     </nav>
   );
 }
