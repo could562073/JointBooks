@@ -1,10 +1,9 @@
 name: E2E tests
 
-# 真實瀏覽器測試（Playwright）：原本手動清單裡能自動化的互動、手勢、動畫參數、版面都在這裡。
-# 跟部署分開跑、不擋部署：部署那條只跑單元測試，這條失敗時看 Actions 的報告再修。
+# 真實瀏覽器測試（Playwright）：原本手動清單裡能自動化的互動、手勢、版面都在這裡。
+# 正式版已穩定（2026-11），推到 main 不再自動跑，只在需要時從 Actions 頁手動觸發（Run workflow）。
+# 部署那條照樣跑單元測試，通過才發布。
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
